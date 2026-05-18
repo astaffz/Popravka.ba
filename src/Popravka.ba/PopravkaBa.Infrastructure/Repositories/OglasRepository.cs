@@ -18,12 +18,16 @@ namespace PopravkaBa.Infrastructure.Repositories
             => await _context.OglasiMajstora
                 .Include(o => o.Mjesto)
                 .Include(o => o.VlasnikOglasa)
+                .Include(o => o.Kategorije)
+                .Include(o => o.Notifikacije)
                 .ToListAsync();
 
         public async Task<OglasMajstora?> DajPoIdAsync(int id)
             => await _context.OglasiMajstora
                 .Include(o => o.Mjesto)
                 .Include(o => o.VlasnikOglasa)
+                .Include(o => o.Kategorije)
+                .Include(o => o.Notifikacije)
                 .FirstOrDefaultAsync(o => o.OglasID == id);
 
         public async Task DodajAsync(OglasMajstora oglas)
@@ -53,6 +57,8 @@ namespace PopravkaBa.Infrastructure.Repositories
             => await _context.OglasiMajstora
                 .Include(o => o.Mjesto)
                 .Include(o => o.VlasnikOglasa)
+                .Include(o => o.Kategorije)
+                .Include(o => o.Notifikacije)
                 .Where(o => o.Naslov.Contains(pretraga) || o.Opis.Contains(pretraga))
                 .ToListAsync();
     }
@@ -66,16 +72,22 @@ namespace PopravkaBa.Infrastructure.Repositories
             _context = context;
         }
         public async Task<OglasUsluge?> DajPoIdAsync(int id) => 
-            await _context.OglasiUsluga.
-            Include(o => o.VlasnikOglasa).
-            Include(o => o.Mjesto).
-            FirstOrDefaultAsync(o => o.OglasID == id);
+            await _context.OglasiUsluga
+            .Include(o => o.VlasnikOglasa)
+            .Include(o => o.Mjesto)
+            .Include(o => o.Kategorije)
+            .Include(o => o.Notifikacije)
+            .Include(o => o.Ponude)
+            .FirstOrDefaultAsync(o => o.OglasID == id);
 
         public async Task<IEnumerable<OglasUsluge>> DajSveAsync() => 
-            await _context.OglasiUsluga.
-            Include(o => o.VlasnikOglasa).
-            Include(o => o.Mjesto).
-            ToListAsync();
+            await _context.OglasiUsluga
+            .Include(o => o.VlasnikOglasa)
+            .Include(o => o.Mjesto)
+            .Include(o => o.Kategorije)
+            .Include(o => o.Notifikacije)
+            .Include(o => o.Ponude)
+            .ToListAsync();
 
 
 
@@ -89,8 +101,11 @@ namespace PopravkaBa.Infrastructure.Repositories
 
         public async Task<IEnumerable<OglasUsluge>> IzvrsiPretraguTekstaAsync(string pretraga)
             => await _context.OglasiUsluga
-                .Include(o => o.Mjesto)
                 .Include(o => o.VlasnikOglasa)
+                .Include(o => o.Mjesto)
+                .Include(o => o.Kategorije)
+                .Include(o => o.Notifikacije)
+                .Include(o => o.Ponude)
                 .Where(o => o.Naslov.Contains(pretraga) || o.Opis.Contains(pretraga))
                 .ToListAsync();
 
@@ -140,24 +155,40 @@ namespace PopravkaBa.Infrastructure.Repositories
             .Include(orm => orm.Notifikacije)
             .ToListAsync();
 
-        public Task DodajAsync(OglasRadnoMjesto oglas)
+        public async Task DodajAsync(OglasRadnoMjesto oglas)
         {
-            throw new NotImplementedException();
+            oglas.DatumObjave = DateTime.Now;
+            await _context.OglasiRadnogMjesta.AddAsync(oglas);
+            await _context.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<OglasRadnoMjesto>> IzvrsiPretraguTekstaAsync(string pretraga)
+
+        public async Task<IEnumerable<OglasRadnoMjesto>> IzvrsiPretraguTekstaAsync(string pretraga)
+        => await _context.OglasiRadnogMjesta
+            .Include(orm => orm.VozackeDozvole)
+            .Include(orm => orm.Uvjeti)
+            .Include(orm => orm.VlasnikOglasa)
+            .Include(orm => orm.Prijave)
+            .Include(orm => orm.Mjesto)
+            .Include(orm => orm.Kategorije)
+            .Include(orm => orm.Notifikacije)
+            .Where(orm => orm.Naslov.Contains(pretraga) || orm.Opis.Contains(pretraga))
+            .ToListAsync();
+
+        public async Task ObrisiAsync(int id)
         {
-            throw new NotImplementedException();
+            var oglas = await _context.OglasiRadnogMjesta.FindAsync(id);
+            if (oglas is not null) 
+            {
+                _context.OglasiRadnogMjesta.Remove(oglas);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public Task ObrisiAsync(int id)
+        public async Task UrediAsync(OglasRadnoMjesto oglas)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task UrediAsync(OglasRadnoMjesto oglas)
-        {
-            throw new NotImplementedException();
+            _context.OglasiRadnogMjesta.Update(oglas);
+            await _context.SaveChangesAsync();
         }
     }
 }
