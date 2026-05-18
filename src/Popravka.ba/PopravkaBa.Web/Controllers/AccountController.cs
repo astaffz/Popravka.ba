@@ -41,8 +41,7 @@ namespace PopravkaBa.Web.Controllers
         {
             if (!ModelState.IsValid) return View(dto);
 
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-
+            var user = await _userManager.FindByEmailAsync(dto.EmailUsername) ?? await _userManager.FindByNameAsync(dto.EmailUsername);
             if (user == null)
             {
                 ModelState.AddModelError("", "Pogrešni pristupni podaci.");

@@ -15,9 +15,8 @@ namespace PopravkaBa.Application.DTOs
 
     public class LoginDto
     {
-        [Required(ErrorMessage = "Email je obavezan.")]
-        [EmailAddress(ErrorMessage = "Unesite validnu email adresu.")]
-        public string Email { get; set; }
+        [Required(ErrorMessage = "Email ili korisničko ime je obavezno.")]
+        public string EmailUsername { get; set; }
 
         [Required(ErrorMessage = "Lozinka je obavezna.")]
         [DataType(DataType.Password)]
