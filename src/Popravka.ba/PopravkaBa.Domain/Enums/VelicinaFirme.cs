@@ -9,15 +9,15 @@ namespace PopravkaBa.Domain.Enums
 {
     public enum VelicinaFirme
     {
-        [Display(Name = "Mikro (1-5)")]
-        Mikro = 1,
-        [Display(Name = "Mala (5-20)")]
+        [Display(Name = "Mikro (1-9)")]
+        Mikro = 0,
+        [Display(Name = "Mala (10-50)")]
         Mala = 1,
 
-        [Display(Name = "Srednja (20-50)")]
+        [Display(Name = "Srednja (51-100)")]
         Srednja = 2,
 
-        [Display(Name = "Velika (50+)")]
+        [Display(Name = "Velika (100+)")]
         Velika = 3
     }
 }
