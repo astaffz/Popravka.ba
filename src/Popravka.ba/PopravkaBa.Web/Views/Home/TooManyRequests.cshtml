@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Previše zahtjeva - Popravka.ba";
+    Layout = "_Layout";
+}
+
+<section class="error-page">
+    <div class="error-page-inner">
+        <img src="~/images/dejton.webp" alt="Dejton" class="error-page-image" />
+        <h1 class="error-page-code">429</h1>
+        <h2 class="error-page-title">Previše pokušaja</h2>
+        <p class="error-page-text">
+            Pokušajte ponovo za koji minut.
+        </p>
+        <a asp-controller="Home" asp-action="Index" class="error-page-btn">
+            Nazad na početnu
+        </a>
+    </div>
+</section>

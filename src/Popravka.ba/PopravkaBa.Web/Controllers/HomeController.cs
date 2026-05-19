@@ -4,7 +4,7 @@ using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Web.Models.ViewModels;
 using System.Diagnostics;
 
-namespace Popravka.ba.Controllers
+namespace PopravkaBa.Web.Controllers
 {
     public class HomeController : Controller
     {
@@ -26,7 +26,7 @@ namespace Popravka.ba.Controllers
                 Mjesta = await _mjestoService.DajSvaMjestaAsync(),
                 BrojRealiziranihUsluga = await _oglasUslugeService.DajBrojZavrsenihAsync()
             };
-            ViewData["Title"] = "Popravka.ba";
+            ViewData["Title"] = "Popravka.ba - Vaš online prostor za provjerene usluge";
             return View(vm);
         }
 
@@ -50,7 +50,7 @@ namespace Popravka.ba.Controllers
             {
                 404 => View("NotFound"),
                // 403 => View("Forbidden"), TODO: Napraviti View za 403
-               429 => View("NotFound"), // TODO: Napraviti View za 429
+               429 => View("TooManyRequests"), // TODO: Napraviti View za 429
                500 => View("InternalServerError"), // TODO: Napraviti View za 500
                 _ => View("Error")
             };
