@@ -51,6 +51,7 @@ namespace Popravka.ba.Controllers
                 404 => View("NotFound"),
                // 403 => View("Forbidden"), TODO: Napraviti View za 403
                429 => View("NotFound"), // TODO: Napraviti View za 429
+               500 => View("InternalServerError"), // TODO: Napraviti View za 500
                 _ => View("Error")
             };
         }
