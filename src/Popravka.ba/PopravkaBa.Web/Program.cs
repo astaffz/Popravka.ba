@@ -62,6 +62,8 @@ builder.Services.AddScoped<IOglasMajstoraRepository, OglasMajstoraRepository>();
 
 builder.Services.AddScoped<IOglasRadnoMjestoService, OglasRadnoMjestoService>();
 builder.Services.AddScoped<IOglasRadnoMjestoRepository, OglasRadnoMjestoRepository>();
+builder.Services.AddScoped<IUvjetOglasaRepository, UvjetOglasaRepository>();
+builder.Services.AddScoped<IUvjetOglasaService, UvjetOglasaService>();
 
 builder.Services.AddScoped<IOglasUslugeService, OglasUslugeService>();
 builder.Services.AddScoped<IOglasUslugeRepository, OglasUslugeRepository>();
@@ -74,6 +76,7 @@ builder.Services.AddScoped<IOglasUslugeFacade, OglasUslugeFacade>();
 builder.Services.AddScoped<IPonudaUslugeService, PonudaUslugeService>();
 // builder.Services.AddScoped<IPrijavaOglasService, PrijavaOglasService>();
 builder.Services.AddScoped<IRecenzijaService, RecenzijaService>();
+
 
 
 builder.Services.AddScoped<IEmailSender, SmtpEmailAdapter>();

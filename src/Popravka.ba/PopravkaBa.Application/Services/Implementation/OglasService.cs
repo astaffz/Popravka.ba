@@ -109,7 +109,8 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
 
             await _repo.ObrisiAsync(id); 
         }
-        public Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija);
+        // TODO: Implementirati pretragu preko lokacije u OglasRepository zbog pocetne stranice
+        public async Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija) => await _repo.IzvrsiPretraguTekstaAsync(pretraga);
         public async Task UrediOglas(UrediOglasRadnoMjestoDto dto)
         {
             var oglas = await _repo.DajPoIdAsync(dto.OglasID);

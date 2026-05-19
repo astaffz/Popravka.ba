@@ -69,6 +69,7 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Where(o => o.MjestoID == mjestoId)
                 .ToListAsync();
 
+        
         public async Task<IEnumerable<OglasRadnoMjesto>> DajOglaseRadnogMjestaPoMjestu(int mjestoId)
             => await _context.OglasiRadnogMjesta
                 .Include(o => o.VlasnikOglasa)
