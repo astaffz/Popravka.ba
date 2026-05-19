@@ -116,7 +116,7 @@ namespace PopravkaBa.Application.DTOs
         public int? StambeniBroj { get; set; }
 
         [Required(ErrorMessage = "Unesite veličinu firme.")]
-        public VelicinaFirme VelicinaFirme { get; set; } = VelicinaFirme.Mala;
+        public VelicinaFirme VelicinaFirme { get; set; } = VelicinaFirme.Mikro;
 
 
         [Url(ErrorMessage = "Unesite validnu URL adresu.")]

@@ -37,6 +37,7 @@ namespace PopravkaBa.Application.Services
         {
             await _oglasService.UrediOglas(dto);
             await _kategorijaService.AzurirajKategorijeOglasa(dto.OglasID, dto.KategorijeID);
+
         }
 
         public async Task ObrisiOglas(int oglasId)
@@ -50,41 +51,50 @@ namespace PopravkaBa.Application.Services
     {
         private readonly IOglasRadnoMjestoService _oglasService;
         private readonly IKategorijaService _kategorijaService;
+        private readonly IUvjetOglasaService _uvjetiService;
+       // private readonly IVozackeDozvoleService _vozackeDozvoleService; TODO: Dodati vozacke dozvole service u OglasRadnoMjestoFacade
 
-        public OglasRadnoMjestoFacade(IOglasRadnoMjestoService oglasService, IKategorijaService kategorijaService)
+        public OglasRadnoMjestoFacade(IOglasRadnoMjestoService oglasService, IKategorijaService kategorijaService, IUvjetOglasaService uvjetiService)
         {
             _oglasService = oglasService;
             _kategorijaService = kategorijaService;
+            _uvjetiService = uvjetiService;
         }
 
-        public async Task<IEnumerable<OglasRadnoMjesto>> DajSveOglase()
+        public async Task<IEnumerable<OglasRadnoMjesto?>> DajSveOglase()
             => await _oglasService.DajSveOglase();
 
         public async Task<OglasRadnoMjesto?> DajOglasPoId(int id)
             => await _oglasService.DajOglasPoId(id);
 
-        public async Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija)
+        public async Task<IEnumerable<OglasRadnoMjesto?>> PronadjiOglase(string pretraga, int? lokacija)
             => await _oglasService.PronadjiOglase(pretraga, lokacija);
 
-        public async Task<IEnumerable<Kategorija>> DajSveKategorije()
+        public async Task<IEnumerable<Kategorija?>> DajSveKategorije()
             => await _kategorijaService.DajSveKategorije();
+      //+  public async Task<IEnumerable<Kategorija?>> DajSveKategorijeOglasa(int id) => await _kategorijaService.DajSveKategorijeOglasa();
+        public async Task<IEnumerable<UvjetOglasa?>> DajSveUvjeteOglasa(int id)
+            => await _uvjetiService.DajSveUvjeteOglasa(id);
 
         public async Task ObjaviOglas(ObjaviOglasRadnoMjestoDto dto, string vlasnikId)
         {
             var oglasId = await _oglasService.ObjaviOglas(dto, vlasnikId);
             await _kategorijaService.DodajKategorijeOglasu(oglasId, dto.KategorijeID);
+            await _uvjetiService.DodajUvjeteOglasu(oglasId, dto.Uvjeti);
         }
 
         public async Task UrediOglas(UrediOglasRadnoMjestoDto dto)
         {
             await _oglasService.UrediOglas(dto);
             await _kategorijaService.AzurirajKategorijeOglasa(dto.OglasID, dto.KategorijeID);
+            await _uvjetiService.AzurirajUvjeteOglasa(dto.OglasID, dto.Uvjeti);
         }
 
         public async Task ObrisiOglas(int oglasId)
         {
             await _kategorijaService.UkloniSveKategorijeOglasa(oglasId);
             await _oglasService.ObrisiOglas(oglasId);
+            await _uvjetiService.UkloniSveUvjeteOglasa(oglasId);
         }
     }
 
@@ -130,7 +140,7 @@ namespace PopravkaBa.Application.Services
             await _oglasService.ObrisiOglas(oglasId);
         }
 
-        public async Task<int> DajBrojZavrsenihAsync()  =>await _oglasService.DajBrojZavrsenihAsync();
+        public async Task<int> DajBrojZavrsenihAsync()  => await _oglasService.DajBrojZavrsenihAsync();
         
     }
 }

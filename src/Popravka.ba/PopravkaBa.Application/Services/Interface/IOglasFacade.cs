@@ -16,10 +16,11 @@ namespace PopravkaBa.Application.Services.Interface
 
     public interface IOglasRadnoMjestoFacade
     {
-        Task<IEnumerable<OglasRadnoMjesto>> DajSveOglase();
+        Task<IEnumerable<OglasRadnoMjesto?>> DajSveOglase();
         Task<OglasRadnoMjesto?> DajOglasPoId(int id);
-        Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija);
-        Task<IEnumerable<Kategorija>> DajSveKategorije();
+        Task<IEnumerable<OglasRadnoMjesto?>> PronadjiOglase(string pretraga, int? lokacija);
+        Task<IEnumerable<Kategorija?>> DajSveKategorije();
+        Task<IEnumerable<UvjetOglasa?>> DajSveUvjeteOglasa(int id);
         Task ObjaviOglas(ObjaviOglasRadnoMjestoDto dto, string vlasnikId);
         Task UrediOglas(UrediOglasRadnoMjestoDto dto);
         Task ObrisiOglas(int oglasId);
