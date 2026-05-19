@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Popravka.ba.Data;
 using PopravkaBa.Application.Services;
@@ -6,8 +7,10 @@ using PopravkaBa.Application.Services.Implementation;
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Interfaces.Repositories;
+using PopravkaBa.Domain.Models;
 using PopravkaBa.Infrastructure.Adapters;
 using PopravkaBa.Infrastructure.Repositories;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +19,34 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.User.RequireUniqueEmail = true;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 10;
+    options.Lockout.AllowedForNewUsers = true;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
 builder.Services.AddControllersWithViews();
+
+// Dodaj rate limiter
+builder.Services.AddRateLimiter(options =>
+{
+    // Login rate limiter
+    options.AddPolicy("auth", httpContext =>
+    RateLimitPartition.GetFixedWindowLimiter(
+        // Particijski rate limiter, vrši rate limit po IP adresi umjesto globalno za sve korisnike
+        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        factory: _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 // TODO 1HIGHPRIORITY: Da li implementirati na engleskom aplikaciju?
 // TODO Registriraj sve dependency injectione po dodavanju, implementirati zakomentarisane
@@ -47,16 +74,12 @@ builder.Services.AddScoped<IPonudaUslugeService, PonudaUslugeService>();
 builder.Services.AddScoped<IRecenzijaService, RecenzijaService>();
 
 
-
-
-
-
-
 builder.Services.AddScoped<IEmailSender, SmtpEmailAdapter>();
+
 
 var app = builder.Build();
 
-// Lokalni blok koda za kreiranje uloga
+// Lokalni blok koda za kreiranje uloga pri pokretanju aplikacije, NE STAVITI IZNAD LINIJE builder.Build()!
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -82,15 +105,15 @@ else
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
-
 app.Run();

@@ -48,8 +48,8 @@ namespace Popravka.ba.Data
             builder.Entity<EmailNotifikacijaOglas>().ToTable("EmailNotifikacijaOglasa");
             builder.Entity<EmailVerifikacijaFirme>().ToTable("EmailVerifikacijaFirme");
             builder.Entity<IzvrsilacKategorija>().ToTable("IzvrsilacKategorija");
-            builder.Entity<Kategorija>().ToTable("Kategorija");
-            builder.Entity<KorisnikMjesto>().ToTable("KorisnikMjesto");
+            builder.Entity<Kategorija>().ToTable("Kategorija"); 
+            builder.Entity<KorisnikMjesto>().ToTable("KorisnikMjesto"); 
             builder.Entity<Mjesto>().ToTable("Mjesto");
             builder.Entity<OglasKategorija>().ToTable("OglasKategorija");
             builder.Entity<OglasMajstora>().ToTable("OglasMajstora");

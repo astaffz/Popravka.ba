@@ -14,6 +14,7 @@ namespace PopravkaBa.Domain.Models
         [ForeignKey("Klijent")]
         public string KlijentID { get; set; }
         public Klijent Klijent { get; set; }
+
         [ForeignKey("IzvrsilacUsluge")]
         public string IzvrsilacID { get; set; }
         public IzvrsilacUsluge Izvrsilac { get; set; }

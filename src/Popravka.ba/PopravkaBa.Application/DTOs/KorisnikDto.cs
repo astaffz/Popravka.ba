@@ -22,7 +22,7 @@ namespace PopravkaBa.Application.DTOs
         [DataType(DataType.Password)]
         public string Lozinka { get; set; }
         // Potrebno za signInManager
-        public bool ZapamtiMe { get; set; }
+        public bool ZapamtiMe { get; set; } = false;
     }
 
     public class RegistracijaKlijentaDto

@@ -11,5 +11,6 @@ namespace PopravkaBa.Domain.Models
         public string? Slika { get; set; }
         public ICollection<Oglas>? Oglasi { get; set; }
 
+
     }
 }

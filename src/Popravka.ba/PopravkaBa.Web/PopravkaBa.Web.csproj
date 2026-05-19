@@ -26,4 +26,8 @@
     <Folder Include="Views\Oglas\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Views\Account\Registracija.cshtml" />
+  </ItemGroup>
+
 </Project>

@@ -126,7 +126,7 @@ namespace PopravkaBa.Infrastructure.Repositories
         }
     }
 
-    // TODO Implementirati OglasRadnoMjestoRepository REPOSITORIES
+
     // TODO 1HIGHPRIORITY: Provjeriti da li su svi navigation propertyevi pravilno povezani na queryeve
     public class OglasRadnoMjestoRepository : IOglasRadnoMjestoRepository
     {

@@ -7,10 +7,13 @@ namespace PopravkaBa.Domain.Models
 {
     public abstract class Oglas
     {
+
+        
         [Key]
         public int OglasID { get; set; }
         public string Naslov { get; set; }
         public string Opis { get; set; }
+        // TODO: Da li prebaciti na DateTime.UtcNow za standardiziran datetime?
         public DateTime DatumObjave { get; set; }
         [ForeignKey("Mjesto")]
         public int MjestoID { get; set; }
