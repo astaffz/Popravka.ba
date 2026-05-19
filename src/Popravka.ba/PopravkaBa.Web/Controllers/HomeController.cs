@@ -28,5 +28,18 @@ namespace Popravka.ba.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        [Route("/greska/{code:int}")]
+        public IActionResult StatusCode(int code)
+        {
+            Response.StatusCode = code;
+
+            return code switch
+            {
+                404 => View("NotFound"),
+               // 403 => View("Forbidden"), TODO: Napraviti View za 403
+                _ => View("Error")
+            };
+        }
     }
 }
