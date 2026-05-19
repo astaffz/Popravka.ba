@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Domain.Models;
+using PopravkaBa.Web.Models.Enums;
+using PopravkaBa.Web.Models.ViewModels;
 
 namespace PopravkaBa.Web.Controllers
 {
@@ -32,18 +35,31 @@ namespace PopravkaBa.Web.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Login() => View();
-
+        [HttpGet("/login")]
+        public IActionResult Login()
+        {
+            var vm = new RegistracijaViewModel
+            {
+                ActiveTab = AuthTab.Prijava,
+               
+            };
+            ViewData["Title"] = "Prijava – Popravka.ba";
+            return View("Registracija",vm);
+        }
         [AllowAnonymous]
-        [HttpPost]
+        [EnableRateLimiting("auth")]
+        [HttpPost("/login")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginDto dto)
         {
             if (!ModelState.IsValid) return View(dto);
 
             var user = await _userManager.FindByEmailAsync(dto.EmailUsername) ?? await _userManager.FindByNameAsync(dto.EmailUsername);
-            if (user == null)
-            {
+            if (user == null) {
+            
+                // Dummy provjera lozinke, ne odati da profil ne postoji vraćajući brži request od profila da postoji čekajući na PasswordSignInAsync
+                _userManager.PasswordHasher.VerifyHashedPassword(new ApplicationUser(), "AQAAAAEAACcQAAAAE...", dto.Lozinka);
+
                 ModelState.AddModelError("", "Pogrešni pristupni podaci.");
                 return View(dto);
             }
@@ -52,7 +68,7 @@ namespace PopravkaBa.Web.Controllers
                 user.UserName,
                 dto.Lozinka,
                 dto.ZapamtiMe, 
-                lockoutOnFailure: false);
+                lockoutOnFailure: true);
 
             if (!signInResult.Succeeded)
             {
@@ -65,7 +81,8 @@ namespace PopravkaBa.Web.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [EnableRateLimiting("auth")]
+        [HttpPost("/logout")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
@@ -74,17 +91,17 @@ namespace PopravkaBa.Web.Controllers
         }
 
 
-
  
         [AllowAnonymous]
-        [HttpPost]
+        [EnableRateLimiting("auth")]
+        [HttpPost("/register/klijent")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistracijaKlijenta(RegistracijaKlijentaDto dto)
         {
             if (!ModelState.IsValid)
             {
                 ViewBag.Mjesta = await _mjestoService.DajSvaMjestaAsync();
-                return View(dto);
+                return View("Registracija",dto);
             }
 
             var user = new Klijent
@@ -114,24 +131,39 @@ namespace PopravkaBa.Web.Controllers
 
 
         [AllowAnonymous]
+        [HttpGet("/register")]
         public async Task<IActionResult> Registracija()
         {
-            ViewBag.Kategorije = await _kategorijaService.DajSveKategorije();
-            ViewBag.Mjesta = await _mjestoService.DajSvaMjestaAsync();
-            return View();
+            var vm = new RegistracijaViewModel
+            {
+                Mjesta = await _mjestoService.DajSvaMjestaAsync(),
+                Kategorije = await _kategorijaService.DajSveKategorije(),
+                ActiveTab = AuthTab.Registracija,
+                
+            };
+            ViewData["Title"] = "Registracija – Popravka.ba";
+            return View(vm);
         }
 
    
         [AllowAnonymous]
-        [HttpPost]
+        [EnableRateLimiting("auth")]
+        [HttpPost("/register/majstor")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistracijaMajstora(RegistracijaMajstoraDto dto)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Kategorije = await _kategorijaService.DajSveKategorije();
-                ViewBag.Mjesta = await _mjestoService.DajSvaMjestaAsync();
-                return View(dto);
+                // Vrati na istu stranicu, rebuildaj ViewModel
+
+                var vm = new RegistracijaViewModel
+                {
+                    Kategorije = await _kategorijaService.DajSveKategorije(),
+                    Mjesta = await _mjestoService.DajSvaMjestaAsync(),
+                    ActiveTab = AuthTab.Registracija,
+                    MajstorDTO = dto  // Šta je korisnik do tada napisao
+                };
+                return View("Registracija", vm);
             }
 
             var user = new Majstor
@@ -150,10 +182,18 @@ namespace PopravkaBa.Web.Controllers
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError("", error.Description);
-                ViewBag.Kategorije = await _kategorijaService.DajSveKategorije();
-                ViewBag.Mjesta = await _mjestoService.DajSvaMjestaAsync();
+
+                // Rebuildaj ViewModel
+                var vm = new RegistracijaViewModel
+                {
+                    Kategorije = await _kategorijaService.DajSveKategorije(),
+                    Mjesta = await _mjestoService.DajSvaMjestaAsync(),
+                    ActiveTab = AuthTab.Registracija,
+                    MajstorDTO = dto
+                };
+                
                 // Po UIu dijelimo sve na istom Viewu, ne radimo tri različita.
-                return View("Registracija",dto);
+                return View("Registracija",vm);
             }
 
             await _userManager.AddToRoleAsync(user, "Majstor");
@@ -171,7 +211,8 @@ namespace PopravkaBa.Web.Controllers
        
        
         [AllowAnonymous]
-        [HttpPost]
+        [EnableRateLimiting("auth")]
+        [HttpPost("/register/firma")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistracijaFirme(RegistracijaFirmeDto dto)
         {
@@ -179,7 +220,7 @@ namespace PopravkaBa.Web.Controllers
             {
                 ViewBag.Kategorije = await _kategorijaService.DajSveKategorije();
                 ViewBag.Mjesta = await _mjestoService.DajSvaMjestaAsync();
-                return View(dto);
+                return View("Registracija",dto);
             }
 
             var user = new Firma
@@ -192,6 +233,7 @@ namespace PopravkaBa.Web.Controllers
                 VelicinaFirme = dto.VelicinaFirme,
                 WebStranica = dto.WebStranica,
                 DatumOsnivanja = DateOnly.FromDateTime(dto.DatumOsnivanja),
+                // TODO: Da li spasiti kao DateTime.UtcNow? 
                 DatumRegistracije = DateTime.Now
             };
 
