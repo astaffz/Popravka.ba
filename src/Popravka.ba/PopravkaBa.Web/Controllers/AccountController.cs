@@ -40,8 +40,7 @@ namespace PopravkaBa.Web.Controllers
         {
             var vm = new RegistracijaViewModel
             {
-                ActiveTab = AuthTab.Prijava,
-               
+                ActiveTab = AuthTab.Prijava
             };
             ViewData["Title"] = "Prijava – Popravka.ba";
             return View("Registracija",vm);
@@ -50,9 +49,10 @@ namespace PopravkaBa.Web.Controllers
         [EnableRateLimiting("auth")]
         [HttpPost("/login")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginDto dto)
+        public async Task<IActionResult> Login(RegistracijaViewModel vm)
         {
-            if (!ModelState.IsValid) return View(dto);
+            var dto = vm.Login;
+            if (!ModelState.IsValid) return View("Registracija",vm);
 
             var user = await _userManager.FindByEmailAsync(dto.EmailUsername) ?? await _userManager.FindByNameAsync(dto.EmailUsername);
             if (user == null) {
@@ -61,7 +61,7 @@ namespace PopravkaBa.Web.Controllers
                 _userManager.PasswordHasher.VerifyHashedPassword(new ApplicationUser(), "AQAAAAEAACcQAAAAE...", dto.Lozinka);
 
                 ModelState.AddModelError("", "Pogrešni pristupni podaci.");
-                return View(dto);
+                return View("Registracija",vm);
             }
 
             var signInResult = await _signInManager.PasswordSignInAsync(
@@ -73,7 +73,7 @@ namespace PopravkaBa.Web.Controllers
             if (!signInResult.Succeeded)
             {
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
-                return View(dto);
+                return View("Registracija",vm);
             }
 
             // vrati na početnu stranicu
@@ -258,5 +258,8 @@ namespace PopravkaBa.Web.Controllers
             TempData["Success"] = "Registracija uspješna.";
             return RedirectToAction("Index", "Home");
         }
+
+        // TODO: Implementirati reset lozinke
+        // public async Task<IActionResult> ZaboravljenaLozinka();
     }
 }
