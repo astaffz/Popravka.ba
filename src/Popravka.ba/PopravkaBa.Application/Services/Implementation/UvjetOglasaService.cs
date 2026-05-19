@@ -17,16 +17,13 @@ namespace PopravkaBa.Application.Services
 
         public async Task DodajUvjeteOglasu(int oglasId, List<string> uvjeti)
             => await _repo.DodajUvjeteOglasu(oglasId, uvjeti);
-
-        public async Task UkloniSveUvjetiOglasa(int oglasId)
-            => await _repo.UkloniSveUvjeteOglasa(oglasId);
-        public async Task AzurirajUvjetiOglasa(int oglasId, List<string> uvjeti)
+        public async Task AzurirajUvjeteOglasa(int oglasId, List<string> uvjeti)
             => await _repo.AzurirajUvjeteOglasa(oglasId, uvjeti);
 
         public async Task<UvjetOglasa?> DajUvjetPoIdAsync(int id) => await _repo.DajUvjetPoIdAsync(id);
         public async Task UkloniSveUvjeteOglasa(int oglasId) => await _repo.UkloniSveUvjeteOglasa(oglasId);
 
-        public async Task AzurirajUvjeteOglasa(int oglasId, List<string> uvjeti) => await _repo.AzurirajUvjeteOglasa(oglasId, uvjeti);
+      
        
     }
 }
