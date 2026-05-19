@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Popravka.ba.Models;
+using PopravkaBa.Application.Services.Interface;
+using PopravkaBa.Web.Models.ViewModels;
 using System.Diagnostics;
 
 namespace Popravka.ba.Controllers
@@ -7,15 +9,25 @@ namespace Popravka.ba.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IMjestoService _mjestoService;
+        private readonly IOglasUslugeService _oglasUslugeService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IMjestoService mjestoService, IOglasUslugeService oglasUslugeService)
         {
             _logger = logger;
+            _mjestoService = mjestoService;
+            _oglasUslugeService = oglasUslugeService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var vm = new HomeViewModel
+            {
+                Mjesta = await _mjestoService.DajSvaMjestaAsync(),
+                BrojRealiziranihUsluga = await _oglasUslugeService.DajBrojZavrsenihAsync()
+            };
+            ViewData["Title"] = "Popravka.ba";
+            return View(vm);
         }
 
         public IActionResult Privacy()

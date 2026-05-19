@@ -10,7 +10,7 @@ namespace PopravkaBa.Application.Services.Interface
         Task<int> ObjaviOglas(ObjaviOglasMajstoraDto dto, string vlasnikId);
         Task UrediOglas(UrediOglasMajstoraDto dto);
         Task ObrisiOglas(int id);
-        Task<IEnumerable<OglasMajstora>> PronadjiOglase(string pretraga);
+        Task<IEnumerable<OglasMajstora>> PronadjiOglase(string pretraga, int? lokacija);
     }
 
     public interface IOglasRadnoMjestoService
@@ -20,7 +20,7 @@ namespace PopravkaBa.Application.Services.Interface
         Task<int> ObjaviOglas(ObjaviOglasRadnoMjestoDto dto,string vlasnikId);
         Task UrediOglas(UrediOglasRadnoMjestoDto dto);
         Task ObrisiOglas(int id);
-        Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga);
+        Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija);
     }
 
     public interface IOglasUslugeService
@@ -30,7 +30,9 @@ namespace PopravkaBa.Application.Services.Interface
         Task<int> ObjaviOglas(ObjaviOglasUslugeDto dto, string vlasnikId);
         Task UrediOglas(UrediOglasUslugeDto dto);
         Task ObrisiOglas(int id);
-        Task<IEnumerable<OglasUsluge>> PronadjiOglase(string pretraga);
+        Task<IEnumerable<OglasUsluge>> PronadjiOglase(string pretraga, int? lokacija);
+
+        Task<int> DajBrojZavrsenihAsync();
     }
 }
    

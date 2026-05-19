@@ -62,7 +62,9 @@ builder.Services.AddScoped<IOglasMajstoraRepository, OglasMajstoraRepository>();
 
 builder.Services.AddScoped<IOglasRadnoMjestoService, OglasRadnoMjestoService>();
 builder.Services.AddScoped<IOglasRadnoMjestoRepository, OglasRadnoMjestoRepository>();
+
 builder.Services.AddScoped<IOglasUslugeService, OglasUslugeService>();
+builder.Services.AddScoped<IOglasUslugeRepository, OglasUslugeRepository>();
 
 builder.Services.AddScoped<IOglasMajstoraFacade, OglasMajstoraFacade>();
 builder.Services.AddScoped<IOglasRadnoMjestoFacade, OglasRadnoMjestoFacade>();

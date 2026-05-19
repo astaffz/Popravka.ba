@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Application.Services
 {
+   
     public class RecenzijaService : IRecenzijaService
     {
         public Task<IEnumerable<Recenzija>> DajRecenzijeKlijenta(string klijentId)

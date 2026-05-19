@@ -1,30 +1,29 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PopravkaBa.Domain.Models
 @inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav">
+<ul class="navbar-nav gap-2 align-items-center">
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index" title="Profil">
+            <a class="nav-link" asp-controller="Home" asp-action="Index">
                 Pozdrav, @User.Identity?.Name!
             </a>
         </li>
         <li class="nav-item">
-            <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="nav-link btn btn-link text-dark">Odjava</button>
+                <button type="submit" class="btn btn-outline-primary">Odjava</button>
             </form>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Registracija">Registracija</a>
+            <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Prijava</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Prijava</a>
+            <a class="btn btn-primary" asp-controller="Account" asp-action="Registracija">Registracija</a>
         </li>
     }
 </ul>

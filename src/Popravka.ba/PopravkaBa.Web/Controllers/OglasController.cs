@@ -22,12 +22,13 @@ namespace PopravkaBa.Web.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string? pretraga)
+        public async Task<IActionResult> Index(string? pretragaTekst, int? lokacija)
         {
-            var oglasi = string.IsNullOrWhiteSpace(pretraga)
+            var oglasi = string.IsNullOrWhiteSpace(pretragaTekst) && lokacija == null
                 ? await _facadeService.DajSveOglase()
-                : await _facadeService.PronadjiOglase(pretraga);
-            ViewBag.Search = pretraga;
+                : await _facadeService.PronadjiOglase(pretragaTekst,lokacija);
+            // TODO: Prebaciti u ViewModel
+            ViewBag.Search = pretragaTekst;
             return View(oglasi);
         }
 
@@ -157,12 +158,13 @@ namespace PopravkaBa.Web.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string? pretraga)
+        public async Task<IActionResult> Index(string? pretragaTekst, int? lokacija)
         {
-            var oglasi = string.IsNullOrWhiteSpace(pretraga)
+            var oglasi = string.IsNullOrWhiteSpace(pretragaTekst) && lokacija == null
                 ? await _facadeService.DajSveOglase()
-                : await _facadeService.PronadjiOglase(pretraga);
-            ViewBag.Search = pretraga;
+                : await _facadeService.PronadjiOglase(pretragaTekst, lokacija);
+            // TODO: Prebaciti u ViewModel
+            ViewBag.Search = pretragaTekst;
             return View(oglasi);
         }
 
@@ -290,12 +292,13 @@ namespace PopravkaBa.Web.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string? pretraga)
+        public async Task<IActionResult> Index(string? pretragaTekst, int? lokacija)
         {
-            var oglasi = string.IsNullOrWhiteSpace(pretraga)
+            var oglasi = string.IsNullOrWhiteSpace(pretragaTekst) && lokacija == null
                 ? await _facadeService.DajSveOglase()
-                : await _facadeService.PronadjiOglase(pretraga);
-            ViewBag.Search = pretraga;
+                : await _facadeService.PronadjiOglase(pretragaTekst, lokacija);
+            // TODO: Prebaciti u ViewModel
+            ViewBag.Search = pretragaTekst;
             return View(oglasi);
         }
 

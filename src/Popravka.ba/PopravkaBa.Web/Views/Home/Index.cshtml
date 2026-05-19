@@ -1,8 +1,58 @@
-﻿@{
-    ViewData["Title"] = "Popravka.ba";
-}
+﻿@model HomeViewModel
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+<section class="hero">
+    <div class="hero-inner">
+        <h1 class="hero-title">
+            Vaš online prostor<br>
+            <span class="hero-title-accent">za provjerene usluge.</span>
+        </h1>
+
+        <div class="hero-actions">
+               <!-- TODO: Pravilno odrediti i povezati view pretrage majstora-->
+            <a class="hero-btn" asp-controller="Oglas" asp-action="Pretraga">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Pretraži majstore
+            </a>
+            <!-- TODO: Odrediti koji kontroler staviti za oglas-->
+            <a class="hero-btn hero-btn--primary" asp-controller="Oglas" asp-action="ObjaviOglas">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Postavi oglas
+            </a>
+        </div>
+
+        <p class="hero-stat">@Model.BrojRealiziranihUsluga+ uspješno realiziranih usluga.</p>
+             <!-- TODO: Odrediti koji kontroler staviti za oglas-->
+        <form class="hero-search" asp-controller="Oglas" asp-action="Index" method="get">
+            <div class="hero-search-input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <!-- pretragaTekst = naziv varijable u OglasController.Pretraga()-->
+                <input type="text" name="pretragaTekst" placeholder="Treba mi... (Vodoinstalater, Naziv majstora/firme, ...)" />
+            </div>
+            <select name="lokacija" class="hero-search-select">
+                <option value="">Lokacija</option>
+                @foreach (var m in Model.Mjesta)
+                {
+                    <option value="@m.MjestoID">@m.Naziv</option>
+                }
+            </select>
+            
+            <button type="submit" class="hero-search-submit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Pretraži
+            </button>
+        </form>
+    </div>
+</section>

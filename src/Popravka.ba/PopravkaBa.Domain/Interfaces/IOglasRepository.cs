@@ -20,6 +20,7 @@ namespace PopravkaBa.Domain.Interfaces
         Task UrediAsync(OglasUsluge oglas);
         Task ObrisiAsync(int id);
         Task<IEnumerable<OglasUsluge>> IzvrsiPretraguTekstaAsync(string pretraga);
+        Task<int> DajBrojZavrsenih();
     }
 
     public interface IOglasRadnoMjestoRepository

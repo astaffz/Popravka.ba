@@ -14,6 +14,7 @@ namespace PopravkaBa.Domain.Models
         public string Naslov { get; set; }
         public string Opis { get; set; }
         // TODO: Da li prebaciti na DateTime.UtcNow za standardiziran datetime?
+        // TODO: Logika kada je oglas izvršen?
         public DateTime DatumObjave { get; set; }
         [ForeignKey("Mjesto")]
         public int MjestoID { get; set; }

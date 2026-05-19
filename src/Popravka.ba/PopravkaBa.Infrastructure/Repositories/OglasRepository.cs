@@ -124,6 +124,9 @@ namespace PopravkaBa.Infrastructure.Repositories
             _context.OglasiUsluga.Update(oglas);
             await _context.SaveChangesAsync();
         }
+
+        // TODO: Dodati WHERE uslov kada obrazložimo logiku za izvršen oglas
+        public async Task<int> DajBrojZavrsenih() => await _context.OglasiUsluga.CountAsync();
     }
 
 

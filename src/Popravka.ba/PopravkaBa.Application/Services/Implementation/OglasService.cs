@@ -63,7 +63,8 @@ namespace PopravkaBa.Application.Services
             await _repo.ObrisiAsync(id);
         }
 
-        public async Task<IEnumerable<OglasMajstora>> PronadjiOglase(string pretraga)
+        // TODO: Implementirati pretragu preko lokacije u OglasRepository zbog pocetne stranice
+        public async Task<IEnumerable<OglasMajstora>> PronadjiOglase(string pretraga, int? lokacija)
             => await _repo.IzvrsiPretraguTekstaAsync(pretraga);
 
       
@@ -91,7 +92,7 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga)
+        public Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija)
         {
             throw new NotImplementedException();
         }
@@ -104,6 +105,12 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
 
     public class OglasUslugeService : IOglasUslugeService
     {
+        private readonly IOglasUslugeRepository _repo;
+
+        public OglasUslugeService(IOglasUslugeRepository repo)
+        {
+            _repo = repo;
+        }
         public Task<OglasUsluge?> DajOglasPoId(int id)
         {
             throw new NotImplementedException();
@@ -126,7 +133,7 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<OglasUsluge>> PronadjiOglase(string pretraga)
+        public Task<IEnumerable<OglasUsluge>> PronadjiOglase(string pretraga, int? lokacija)
         {
             throw new NotImplementedException();
         }
@@ -135,5 +142,7 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
         {
             throw new NotImplementedException();
         }
+
+        public async Task<int> DajBrojZavrsenihAsync() => await _repo.DajBrojZavrsenih();
     }
 }

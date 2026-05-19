@@ -21,8 +21,8 @@ namespace PopravkaBa.Application.Services
         public async Task<OglasMajstora?> DajOglasPoId(int id)
             => await _oglasService.DajOglasPoId(id);
 
-        public async Task<IEnumerable<OglasMajstora>> PronadjiOglase(string pretraga)
-            => await _oglasService.PronadjiOglase(pretraga);
+        public async Task<IEnumerable<OglasMajstora>> PronadjiOglase(string pretraga, int? lokacija)
+            => await _oglasService.PronadjiOglase(pretraga,lokacija);
 
         public async Task<IEnumerable<Kategorija>> DajSveKategorije()
             => await _kategorijaService.DajSveKategorije();
@@ -63,8 +63,8 @@ namespace PopravkaBa.Application.Services
         public async Task<OglasRadnoMjesto?> DajOglasPoId(int id)
             => await _oglasService.DajOglasPoId(id);
 
-        public async Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga)
-            => await _oglasService.PronadjiOglase(pretraga);
+        public async Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija)
+            => await _oglasService.PronadjiOglase(pretraga, lokacija);
 
         public async Task<IEnumerable<Kategorija>> DajSveKategorije()
             => await _kategorijaService.DajSveKategorije();
@@ -106,8 +106,8 @@ namespace PopravkaBa.Application.Services
         public async Task<OglasUsluge?> DajOglasPoId(int id)
             => await _oglasService.DajOglasPoId(id);
 
-        public async Task<IEnumerable<OglasUsluge>> PronadjiOglase(string pretraga)
-            => await _oglasService.PronadjiOglase(pretraga);
+        public async Task<IEnumerable<OglasUsluge>> PronadjiOglase(string pretraga, int? lokacija)
+            => await _oglasService.PronadjiOglase(pretraga, lokacija);
 
         public async Task<IEnumerable<Kategorija>> DajSveKategorije()
             => await _kategorijaService.DajSveKategorije();
@@ -129,5 +129,8 @@ namespace PopravkaBa.Application.Services
             await _kategorijaService.UkloniSveKategorijeOglasa(oglasId);
             await _oglasService.ObrisiOglas(oglasId);
         }
+
+        public async Task<int> DajBrojZavrsenihAsync()  =>await _oglasService.DajBrojZavrsenihAsync();
+        
     }
 }
