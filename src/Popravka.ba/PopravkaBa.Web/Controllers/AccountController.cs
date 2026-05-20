@@ -100,6 +100,7 @@ namespace PopravkaBa.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
+                // TODO Implementirati ViewModel
                 ViewBag.Mjesta = await _mjestoService.DajSvaMjestaAsync();
                 return View("Registracija",dto);
             }

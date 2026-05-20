@@ -26,7 +26,7 @@ namespace PopravkaBa.Web.Controllers
                 Mjesta = await _mjestoService.DajSvaMjestaAsync(),
                 BrojRealiziranihUsluga = await _oglasUslugeService.DajBrojZavrsenihAsync()
             };
-            ViewData["Title"] = "Popravka.ba - Vaš online prostor za provjerene usluge";
+           
             return View(vm);
         }
 
@@ -49,7 +49,7 @@ namespace PopravkaBa.Web.Controllers
             return code switch
             {
                 404 => View("NotFound"),
-               // 403 => View("Forbidden"), TODO: Napraviti View za 403
+               // 403 => View("BadRequest?"), TODO: Napraviti View za 403
                429 => View("TooManyRequests"), // TODO: Napraviti View za 429
                500 => View("InternalServerError"), // TODO: Napraviti View za 500
                 _ => View("Error")
