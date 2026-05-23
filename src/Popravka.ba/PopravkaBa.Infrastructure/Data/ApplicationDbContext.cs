@@ -82,7 +82,7 @@ namespace Popravka.ba.Data
                 .WithMany(m => m.PrijaveZaRadnoMjesto)
                 .HasForeignKey(p => p.MajstorID)
                 .OnDelete(DeleteBehavior.NoAction);
-            builder.Entity<Recenzija>().ToTable("Recenzija", t => t.HasCheckConstraint("CK_Recenzija_Ocjena", "Ocjena >= 1 AND Ocjena <= 5"));
+            builder.Entity<Recenzija>().ToTable("Recenzija", t => t.HasCheckConstraint("CK_Recenzija_Ocjena", "\"Ocjena\" >= 1 AND \"Ocjena\" <= 5")); 
             builder.Entity<Recenzija>()
                 .HasOne(r => r.Klijent)
                 .WithMany(k => k.Recenzije)

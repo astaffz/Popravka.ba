@@ -10,6 +10,7 @@ using PopravkaBa.Domain.Interfaces.Repositories;
 using PopravkaBa.Domain.Models;
 using PopravkaBa.Infrastructure.Adapters;
 using PopravkaBa.Infrastructure.Repositories;
+using PopravkaBa.Infrastructure.Seeders;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
@@ -78,23 +79,16 @@ builder.Services.AddScoped<IPonudaUslugeService, PonudaUslugeService>();
 builder.Services.AddScoped<IRecenzijaService, RecenzijaService>();
 
 
-
 builder.Services.AddScoped<IEmailSender, SmtpEmailAdapter>();
-
+builder.Services.AddScoped<DbSeeder>();
 
 var app = builder.Build();
 
-// Lokalni blok koda za kreiranje uloga pri pokretanju aplikacije, NE STAVITI IZNAD LINIJE builder.Build()!
+// Lokalni blok koda za kreiranje uloga i popunavanju baze pri pokretanju aplikacije, NE STAVITI IZNAD LINIJE builder.Build()!
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-    string[] roles = { "Klijent", "Firma", "Majstor", "Administrator" };
-    foreach (var r in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(r))
-            await roleManager.CreateAsync(new IdentityRole(r));
-    }
+    var seeder =  scope.ServiceProvider.GetRequiredService<DbSeeder>();
+    await seeder.SeedAsync();
 }
 
 // Configure the HTTP request pipeline.

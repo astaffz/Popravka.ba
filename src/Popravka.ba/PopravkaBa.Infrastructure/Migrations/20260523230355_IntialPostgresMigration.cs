@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace PopravkaBa.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialMigration : Migration
+    public partial class IntialPostgresMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,10 +16,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -29,38 +30,41 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Ime = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Prezime = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DatumRegistracije = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Slika = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Discriminator = table.Column<string>(type: "nvarchar(21)", maxLength: 21, nullable: false),
-                    Adresa = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StambeniBroj = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProsjecnaOcjena = table.Column<double>(type: "float", nullable: true),
-                    BrojZavrsenihPoslova = table.Column<int>(type: "int", nullable: true),
-                    Opis = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NazivFirme = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MinZaposlenih = table.Column<int>(type: "int", nullable: true),
-                    MaxZaposlenih = table.Column<int>(type: "int", nullable: true),
-                    StatusVerifikacije = table.Column<int>(type: "int", nullable: true),
-                    RadnoVrijeme = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WebStranica = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Ime = table.Column<string>(type: "text", nullable: true),
+                    Prezime = table.Column<string>(type: "text", nullable: true),
+                    DatumRegistracije = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Slika = table.Column<string>(type: "text", nullable: true),
+                    Discriminator = table.Column<string>(type: "character varying(21)", maxLength: 21, nullable: false),
+                    Adresa = table.Column<string>(type: "text", nullable: true),
+                    StambeniBroj = table.Column<string>(type: "text", nullable: true),
+                    ProsjecnaOcjena = table.Column<double>(type: "double precision", nullable: true),
+                    BrojZavrsenihPoslova = table.Column<int>(type: "integer", nullable: true),
+                    Opis = table.Column<string>(type: "text", nullable: true),
+                    NazivFirme = table.Column<string>(type: "text", nullable: true),
+                    MinZaposlenih = table.Column<int>(type: "integer", nullable: true),
+                    MaxZaposlenih = table.Column<int>(type: "integer", nullable: true),
+                    StatusVerifikacije = table.Column<int>(type: "integer", nullable: true),
+                    OtvorenoOd = table.Column<TimeSpan>(type: "interval", nullable: true),
+                    OtvorenoDo = table.Column<TimeSpan>(type: "interval", nullable: true),
+                    VelicinaFirme = table.Column<int>(type: "integer", nullable: true),
+                    RadnoVrijeme = table.Column<string>(type: "text", nullable: true),
+                    WebStranica = table.Column<string>(type: "text", nullable: true),
                     DatumOsnivanja = table.Column<DateOnly>(type: "date", nullable: true),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -71,22 +75,28 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "Kategorija",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Naziv = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Naziv = table.Column<string>(type: "text", nullable: false),
+                    NadkategorijaID = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Kategorija", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Kategorija_Kategorija_NadkategorijaID",
+                        column: x => x.NadkategorijaID,
+                        principalTable: "Kategorija",
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Mjesto",
                 columns: table => new
                 {
-                    MjestoID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Naziv = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    MjestoID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Naziv = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -97,11 +107,11 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -118,11 +128,11 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -139,10 +149,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -159,8 +169,8 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -183,10 +193,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -203,11 +213,11 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "PortfolioSlika",
                 columns: table => new
                 {
-                    PortfolioSlikaID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IzvrsilacID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    URL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Opis = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    PortfolioSlikaID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IzvrsilacID = table.Column<string>(type: "text", nullable: false),
+                    URL = table.Column<string>(type: "text", nullable: false),
+                    Opis = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -224,22 +234,22 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "Recenzija",
                 columns: table => new
                 {
-                    RecenzijaID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    KlijentID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IzvrsilacID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Ocjena = table.Column<int>(type: "int", nullable: false),
-                    Komentar = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DatumRecenzije = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Prijavljena = table.Column<bool>(type: "bit", nullable: false),
-                    RazlogPrijave = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DatumPrijave = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    StatusPrijave = table.Column<int>(type: "int", nullable: true)
+                    RecenzijaID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    KlijentID = table.Column<string>(type: "text", nullable: false),
+                    IzvrsilacID = table.Column<string>(type: "text", nullable: false),
+                    Ocjena = table.Column<int>(type: "integer", nullable: false),
+                    Komentar = table.Column<string>(type: "text", nullable: false),
+                    DatumRecenzije = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Prijavljena = table.Column<bool>(type: "boolean", nullable: false),
+                    RazlogPrijave = table.Column<string>(type: "text", nullable: true),
+                    DatumPrijave = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    StatusPrijave = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Recenzija", x => x.RecenzijaID);
-                    table.CheckConstraint("CK_Recenzija_Ocjena", "Ocjena >= 1 AND Ocjena <= 5");
+                    table.CheckConstraint("CK_Recenzija_Ocjena", "\"Ocjena\" >= 1 AND \"Ocjena\" <= 5");
                     table.ForeignKey(
                         name: "FK_Recenzija_AspNetUsers_IzvrsilacID",
                         column: x => x.IzvrsilacID,
@@ -257,26 +267,26 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "VerifikacijaFirme",
                 columns: table => new
                 {
-                    VerifikacioniID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirmaID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    NazivFirme = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StatusVerifikacije = table.Column<int>(type: "int", nullable: false),
-                    SjedisteFirme = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RadnoVrijeme = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WebStranica = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    KontaktTelefon = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OdgovornaOsobaIme = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OdgovornaOsobaPrezime = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OdgovornaOsobaEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OdgovornaOsobaPozicija = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OdgovornaOsobaTelefon = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rjesenje = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PoreznoUvjerenje = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LicencaDjelatnosti = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Logotip = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DatumPodnosenja = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DatumObrade = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    VerifikacioniID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FirmaID = table.Column<string>(type: "text", nullable: false),
+                    NazivFirme = table.Column<string>(type: "text", nullable: false),
+                    StatusVerifikacije = table.Column<int>(type: "integer", nullable: false),
+                    SjedisteFirme = table.Column<string>(type: "text", nullable: false),
+                    RadnoVrijeme = table.Column<string>(type: "text", nullable: true),
+                    WebStranica = table.Column<string>(type: "text", nullable: true),
+                    KontaktTelefon = table.Column<string>(type: "text", nullable: false),
+                    OdgovornaOsobaIme = table.Column<string>(type: "text", nullable: false),
+                    OdgovornaOsobaPrezime = table.Column<string>(type: "text", nullable: false),
+                    OdgovornaOsobaEmail = table.Column<string>(type: "text", nullable: false),
+                    OdgovornaOsobaPozicija = table.Column<string>(type: "text", nullable: false),
+                    OdgovornaOsobaTelefon = table.Column<string>(type: "text", nullable: false),
+                    Rjesenje = table.Column<string>(type: "text", nullable: false),
+                    PoreznoUvjerenje = table.Column<string>(type: "text", nullable: false),
+                    LicencaDjelatnosti = table.Column<string>(type: "text", nullable: true),
+                    Logotip = table.Column<string>(type: "text", nullable: false),
+                    DatumPodnosenja = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DatumObrade = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -293,10 +303,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "IzvrsilacKategorija",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IzvrsilacID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    KategorijaID = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IzvrsilacID = table.Column<string>(type: "text", nullable: false),
+                    KategorijaID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -319,10 +329,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "KorisnikMjesto",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    KorisnikID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    MjestoID = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    KorisnikID = table.Column<string>(type: "text", nullable: false),
+                    MjestoID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -345,13 +355,13 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "Oglas",
                 columns: table => new
                 {
-                    OglasID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Naslov = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Opis = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DatumObjave = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MjestoID = table.Column<int>(type: "int", nullable: false),
-                    VlasnikOglasaID = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    OglasID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Naslov = table.Column<string>(type: "text", nullable: false),
+                    Opis = table.Column<string>(type: "text", nullable: false),
+                    DatumObjave = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    MjestoID = table.Column<int>(type: "integer", nullable: false),
+                    VlasnikOglasaID = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -374,8 +384,8 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "EmailVerifikacijaFirme",
                 columns: table => new
                 {
-                    VerifikacioniID = table.Column<int>(type: "int", nullable: false),
-                    AdminEmail = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    VerifikacioniID = table.Column<int>(type: "integer", nullable: false),
+                    AdminEmail = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -392,11 +402,11 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "NotifikacijaOglas",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OglasID = table.Column<int>(type: "int", nullable: false),
-                    DatumSlanja = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Tekst = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OglasID = table.Column<int>(type: "integer", nullable: false),
+                    DatumSlanja = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Tekst = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -413,10 +423,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "OglasKategorija",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OglasID = table.Column<int>(type: "int", nullable: false),
-                    KategorijaID = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OglasID = table.Column<int>(type: "integer", nullable: false),
+                    KategorijaID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -439,9 +449,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "OglasMajstora",
                 columns: table => new
                 {
-                    OglasID = table.Column<int>(type: "int", nullable: false),
-                    MinCijena = table.Column<double>(type: "float", nullable: false),
-                    TipIsplate = table.Column<int>(type: "int", nullable: false)
+                    OglasID = table.Column<int>(type: "integer", nullable: false),
+                    MinCijena = table.Column<double>(type: "double precision", nullable: false),
+                    TipIsplate = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -458,13 +468,13 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "OglasRadnoMjesto",
                 columns: table => new
                 {
-                    OglasID = table.Column<int>(type: "int", nullable: false),
-                    BrojIzvrsilaca = table.Column<int>(type: "int", nullable: false),
-                    VrstaZaposlenja = table.Column<int>(type: "int", nullable: false),
-                    MinPrihod = table.Column<int>(type: "int", nullable: false),
-                    MaxPrihod = table.Column<int>(type: "int", nullable: false),
-                    TipIsplate = table.Column<int>(type: "int", nullable: false),
-                    BrojPrijava = table.Column<int>(type: "int", nullable: false)
+                    OglasID = table.Column<int>(type: "integer", nullable: false),
+                    BrojIzvrsilaca = table.Column<int>(type: "integer", nullable: false),
+                    VrstaZaposlenja = table.Column<int>(type: "integer", nullable: false),
+                    MinPrihod = table.Column<int>(type: "integer", nullable: false),
+                    MaxPrihod = table.Column<int>(type: "integer", nullable: false),
+                    TipIsplate = table.Column<int>(type: "integer", nullable: false),
+                    BrojPrijava = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -481,10 +491,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "OglasUsluge",
                 columns: table => new
                 {
-                    OglasID = table.Column<int>(type: "int", nullable: false),
-                    MinBudzet = table.Column<int>(type: "int", nullable: false),
-                    MaxBudzet = table.Column<int>(type: "int", nullable: false),
-                    BrojPrijava = table.Column<int>(type: "int", nullable: false)
+                    OglasID = table.Column<int>(type: "integer", nullable: false),
+                    MinBudzet = table.Column<int>(type: "integer", nullable: false),
+                    MaxBudzet = table.Column<int>(type: "integer", nullable: false),
+                    BrojPrijava = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -501,7 +511,8 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "EmailNotifikacijaOglasa",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false),
+                    EmailPrimalac = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -518,10 +529,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "OglasVozackaDozvola",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    VozackaDozvola = table.Column<int>(type: "int", nullable: false),
-                    OglasID = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    VozackaDozvola = table.Column<int>(type: "integer", nullable: false),
+                    OglasID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -538,11 +549,12 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "PrijavaRadnoMjesto",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OglasID = table.Column<int>(type: "int", nullable: false),
-                    MajstorID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    VrijemePrijave = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OglasID = table.Column<int>(type: "integer", nullable: false),
+                    MajstorID = table.Column<string>(type: "text", nullable: false),
+                    VrijemePrijave = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    StatusPrijave = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -564,10 +576,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "UvjetOglasa",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OglasID = table.Column<int>(type: "int", nullable: false),
-                    TekstUvjeta = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OglasID = table.Column<int>(type: "integer", nullable: false),
+                    TekstUvjeta = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -584,14 +596,14 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "PonudaUsluge",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IzvrsilacID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OglasUslugeID = table.Column<int>(type: "int", nullable: false),
-                    DatumSlanja = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DatumPocetkaUsluge = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DatumOcekivanogZavrsetka = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    StatusPonude = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IzvrsilacID = table.Column<string>(type: "text", nullable: false),
+                    OglasUslugeID = table.Column<int>(type: "integer", nullable: false),
+                    DatumSlanja = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DatumPocetkaUsluge = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DatumOcekivanogZavrsetka = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    StatusPonude = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -618,8 +630,7 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -645,8 +656,7 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_IzvrsilacKategorija_IzvrsilacID",
@@ -657,6 +667,11 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "IX_IzvrsilacKategorija_KategorijaID",
                 table: "IzvrsilacKategorija",
                 column: "KategorijaID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Kategorija_NadkategorijaID",
+                table: "Kategorija",
+                column: "NadkategorijaID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_KorisnikMjesto_KorisnikID",

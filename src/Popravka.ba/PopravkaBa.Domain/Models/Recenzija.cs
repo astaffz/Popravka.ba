@@ -23,7 +23,7 @@ namespace PopravkaBa.Domain.Models
         public int Ocjena { get; set; }
         public string Komentar { get; set; }
 
-        public DateTime DatumRecenzije { get; set; } = DateTime.Now;
+        public DateTime DatumRecenzije { get; set; } = DateTime.UtcNow;
         public bool Prijavljena { get; set; } = false;
         public string? RazlogPrijave { get; set; }
         public DateTime? DatumPrijave  { get; set; }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
+using PopravkaBa.Domain.Enums;
 using PopravkaBa.Domain.Models;
 using PopravkaBa.Web.Models.Enums;
 using PopravkaBa.Web.Models.ViewModels;
@@ -111,7 +112,7 @@ namespace PopravkaBa.Web.Controllers
                 Email = dto.Email,
                 Ime = dto.Ime,
                 Prezime = dto.Prezime,
-                DatumRegistracije = DateTime.Now
+                DatumRegistracije = DateTime.UtcNow
             };
 
             var result = await _userManager.CreateAsync(user, dto.Lozinka);
@@ -124,7 +125,7 @@ namespace PopravkaBa.Web.Controllers
                 return View("Registracija", dto);
             }
 
-            await _userManager.AddToRoleAsync(user, "Klijent");
+            await _userManager.AddToRoleAsync(user, KorisnickeUloge.Klijent.ToString());
             await _signInManager.SignInAsync(user, isPersistent: false);
             TempData["Success"] = "Registracija uspješna.";
             return RedirectToAction("Index", "Home");
@@ -175,7 +176,7 @@ namespace PopravkaBa.Web.Controllers
                 Prezime = dto.Prezime,
                 Adresa = dto.Adresa ?? string.Empty,
                 StambeniBroj = dto.StambeniBroj?.ToString(),
-                DatumRegistracije = DateTime.Now
+                DatumRegistracije = DateTime.UtcNow
             };
 
             var result = await _userManager.CreateAsync(user, dto.Lozinka);
@@ -197,7 +198,7 @@ namespace PopravkaBa.Web.Controllers
                 return View("Registracija",vm);
             }
 
-            await _userManager.AddToRoleAsync(user, "Majstor");
+            await _userManager.AddToRoleAsync(user, KorisnickeUloge.Majstor.ToString());
             await _kategorijaService.DodajKategorijeIzvrsiocu(user.Id, dto.KategorijeID);
 
          
@@ -208,8 +209,6 @@ namespace PopravkaBa.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-     
-       
        
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
@@ -235,7 +234,7 @@ namespace PopravkaBa.Web.Controllers
                 WebStranica = dto.WebStranica,
                 DatumOsnivanja = DateOnly.FromDateTime(dto.DatumOsnivanja),
                 // TODO: Da li spasiti kao DateTime.UtcNow? 
-                DatumRegistracije = DateTime.Now
+                DatumRegistracije = DateTime.UtcNow
             };
 
             var registerResult = await _userManager.CreateAsync(user, dto.Lozinka);
@@ -249,13 +248,13 @@ namespace PopravkaBa.Web.Controllers
                 return View("Registracija", dto);
             }
 
-            await _userManager.AddToRoleAsync(user, "Firma");
+            await _userManager.AddToRoleAsync(user, KorisnickeUloge.Firma.ToString());
 
 
             await _kategorijaService.DodajKategorijeIzvrsiocu(user.Id, dto.KategorijeID);
             await _mjestoService.DodajMjestaKorisniku(user.Id, dto.MjestaID);
 
-            await _signInManager.SignInAsync(user, isPersistent: false);
+            await _signInManager.SignInAsync(user, isPersistent: true);
             TempData["Success"] = "Registracija uspješna.";
             return RedirectToAction("Index", "Home");
         }
