@@ -76,160 +76,156 @@ public class DbSeeder
         await _context.SaveChangesAsync();
 
         var potkategorije = new List<Kategorija>
-    {
+        {
+            // Građevinski radovi
+            new() { Naziv = "Zidanje i betoniranje",                    NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Tesarski radovi",                          NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Krovopokrivanje",                          NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Fasaderski radovi",                        NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Izolacijski radovi",                       NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Gipsarski radovi",                         NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Štukatura",                                NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Armiranje",                                NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Klesarski radovi",                         NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Asfaltiranje",                             NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Dimnjačarski radovi",                      NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Rušenje i demoliranje",                    NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Moleraj i farbanje",                       NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Keramičke usluge",                         NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Postavljanje laminata i podova",           NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Suha gradnja",                             NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Postavljanje tapeta",                      NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Staklarski radovi",                        NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Bravarski radovi",                         NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
 
-        new() { Naziv = "Zidanje i betoniranje",                    NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Tesarski radovi",                          NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Krovopokrivanje",                          NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Fasaderski radovi",                        NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Izolacijski radovi",                       NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Gipsarski radovi",                         NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Štukatura",                                NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Armiranje",                                NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Klesarski radovi",                         NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Asfaltiranje",                             NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Dimnjačarski radovi",                      NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Rušenje i demoliranje",                    NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Moleraj i farbanje",                       NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Keramičke usluge",                         NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Postavljanje laminata i podova",           NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Suha gradnja",                             NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Postavljanje tapeta",                      NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Staklarski radovi",                        NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
-        new() { Naziv = "Bravarski radovi",                         NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            // Instalacije
+            new() { Naziv = "Vodoinstalaterske usluge",                 NadkategorijaID = nadkategorije["Instalacije"].ID },
+            new() { Naziv = "Elektroinstalacije",                       NadkategorijaID = nadkategorije["Instalacije"].ID },
+            new() { Naziv = "Plinske instalacije",                      NadkategorijaID = nadkategorije["Instalacije"].ID },
+            new() { Naziv = "Centralno grijanje",                       NadkategorijaID = nadkategorije["Instalacije"].ID },
+            new() { Naziv = "Klimatizacija",                            NadkategorijaID = nadkategorije["Instalacije"].ID },
+            new() { Naziv = "Solarni paneli",                           NadkategorijaID = nadkategorije["Instalacije"].ID },
+            new() { Naziv = "Alarmni i video-nadzor sistemi",           NadkategorijaID = nadkategorije["Instalacije"].ID },
+            new() { Naziv = "Satelitska i antenska oprema",             NadkategorijaID = nadkategorije["Instalacije"].ID },
 
-        // Instalacije
-        new() { Naziv = "Vodoinstalaterske usluge",                  NadkategorijaID = nadkategorije["Instalacije"].ID },
-        new() { Naziv = "Elektroinstalacije",                       NadkategorijaID = nadkategorije["Instalacije"].ID },
-        new() { Naziv = "Plinske instalacije",                      NadkategorijaID = nadkategorije["Instalacije"].ID },
-        new() { Naziv = "Centralno grijanje",                       NadkategorijaID = nadkategorije["Instalacije"].ID },
-        new() { Naziv = "Klimatizacija",                            NadkategorijaID = nadkategorije["Instalacije"].ID },
-        new() { Naziv = "Solarni paneli",                           NadkategorijaID = nadkategorije["Instalacije"].ID },
-        new() { Naziv = "Alarmni i video-nadzor sistemi",           NadkategorijaID = nadkategorije["Instalacije"].ID },
-        new() { Naziv = "Satelitska i antenska oprema",             NadkategorijaID = nadkategorije["Instalacije"].ID },
+            // Stolarija i namještaj
+            new() { Naziv = "Stolarski radovi",                         NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
+            new() { Naziv = "Izrada namještaja po mjeri",               NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
+            new() { Naziv = "Ugradnja kuhinja i ormara",                NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
+            new() { Naziv = "Parketarski radovi",                       NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
+            new() { Naziv = "Roletne i prozori",                        NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
+            new() { Naziv = "Tapetarski radovi",                        NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
+            new() { Naziv = "Restauracija namještaja",                  NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
 
-        // Stolarija i namještaj
-        new() { Naziv = "Stolarski radovi",                         NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
-        new() { Naziv = "Izrada namještaja po mjeri",               NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
-        new() { Naziv = "Ugradnja kuhinja i ormara",                NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
-        new() { Naziv = "Parketarski radovi",                       NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
-        new() { Naziv = "Roletne i prozori",                        NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
-        new() { Naziv = "Tapetarski radovi",                        NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
-        new() { Naziv = "Restauracija namještaja",                  NadkategorijaID = nadkategorije["Stolarija i namještaj"].ID },
+            // Servis uređaja
+            new() { Naziv = "Servis bijele tehnike",                    NadkategorijaID = nadkategorije["Servis uređaja"].ID },
+            new() { Naziv = "Servis kućanskih aparata",                 NadkategorijaID = nadkategorije["Servis uređaja"].ID },
+            new() { Naziv = "Servis računara",                          NadkategorijaID = nadkategorije["Servis uređaja"].ID },
+            new() { Naziv = "Servis mobitela i tableta",                NadkategorijaID = nadkategorije["Servis uređaja"].ID },
+            new() { Naziv = "Servis TV i audio uređaja",                NadkategorijaID = nadkategorije["Servis uređaja"].ID },
+            new() { Naziv = "Servis klima uređaja",                     NadkategorijaID = nadkategorije["Servis uređaja"].ID },
+            new() { Naziv = "Servis bojlera",                           NadkategorijaID = nadkategorije["Servis uređaja"].ID },
 
-        
-        // Servis uređaja
-        new() { Naziv = "Servis bijele tehnike",                    NadkategorijaID = nadkategorije["Servis uređaja"].ID },
-        new() { Naziv = "Servis kućanskih aparata",                 NadkategorijaID = nadkategorije["Servis uređaja"].ID },
-        new() { Naziv = "Servis računara",                          NadkategorijaID = nadkategorije["Servis uređaja"].ID },
-        new() { Naziv = "Servis mobitela i tableta",                NadkategorijaID = nadkategorije["Servis uređaja"].ID },
-        new() { Naziv = "Servis TV i audio uređaja",                NadkategorijaID = nadkategorije["Servis uređaja"].ID },
-        new() { Naziv = "Servis klima uređaja",                     NadkategorijaID = nadkategorije["Servis uređaja"].ID },
-        new() { Naziv = "Servis bojlera",                           NadkategorijaID = nadkategorije["Servis uređaja"].ID },
+            // Automobilski servisi
+            new() { Naziv = "Automehaničarske usluge",                  NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
+            new() { Naziv = "Autoelektričarske usluge",                 NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
+            new() { Naziv = "Autolimarski radovi",                      NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
+            new() { Naziv = "Autolakirerski radovi",                    NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
+            new() { Naziv = "Vulkanizerske usluge",                     NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
+            new() { Naziv = "Detaljisanje i pranje vozila",             NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
+            new() { Naziv = "Šlep služba",                              NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
+            new() { Naziv = "Dijagnostika vozila",                      NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
 
-        // Automobilski servisi
-        new() { Naziv = "Automehaničarske usluge",                  NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
-        new() { Naziv = "Autoelektričarske usluge",                 NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
-        new() { Naziv = "Autolimarski radovi",                      NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
-        new() { Naziv = "Autolakirerski radovi",                    NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
-        new() { Naziv = "Vulkanizerske usluge",                     NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
-        new() { Naziv = "Detaljisanje i pranje vozila",             NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
-        new() { Naziv = "Šlep služba",                              NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
-        new() { Naziv = "Dijagnostika vozila",                      NadkategorijaID = nadkategorije["Automobilski servisi"].ID },
+            // Čišćenje i održavanje
+            new() { Naziv = "Čišćenje stanova i kuća",                  NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
+            new() { Naziv = "Čišćenje poslovnih prostora",              NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
+            new() { Naziv = "Dubinsko čišćenje",                        NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
+            new() { Naziv = "Pranje prozora i fasada",                  NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
+            new() { Naziv = "Hemijsko čišćenje",                        NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
+            new() { Naziv = "Deratizacija i dezinsekcija",              NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
+            new() { Naziv = "Odvoz krupnog otpada",                     NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
+            new() { Naziv = "Čišćenje tepiha",                          NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
 
-        // Čišćenje i održavanje
-        new() { Naziv = "Čišćenje stanova i kuća",                  NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
-        new() { Naziv = "Čišćenje poslovnih prostora",              NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
-        new() { Naziv = "Dubinsko čišćenje",                        NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
-        new() { Naziv = "Pranje prozora i fasada",                  NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
-        new() { Naziv = "Hemijsko čišćenje",                        NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
-        new() { Naziv = "Deratizacija i dezinsekcija",              NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
-        new() { Naziv = "Odvoz krupnog otpada",                     NadkategorijaID = nadkategorije["Čišćenje i održavanje"].ID },
+            // Selidbe i transport
+            new() { Naziv = "Selidbe stanova i kuća",                   NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
+            new() { Naziv = "Selidbe poslovnih prostora",               NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
+            new() { Naziv = "Prijevoz robe",                            NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
+            new() { Naziv = "Montaža namještaja",                       NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
+            new() { Naziv = "Iznajmljivanje kombi vozila",              NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
 
-        // Selidbe i transport
-        new() { Naziv = "Selidbe stanova i kuća",                   NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
-        new() { Naziv = "Selidbe poslovnih prostora",               NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
-        new() { Naziv = "Prijevoz robe",                            NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
-        new() { Naziv = "Montaža namještaja",                       NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
-        new() { Naziv = "Iznajmljivanje kombi vozila",              NadkategorijaID = nadkategorije["Selidbe i transport"].ID },
+            // Vrtlarstvo
+            new() { Naziv = "Uređenje dvorišta i bašte",                NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
+            new() { Naziv = "Košenje trave",                            NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
+            new() { Naziv = "Rezanje i orezivanje stabala",             NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
+            new() { Naziv = "Sadnja i rasadničarski radovi",            NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
+            new() { Naziv = "Postavljanje ograda",                      NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
+            new() { Naziv = "Vinogradarstvo i voćarstvo",               NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
+            new() { Naziv = "Pčelarske usluge",                         NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
+            new() { Naziv = "Ugradnja sistema za navodnjavanje",        NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
 
-        // Vrtlarstvo
-        new() { Naziv = "Uređenje dvorišta i bašte",                NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
-        new() { Naziv = "Košenje trave",                            NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
-        new() { Naziv = "Rezanje i orezivanje stabala",             NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
-        new() { Naziv = "Sadnja i rasadničarski radovi",            NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
-        new() { Naziv = "Postavljanje ograda",                      NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
-        new() { Naziv = "Vinogradarstvo i voćarstvo",               NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
-        new() { Naziv = "Pčelarske usluge",                         NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
-        new() { Naziv = "Ugradnja sistema za navodnjavanje",        NadkategorijaID = nadkategorije["Vrtlarstvo"].ID },
+            // Lične usluge
+            new() { Naziv = "Frizerske usluge",                         NadkategorijaID = nadkategorije["Lične usluge"].ID },
+            new() { Naziv = "Kozmetičke usluge",                        NadkategorijaID = nadkategorije["Lične usluge"].ID },
+            new() { Naziv = "Manikir i pedikir",                        NadkategorijaID = nadkategorije["Lične usluge"].ID },
+            new() { Naziv = "Masaža",                                   NadkategorijaID = nadkategorije["Lične usluge"].ID },
 
-        // Lične usluge
-        new() { Naziv = "Frizerske usluge",                         NadkategorijaID = nadkategorije["Lične usluge"].ID },
-        new() { Naziv = "Kozmetičke usluge",                        NadkategorijaID = nadkategorije["Lične usluge"].ID },
-        new() { Naziv = "Manikir i pedikir",                        NadkategorijaID = nadkategorije["Lične usluge"].ID },
-        new() { Naziv = "Masaža",                                   NadkategorijaID = nadkategorije["Lične usluge"].ID },
+            // Eventi
+            new() { Naziv = "Catering usluge",                          NadkategorijaID = nadkategorije["Eventi"].ID },
+            new() { Naziv = "Konobari i barmeni za događaje",           NadkategorijaID = nadkategorije["Eventi"].ID },
+            new() { Naziv = "Fotografisanje događaja",                  NadkategorijaID = nadkategorije["Eventi"].ID },
+            new() { Naziv = "Snimanje videa",                           NadkategorijaID = nadkategorije["Eventi"].ID },
+            new() { Naziv = "Animatori i zabava za djecu",              NadkategorijaID = nadkategorije["Eventi"].ID },
+            new() { Naziv = "Dekoracija prostora",                      NadkategorijaID = nadkategorije["Eventi"].ID },
+            new() { Naziv = "Cvjećarstvo i aranžmani",                  NadkategorijaID = nadkategorije["Eventi"].ID },
 
-        // Eventi
-        new() { Naziv = "Catering usluge",                          NadkategorijaID = nadkategorije["Eventi"].ID },
-        new() { Naziv = "Konobari i barmeni za događaje",           NadkategorijaID = nadkategorije["Eventi"].ID },
-        new() { Naziv = "Fotografisanje događaja",                  NadkategorijaID = nadkategorije["Eventi"].ID },
-        new() { Naziv = "Snimanje videa",                           NadkategorijaID = nadkategorije["Eventi"].ID },
-        new() { Naziv = "DJ i muzika uživo",                        NadkategorijaID = nadkategorije["Eventi"].ID },
-        new() { Naziv = "Animatori i zabava za djecu",              NadkategorijaID = nadkategorije["Eventi"].ID },
-        new() { Naziv = "Dekoracija prostora",                      NadkategorijaID = nadkategorije["Eventi"].ID },
-        new() { Naziv = "Cvjećarstvo i aranžmani",                  NadkategorijaID = nadkategorije["Eventi"].ID },
+            // Krojačke usluge
+            new() { Naziv = "Šivanje po mjeri",                         NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
+            new() { Naziv = "Prepravke odjeće",                         NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
+            new() { Naziv = "Popravak obuće",                           NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
+            new() { Naziv = "Izrada kožne galanterije",                 NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
 
-        // Krojačke usluge
-        new() { Naziv = "Šivanje po mjeri",                         NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
-        new() { Naziv = "Prepravke odjeće",                         NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
-        new() { Naziv = "Popravak obuće",                           NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
-        new() { Naziv = "Izrada kožne galanterije",                 NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
+            // Edukacija
+            new() { Naziv = "Instrukcije iz matematike",                NadkategorijaID = nadkategorije["Edukacija"].ID },
+            new() { Naziv = "Instrukcije iz stranih jezika",            NadkategorijaID = nadkategorije["Edukacija"].ID },
+            new() { Naziv = "Instrukcije iz prirodnih nauka",           NadkategorijaID = nadkategorije["Edukacija"].ID },
+            new() { Naziv = "Instrukcije iz informatike",               NadkategorijaID = nadkategorije["Edukacija"].ID },
+            new() { Naziv = "Pripreme za prijemne ispite",              NadkategorijaID = nadkategorije["Edukacija"].ID },
+            new() { Naziv = "Autoškola i instruktori vožnje",           NadkategorijaID = nadkategorije["Edukacija"].ID },
 
-        // Edukacija
-        new() { Naziv = "Instrukcije iz matematike",                NadkategorijaID = nadkategorije["Edukacija"].ID },
-        new() { Naziv = "Instrukcije iz stranih jezika",            NadkategorijaID = nadkategorije["Edukacija"].ID },
-        new() { Naziv = "Instrukcije iz prirodnih nauka",           NadkategorijaID = nadkategorije["Edukacija"].ID },
-        new() { Naziv = "Instrukcije iz informatike",               NadkategorijaID = nadkategorije["Edukacija"].ID },
-        new() { Naziv = "Časovi muzike",                            NadkategorijaID = nadkategorije["Edukacija"].ID },
-        new() { Naziv = "Časovi plesa",                             NadkategorijaID = nadkategorije["Edukacija"].ID },
-        new() { Naziv = "Časovi crtanja i slikanja",                NadkategorijaID = nadkategorije["Edukacija"].ID },
-        new() { Naziv = "Pripreme za prijemne ispite",              NadkategorijaID = nadkategorije["Edukacija"].ID },
-        new() { Naziv = "Autoškola i instruktori vožnje",          NadkategorijaID = nadkategorije["Edukacija"].ID },
+            // Zdravlje i njega
+            new() { Naziv = "Lična fizioterapija",                      NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
+            new() { Naziv = "Njega starijih osoba",                     NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
+            new() { Naziv = "Kućna njega bolesnika",                    NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
+            new() { Naziv = "Čuvanje djece",                            NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
+            new() { Naziv = "Logopedske usluge",                        NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
 
-        // Zdravlje i njega
-        new() { Naziv = "Lična fizioterapija",                      NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
-        new() { Naziv = "Njega starijih osoba",                     NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
-        new() { Naziv = "Kućna njega bolesnika",                   NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
-        new() { Naziv = "Čuvanje djece",                            NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
-        new() { Naziv = "Logopedske usluge",                        NadkategorijaID = nadkategorije["Zdravlje i njega"].ID },
+            // Kućni ljubimci
+            new() { Naziv = "Veterinarske usluge",                      NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
+            new() { Naziv = "Šišanje i njega pasa",                     NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
+            new() { Naziv = "Dresura pasa",                             NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
+            new() { Naziv = "Šetnja pasa",                              NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
+            new() { Naziv = "Čuvanje kućnih ljubimaca",                 NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
 
-        // Kućni ljubimci
-        new() { Naziv = "Veterinarske usluge",                      NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
-        new() { Naziv = "Šišanje i njega pasa",                     NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
-        new() { Naziv = "Dresura pasa",                             NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
-        new() { Naziv = "Šetnja pasa",                              NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
-        new() { Naziv = "Čuvanje kućnih ljubimaca",                 NadkategorijaID = nadkategorije["Kućni ljubimci"].ID },
+            // Poslovne usluge
+            new() { Naziv = "Računovodstvene usluge",                   NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
+            new() { Naziv = "Knjigovodstvene usluge",                   NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
+            new() { Naziv = "Pravne usluge i savjetovanje",             NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
+            new() { Naziv = "Prevodilačke usluge",                      NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
+            new() { Naziv = "Grafički dizajn",                          NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
+            new() { Naziv = "Marketing i oglašavanje",                  NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
+            new() { Naziv = "Geodetske usluge",                         NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
+            new() { Naziv = "Arhitektonsko projektovanje",              NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
+            new() { Naziv = "Građevinski nadzor",                       NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
 
-        // Poslovne usluge
-        new() { Naziv = "Računovodstvene usluge",                   NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
-        new() { Naziv = "Knjigovodstvene usluge",                   NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
-        new() { Naziv = "Pravne usluge i savjetovanje",             NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
-        new() { Naziv = "Prevodilačke usluge",                      NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
-        new() { Naziv = "Grafički dizajn",                          NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
-        new() { Naziv = "Marketing i oglašavanje",                  NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
-        new() { Naziv = "Geodetske usluge",                         NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
-        new() { Naziv = "Arhitektonsko projektovanje",              NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
-        new() { Naziv = "Građevinski nadzor",                       NadkategorijaID = nadkategorije["Poslovne usluge"].ID },
+            // Sigurnost
+            new() { Naziv = "Fizičko osiguranje objekata",              NadkategorijaID = nadkategorije["Sigurnost"].ID },
+            new() { Naziv = "Ugradnja sigurnosnih sistema",             NadkategorijaID = nadkategorije["Sigurnost"].ID },
+            new() { Naziv = "Bravarska SOS služba",                     NadkategorijaID = nadkategorije["Sigurnost"].ID },
 
-        // Sigurnost
-        new() { Naziv = "Fizičko osiguranje objekata",              NadkategorijaID = nadkategorije["Sigurnost"].ID },
-        new() { Naziv = "Ugradnja sigurnosnih sistema",             NadkategorijaID = nadkategorije["Sigurnost"].ID },
-        new() { Naziv = "Bravarska SOS služba",                     NadkategorijaID = nadkategorije["Sigurnost"].ID },
-
-        // Ostalo
-        new() { Naziv = "Sitni popravci",                            NadkategorijaID = nadkategorije["Ostalo"].ID },
-         new() { Naziv = "Ostale usluge",                            NadkategorijaID = nadkategorije["Ostalo"].ID },
-    };
+            // Ostalo
+            new() { Naziv = "Sitni popravci",                           NadkategorijaID = nadkategorije["Ostalo"].ID },
+            new() { Naziv = "Ostale usluge",                            NadkategorijaID = nadkategorije["Ostalo"].ID },
+        };
 
         await _context.Kategorije.AddRangeAsync(potkategorije);
         await _context.SaveChangesAsync();
