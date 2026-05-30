@@ -177,6 +177,7 @@ public class DbSeeder
             new() { Naziv = "Animatori i zabava za djecu",              NadkategorijaID = nadkategorije["Eventi"].ID },
             new() { Naziv = "Dekoracija prostora",                      NadkategorijaID = nadkategorije["Eventi"].ID },
             new() { Naziv = "Cvjećarstvo i aranžmani",                  NadkategorijaID = nadkategorije["Eventi"].ID },
+            new() { Naziv = "Grill Majstor",                            NadkategorijaID = nadkategorije["Eventi"].ID },
 
             // Krojačke usluge
             new() { Naziv = "Šivanje po mjeri",                         NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
