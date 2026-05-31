@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PopravkaBa.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,5 +13,8 @@ namespace PopravkaBa.Domain.Models
         [Key]
         public int MjestoID { get; set; }
         public string Naziv { get; set; }
+        
+        public Kanton Kanton { get; set; }
+
     }
 }
