@@ -17,30 +17,25 @@ namespace PopravkaBa.Infrastructure.Repositories
 
         public async Task<IEnumerable<Mjesto>> DajSvaMjestaAsync()
             => await _context.Mjesta
-                    .Include(m => m.Kanton)
                     .ToListAsync();
 
         public async Task<IEnumerable<Mjesto>?> DajMjestaPoKantonuAsync(int kantonID)
             => await _context.Mjesta
                     .Where(m => m.Kanton.Equals(kantonID))
-                    .Include(m => m.Kanton)
                     .ToListAsync();
         public async Task<Mjesto?> DajPoIdAsync(int id)
             => await _context.Mjesta
-                .Include(m => m.Kanton)
                 .FirstOrDefaultAsync(m => m.MjestoID == id);
                 
 
         public async Task<IEnumerable<Mjesto>> PronadjiMjestaAsync(string pretraga)
             => await _context.Mjesta
-                 .Include(m => m.Kanton)
                   .ToListAsync();
 
         public async Task<IEnumerable<Mjesto>> DajSveKorisnikeMjestaAsync(string korisnikId)
             => await _context.KorisnikMjesto
                 .Where(km => km.KorisnikID == korisnikId)
                 .Select(km => km.Mjesto)
-                .Include(m => m.Kanton)
                 .ToListAsync();
 
         public async Task DodajMjestaKorisniku(string korisnikId, List<int> mjestaID)
