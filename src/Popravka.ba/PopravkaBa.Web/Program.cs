@@ -87,6 +87,8 @@ var app = builder.Build();
 // Lokalni blok koda za kreiranje uloga i popunavanju baze pri pokretanju aplikacije, NE STAVITI IZNAD LINIJE builder.Build()!
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
     var seeder =  scope.ServiceProvider.GetRequiredService<DbSeeder>();
     await seeder.SeedAsync();
 }

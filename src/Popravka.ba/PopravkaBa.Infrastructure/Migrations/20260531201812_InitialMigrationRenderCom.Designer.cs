@@ -12,8 +12,8 @@ using Popravka.ba.Data;
 namespace PopravkaBa.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260523230355_IntialPostgresMigration")]
-    partial class IntialPostgresMigration
+    [Migration("20260531201812_InitialMigrationRenderCom")]
+    partial class InitialMigrationRenderCom
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -319,6 +319,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MjestoID"));
+
+                    b.Property<int>("Kanton")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Naziv")
                         .IsRequired()

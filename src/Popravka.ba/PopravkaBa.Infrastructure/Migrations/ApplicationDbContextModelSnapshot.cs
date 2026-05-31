@@ -317,6 +317,9 @@ namespace PopravkaBa.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MjestoID"));
 
+                    b.Property<int>("Kanton")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Naziv")
                         .IsRequired()
                         .HasColumnType("text");

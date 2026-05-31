@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PopravkaBa.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class IntialPostgresMigration : Migration
+    public partial class InitialMigrationRenderCom : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -96,7 +96,8 @@ namespace PopravkaBa.Infrastructure.Migrations
                 {
                     MjestoID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Naziv = table.Column<string>(type: "text", nullable: false)
+                    Naziv = table.Column<string>(type: "text", nullable: false),
+                    Kanton = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
