@@ -429,5 +429,7 @@ public class DbSeeder
 
         if (result.Succeeded)
             await _userManager.AddToRoleAsync(admin, KorisnickeUloge.Administrator.ToString());
+        else
+            throw new Exception($"Admin seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
     }
 }
