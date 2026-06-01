@@ -1,4 +1,5 @@
 ﻿@model HomeViewModel
+@using System.Reflection
 @{
     ViewData["Title"] = "Popravka.ba - Vaš online prostor za provjerene usluge";
 }
@@ -11,7 +12,6 @@
         </h1>
 
         <div class="hero-actions">
-               <!-- TODO: Pravilno odrediti i povezati view pretrage majstora-->
             <a class="hero-btn" asp-controller="Oglas" asp-action="Pretraga">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="7"></circle>
@@ -19,7 +19,6 @@
                 </svg>
                 Pretraži majstore
             </a>
-            <!-- TODO: Odrediti koji kontroler staviti za oglas-->
             <a class="hero-btn hero-btn--primary" asp-controller="Oglas" asp-action="ObjaviOglas">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -30,24 +29,63 @@
         </div>
 
         <p class="hero-stat">@Model.BrojRealiziranihUsluga+ uspješno realiziranih usluga.</p>
-             <!-- TODO: Odrediti koji kontroler staviti za oglas-->
+
         <form class="hero-search" asp-controller="Oglas" asp-action="Index" method="get">
             <div class="hero-search-input">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="7"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <!-- pretragaTekst = naziv varijable u OglasController.Pretraga()-->
-                <input type="text" name="pretragaTekst" placeholder="Treba mi... (Vodoinstalater, Naziv majstora/firme, ...)" />
+                <input type="text" name="pretragaTekst" placeholder="Treba mi... (Vodoinstalater, Naziv majstora/firme, ...)" 
+                oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()"
+                />
             </div>
-            <select name="lokacija" class="hero-search-select">
-                <option value="">Lokacija</option>
-                @foreach (var m in Model.Mjesta)
-                {
-                    <option value="@m.MjestoID">@m.Naziv</option>
-                }
-            </select>
-            
+
+            <div class="hero-search-select-wrapper">
+                <div class="hero-search-select-display" id="lokacijaDisplay">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                        <circle cx="12" cy="9" r="2.5" />
+                    </svg>
+                    <span id="lokacijaLabel">Lokacija</span>
+                </div>
+                <input type="hidden" name="lokacija" id="lokacijaValue" value="" />
+
+                <div class="lokacija-dropdown" id="lokacijaDropdown">
+                    <div class="lokacija-search-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="lokacijaSearch" placeholder="Pretraži mjesto..." autocomplete="off"
+                        oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()"
+                        />
+                    </div>
+                    <div class="lokacija-options" id="lokacijaOptions">
+                        @{
+                            var byKantonGroups = Model.Mjesta.GroupBy(m => m.Kanton).OrderBy(g => (int)g.Key);
+                        }
+                        @foreach (var group in byKantonGroups)
+                        {
+                            var kantonName = group.Key.GetType()
+                                .GetMember(group.Key.ToString())
+                                .First()
+                                .GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false)
+                                .Cast<System.ComponentModel.DataAnnotations.DisplayAttribute>()
+                                .FirstOrDefault()?.Name ?? group.Key.ToString();
+
+                            <div class="lokacija-group-label" data-group="@kantonName">@kantonName</div>
+                            @foreach (var m in group.OrderBy(m => m.Naziv))
+                            {
+                                <div class="lokacija-option" data-value="@m.MjestoID" data-label="@m.Naziv" data-group="@kantonName">
+                                    @m.Naziv
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
             <button type="submit" class="hero-search-submit">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="7"></circle>
@@ -57,4 +95,74 @@
             </button>
         </form>
     </div>
+   
 </section>
+@if (!User.Identity.IsAuthenticated)
+{
+    <section class="cta-section">
+        <div class="cta-inner">
+            <div class="cta-content">
+                <h2 class="cta-title">Majstor ste ili imate firmu?</h2>
+                <p class="cta-text">Pridružite se Popravka.ba platformi i plasirajte vaše usluge potencijalnim klijentima još danas!</p>
+                <a class="hero-btn" asp-controller="Account" asp-action="Registracija">Registriraj nalog</a>
+            </div>
+            <div class="cta-image-placeholder"></div>
+        </div>
+    </section>
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            const display  = document.getElementById('lokacijaDisplay');
+            const label    = document.getElementById('lokacijaLabel');
+            const input    = document.getElementById('lokacijaValue');
+            const dropdown = document.getElementById('lokacijaDropdown');
+            const search   = document.getElementById('lokacijaSearch');
+            const options  = document.querySelectorAll('.lokacija-option');
+            const groups   = document.querySelectorAll('.lokacija-group-label');
+
+            function closeDropdown() {
+                dropdown.classList.remove('open');
+                search.value = '';
+                options.forEach(o => o.style.display = '');
+                groups.forEach(g => g.style.display = '');
+            }
+
+            display.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('open');
+                if (dropdown.classList.contains('open')) search.focus();
+                else closeDropdown();
+            });
+
+            document.addEventListener('click', closeDropdown);
+            dropdown.addEventListener('click', e => e.stopPropagation());
+
+            search.addEventListener('input', () => {
+                const q = search.value.toLowerCase();
+                const visibleGroups = new Set();
+
+                options.forEach(opt => {
+                    const match = opt.dataset.label.toLowerCase().includes(q);
+                    opt.style.display = match ? '' : 'none';
+                    if (match) visibleGroups.add(opt.dataset.group);
+                });
+
+                groups.forEach(g => {
+                    g.style.display = visibleGroups.has(g.dataset.group) ? '' : 'none';
+                });
+            });
+
+            options.forEach(opt => {
+                opt.addEventListener('click', () => {
+                    input.value = opt.dataset.value;
+                    label.textContent = opt.dataset.label;
+                    options.forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    closeDropdown();
+                });
+            });
+        })();
+    </script>
+}
