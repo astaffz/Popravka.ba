@@ -230,6 +230,7 @@ h1, h2, h3, h4, h5, h6 {
     cursor: pointer;
     white-space: nowrap;
     color: var(--text-secondary);
+    border-left: 1px solid #1f2937;
 }
 
     .hero-search-select-display svg {
@@ -245,7 +246,7 @@ h1, h2, h3, h4, h5, h6 {
     left: 0;
     width: 200px;
     background: #fff;
-    border: 1px solid var(--border-light);
+    border: 1px solid #1f2937;
     border-radius: 10px;
     overflow: hidden;
     z-index: 100;
@@ -261,7 +262,7 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid #1f2937;
 }
 
     .lokacija-search-wrap svg {
@@ -448,4 +449,167 @@ h1, h2, h3, h4, h5, h6 {
     .error-page-btn:hover {
         background: var(--brand-blue-hover);
         color: #fff;
+    }
+/* ===== Kategorije ===== */
+.kategorije-section {
+    padding: 3rem 1.5rem;
+}
+
+.kategorije-inner {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.kategorije-header {
+    display: flex;
+    flex-direction:column;
+   
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+    .kategorije-header h2 {
+        margin: 0;
+        align-items: center;
+        font-size: 1.5rem;
+    }
+
+    .kategorije-header a {
+        margin: 0;
+        text-align:right;
+        font-size: 0.875rem;
+        color: var(--brand-blue);
+        text-decoration: none;
+        
+    }
+
+.kategorije-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.kategorija-card {
+    display: flex;
+    flex-direction: column;
+    text-align:center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 1.5rem;
+    aspect-ratio: 1.5;
+    background: var(--brand-blue);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.15s;
+}
+
+    .kategorija-card:hover {
+        background: var(--brand-blue-hover);
+        transform: translateY(-2px);
+    }
+
+    .kategorija-card strong {
+        color: #fff;
+        font-size: 1rem;
+        font-family: var(--font-heading);
+    }
+
+    .kategorija-card span {
+        color: rgba(255,255,255,0.75);
+        font-size: 0.825rem;
+    }
+
+/* ===== Oglasi ===== */
+.oglasi-section {
+    padding: 3rem 1.5rem;
+    background: #f9fafb;
+}
+
+.oglasi-inner {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.oglasi-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+    .oglasi-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        text-align:center;
+    }
+
+    .oglasi-header a {
+        font-size: 0.875rem;
+        color: var(--brand-blue);
+        text-decoration: none;
+        text-align: right;
+    }
+
+.oglasi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.oglas-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: #fff;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+
+    .oglas-card:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+
+.oglas-body {
+    margin-bottom: 1.5rem;
+}
+
+    .oglas-body strong {
+        display: block;
+        font-size: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .oglas-body p {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin: 0;
+        line-height: 1.5;
+    }
+
+.oglas-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.825rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-light);
+    padding-top: 0.75rem;
+}
+
+.oglas-autor {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+    .oglas-autor i {
+        font-size: 1.25rem;
+        color: var(--text-muted);
     }

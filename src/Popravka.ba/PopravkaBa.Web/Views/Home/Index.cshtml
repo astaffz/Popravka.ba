@@ -97,6 +97,60 @@
     </div>
    
 </section>
+<section class="kategorije-section">
+    <div class="kategorije-inner">
+        <div class="kategorije-header">
+            <h2 style="display:block;text-align:center;margin:0;">Usluge na raspolaganju</h2>
+
+            <a asp-controller="Oglas" asp-action="Pretraga">Pogledaj sve →</a>
+        </div>
+        <div class="kategorije-grid">
+            <a class="kategorija-card" href="#">
+                <strong>Vodoinstalacije</strong>
+                <span>24 majstora</span>
+            </a>
+            <a class="kategorija-card" href="#">
+                <strong>Elektroinstalacije</strong>
+                <span>18 majstora</span>
+            </a>
+            <a class="kategorija-card" href="#">
+                <strong>Građevinski radovi</strong>
+                <span>31 majstor</span>
+            </a>
+            <a class="kategorija-card" href="#">
+                <strong>Moleraj i farbanje</strong>
+                <span>12 majstora</span>
+            </a>
+        </div>
+    </div>
+</section>
+<section class="oglasi-section">
+    <div class="oglasi-inner">
+        <div class="oglasi-header">
+            <h2>Nedavno objavljeni oglasi</h2>
+            <a asp-controller="Oglas" asp-action="Index">Pogledaj još →</a>
+        </div>
+        <div class="oglasi-grid">
+            @foreach (var oglas in new[] {
+                new { Naziv = "Montaža novog bojlera", Opis = "Potrebna montaža novog bojlera od 100L. Postoji priprema. Hitno za sutra.", Autor = "Esmir B.", BrojPonuda = 5 },
+                new { Naziv = "Renoviranje kuhinje - stolarski radovi", Opis = "Potrebna je izrada kuhinjskih elemenata po mjeri. Dimenzije prostorije su 3x4m.", Autor = "Kerim A.", BrojPonuda = 3 },
+                new { Naziv = "Popravka curenja vode u kupatilu", Opis = "Potrebno je zamijeniti spojni ventil i provjeriti cijelu instalaciju ispod sudopere. Preferiram majstora koji može izaći u roku od 24 sata.", Autor = "Edin Dž.", BrojPonuda = 1 },
+            })
+            {
+                <a class="oglas-card" href="#">
+                    <div class="oglas-body">
+                        <strong>@oglas.Naziv</strong>
+                        <p>@oglas.Opis</p>
+                    </div>
+                    <div class="oglas-footer">
+                        <span class="oglas-autor"><i class="fa-solid fa-circle-user"></i> @oglas.Autor</span>
+                        <span>Ponuda primljeno: @oglas.BrojPonuda</span>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
 @if (!User.Identity.IsAuthenticated)
 {
     <section class="cta-section">
@@ -106,7 +160,9 @@
                 <p class="cta-text">Pridružite se Popravka.ba platformi i plasirajte vaše usluge potencijalnim klijentima još danas!</p>
                 <a class="hero-btn" asp-controller="Account" asp-action="Registracija">Registriraj nalog</a>
             </div>
-            <div class="cta-image-placeholder"></div>
+            <div class="cta-image">
+                <i class="fa-solid fa-helmet-safety"></i>
+            </div>
         </div>
     </section>
 }

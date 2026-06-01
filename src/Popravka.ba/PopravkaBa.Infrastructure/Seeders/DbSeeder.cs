@@ -232,11 +232,7 @@ public class DbSeeder
     }
     private async Task SeedMjestaAsync()
     {
-        if (await _context.Mjesta.AnyAsync())
-        {
-            _context.Mjesta.RemoveRange(_context.Mjesta);
-            await _context.SaveChangesAsync();
-        }
+        if (await _context.Mjesta.AnyAsync()) return;
 
         var mjesta = new List<Mjesto>
     {
