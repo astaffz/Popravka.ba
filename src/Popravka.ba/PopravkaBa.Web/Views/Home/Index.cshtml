@@ -105,22 +105,15 @@
             <a asp-controller="Oglas" asp-action="Pretraga">Pogledaj sve →</a>
         </div>
         <div class="kategorije-grid">
-            <a class="kategorija-card" href="#">
-                <strong>Vodoinstalacije</strong>
-                <span>24 majstora</span>
+        @foreach (var kategorijaTuple in Model.TopKategorije)
+         {
+            // TODO: Usaglasit sa Tarikovim argumentima kada završi pretragu
+            <a asp-controller = "Oglas" asp-action = "Pretraga" asp-route-kategorijaID="@kategorijaTuple.ID" class="kategorija-card">
+                <strong>@kategorijaTuple.Naziv</strong>
+                <span>@kategorijaTuple.AktivniIzvrsilacCount majstora</span>
             </a>
-            <a class="kategorija-card" href="#">
-                <strong>Elektroinstalacije</strong>
-                <span>18 majstora</span>
-            </a>
-            <a class="kategorija-card" href="#">
-                <strong>Građevinski radovi</strong>
-                <span>31 majstor</span>
-            </a>
-            <a class="kategorija-card" href="#">
-                <strong>Moleraj i farbanje</strong>
-                <span>12 majstora</span>
-            </a>
+           
+          }
         </div>
     </div>
 </section>

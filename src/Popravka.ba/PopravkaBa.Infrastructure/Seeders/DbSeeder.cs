@@ -14,6 +14,7 @@ public class DbSeeder
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _appConfig;
 
+
     public DbSeeder(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
@@ -32,7 +33,7 @@ public class DbSeeder
         await SeedRolesAsync();
         await SeedKategorijeAsync();
         await SeedMjestaAsync();
-        await SeedAdminAsync();
+        await SeedUserAsync();
     }
 
     private async Task SeedRolesAsync()
@@ -48,9 +49,9 @@ public class DbSeeder
 
     private async Task SeedKategorijeAsync()
     {
-        if (!await _context.Kategorije.AnyAsync()) return; // TODO: Promjenuti kada su usaglašene kategorije.
+        if (await _context.Kategorije.AnyAsync()) return;
 
-     
+
         var nadkategorije = new Dictionary<string, Kategorija>
         {
             ["Građevinski radovi"] = new() { Naziv = "Građevinski radovi" },
@@ -177,6 +178,7 @@ public class DbSeeder
             new() { Naziv = "Animatori i zabava za djecu",              NadkategorijaID = nadkategorije["Eventi"].ID },
             new() { Naziv = "Dekoracija prostora",                      NadkategorijaID = nadkategorije["Eventi"].ID },
             new() { Naziv = "Cvjećarstvo i aranžmani",                  NadkategorijaID = nadkategorije["Eventi"].ID },
+            new() { Naziv = "Grill majstor",                            NadkategorijaID = nadkategorije["Eventi"].ID },
 
             // Krojačke usluge
             new() { Naziv = "Šivanje po mjeri",                         NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
@@ -419,14 +421,15 @@ public class DbSeeder
         await _context.SaveChangesAsync();
     }
 
-    private async Task SeedAdminAsync()
+    private async Task SeedUserAsync()
     {
         string adminEmail = _appConfig["SeedData:AdminEmail"];
         string adminUser = _appConfig["SeedData:AdminUsername"];
 
         if (await _userManager.FindByEmailAsync(adminEmail) != null) return;
 
-        var admin = new ApplicationUser
+        var admin = new Administrator
+        // U bazi je migriran kao ApplicationUser umjesto Administrator, ne znam da li je greška, zbog rolemanagera
         {
             UserName = adminUser,
             Email = adminEmail,
@@ -436,10 +439,40 @@ public class DbSeeder
         };
 
         var result = await _userManager.CreateAsync(admin, _appConfig["SeedData:AdminPassword"]);
-
         if (result.Succeeded)
             await _userManager.AddToRoleAsync(admin, KorisnickeUloge.Administrator.ToString());
         else
             throw new Exception($"Admin seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+
+        var phonyMajstor = new Majstor
+        {
+            UserName = "hajromustafic",
+            Email = "kontakt@hajro.ba",
+            EmailConfirmed = true,
+            Ime = "Hairudin",
+            Prezime = "Mustafić",
+            Opis = "Aidov babo.",
+        };
+        result = await _userManager.CreateAsync(phonyMajstor, "mojbabo1234");
+
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(phonyMajstor, KorisnickeUloge.Majstor.ToString());
+
+            var kategorije = await _context.Kategorije
+                .Where(k => k.Naziv == "Grill majstor" || k.Naziv == "Asfaltiranje")
+                .ToListAsync();
+
+            var newIzvrsilacKategorijeRows = kategorije.Select(k => new IzvrsilacKategorija
+            {
+                IzvrsilacID = phonyMajstor.Id,
+                KategorijaID = k.ID
+            });
+
+            await _context.IzvrsilacKategorija.AddRangeAsync(newIzvrsilacKategorijeRows);
+            await _context.SaveChangesAsync();
+        }
+        else
+            throw new Exception($"Majstor seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
     }
 }

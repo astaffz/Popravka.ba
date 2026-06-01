@@ -77,5 +77,14 @@ namespace PopravkaBa.Infrastructure.Repositories
             await UkloniSveKategorijeIzvrsiocu(izvrsilacId);
             await DodajKategorijeIzvrsiocu(izvrsilacId, kategorijeID);
         }
+
+        public async Task<IEnumerable<(Kategorija, int)>> DajTopKategorijePoMajstorimaAsync(int topN)
+            => await _context.IzvrsilacKategorija
+                .GroupBy(ik => ik.Kategorija)
+                .Select(grupa => new {Kategorija = grupa.Key, IzvrsilacCount = grupa.Count()})
+                .OrderByDescending(query => query.IzvrsilacCount)
+                .Take(topN)
+                .Select(query => ValueTuple.Create(query.Kategorija, query.IzvrsilacCount))
+                .ToListAsync();
     }
 }

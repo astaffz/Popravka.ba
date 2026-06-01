@@ -33,5 +33,8 @@ namespace PopravkaBa.Application.Services
 
         public async Task AzurirajKategorijeIzvrsioca(string izvrsilacId, List<int> kategorijeID)
             => await _repo.AzurirajKategorijeIzvrsioca(izvrsilacId, kategorijeID);
+
+        public async Task<IEnumerable<(Kategorija, int)>> DajTopKategorijePoMajstorimaAsync(int topN)
+        => await _repo.DajTopKategorijePoMajstorimaAsync(topN);
     }
 }
