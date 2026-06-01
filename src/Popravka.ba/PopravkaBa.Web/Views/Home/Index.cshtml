@@ -110,7 +110,7 @@
             // TODO: Usaglasit sa Tarikovim argumentima kada završi pretragu
             <a asp-controller = "Oglas" asp-action = "Pretraga" asp-route-kategorijaID="@kategorijaTuple.ID" class="kategorija-card">
                 <strong>@kategorijaTuple.Naziv</strong>
-                <span>@kategorijaTuple.AktivniIzvrsilacCount majstora</span>
+                <span>Aktivni majstori: @kategorijaTuple.AktivniIzvrsilacCount</span>
             </a>
            
           }

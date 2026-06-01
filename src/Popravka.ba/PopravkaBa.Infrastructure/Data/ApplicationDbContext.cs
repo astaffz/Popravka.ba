@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PopravkaBa.Domain.Models;
+using System.Reflection.Emit;
 namespace Popravka.ba.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -94,8 +95,12 @@ namespace Popravka.ba.Data
                 .HasForeignKey(r => r.IzvrsilacID)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<UvjetOglasa>().ToTable("UvjetOglasa");
-  
-            
+
+            builder.Entity<IzvrsilacKategorija>()
+                .HasIndex(ik => ik.KategorijaID);
+
+            builder.Entity<Oglas>()
+                .HasIndex(o => o.DatumObjave);
 
         }
     }

@@ -49,7 +49,7 @@ public class DbSeeder
 
     private async Task SeedKategorijeAsync()
     {
-        if (await _context.Kategorije.AnyAsync()) return;
+        if (await _context.Kategorije.AnyAsync()) { _context.Kategorije.RemoveRange(_context.Kategorije); await _context.SaveChangesAsync(); };
 
 
         var nadkategorije = new Dictionary<string, Kategorija>
@@ -445,6 +445,7 @@ public class DbSeeder
             else
                 throw new Exception($"Admin seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
+        
         if (await _userManager.FindByEmailAsync("kontakt@hajro.ba") == null)
         {
             var phonyMajstor = new Majstor
@@ -478,5 +479,6 @@ public class DbSeeder
             else
                 throw new Exception($"Majstor seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
+       
     }
 }
