@@ -426,53 +426,57 @@ public class DbSeeder
         string adminEmail = _appConfig["SeedData:AdminEmail"];
         string adminUser = _appConfig["SeedData:AdminUsername"];
 
-        if (await _userManager.FindByEmailAsync(adminEmail) != null) return;
-
-        var admin = new Administrator
-        // U bazi je migriran kao ApplicationUser umjesto Administrator, ne znam da li je greška, zbog rolemanagera
+        if (await _userManager.FindByEmailAsync(adminEmail) == null)
         {
-            UserName = adminUser,
-            Email = adminEmail,
-            EmailConfirmed = true,
-            Ime = "Tarik",
-            Prezime = "Redžić"
-        };
 
-        var result = await _userManager.CreateAsync(admin, _appConfig["SeedData:AdminPassword"]);
-        if (result.Succeeded)
-            await _userManager.AddToRoleAsync(admin, KorisnickeUloge.Administrator.ToString());
-        else
-            throw new Exception($"Admin seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-
-        var phonyMajstor = new Majstor
-        {
-            UserName = "hajromustafic",
-            Email = "kontakt@hajro.ba",
-            EmailConfirmed = true,
-            Ime = "Hairudin",
-            Prezime = "Mustafić",
-            Opis = "Aidov babo.",
-        };
-        result = await _userManager.CreateAsync(phonyMajstor, "mojbabo1234");
-
-        if (result.Succeeded)
-        {
-            await _userManager.AddToRoleAsync(phonyMajstor, KorisnickeUloge.Majstor.ToString());
-
-            var kategorije = await _context.Kategorije
-                .Where(k => k.Naziv == "Grill majstor" || k.Naziv == "Asfaltiranje")
-                .ToListAsync();
-
-            var newIzvrsilacKategorijeRows = kategorije.Select(k => new IzvrsilacKategorija
+            var admin = new Administrator
+            // U bazi je migriran kao ApplicationUser umjesto Administrator, ne znam da li je greška, zbog rolemanagera
             {
-                IzvrsilacID = phonyMajstor.Id,
-                KategorijaID = k.ID
-            });
+                UserName = adminUser,
+                Email = adminEmail,
+                EmailConfirmed = true,
+                Ime = "Tarik",
+                Prezime = "Redžić"
+            };
 
-            await _context.IzvrsilacKategorija.AddRangeAsync(newIzvrsilacKategorijeRows);
-            await _context.SaveChangesAsync();
+            var result = await _userManager.CreateAsync(admin, _appConfig["SeedData:AdminPassword"]);
+            if (result.Succeeded)
+                await _userManager.AddToRoleAsync(admin, KorisnickeUloge.Administrator.ToString());
+            else
+                throw new Exception($"Admin seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
-        else
-            throw new Exception($"Majstor seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        if (await _userManager.FindByEmailAsync("kontakt@hajro.ba") == null)
+        {
+            var phonyMajstor = new Majstor
+            {
+                UserName = "hajromustafic",
+                Email = "kontakt@hajro.ba",
+                EmailConfirmed = true,
+                Ime = "Hairudin",
+                Prezime = "Mustafić",
+                Opis = "Aidov babo.",
+            };
+            var result = await _userManager.CreateAsync(phonyMajstor, "Mojbabo#1234");
+
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(phonyMajstor, KorisnickeUloge.Majstor.ToString());
+
+                var kategorije = await _context.Kategorije
+                    .Where(k => k.Naziv == "Grill majstor" || k.Naziv == "Asfaltiranje")
+                    .ToListAsync();
+
+                var newIzvrsilacKategorijeRows = kategorije.Select(k => new IzvrsilacKategorija
+                {
+                    IzvrsilacID = phonyMajstor.Id,
+                    KategorijaID = k.ID
+                });
+
+                await _context.IzvrsilacKategorija.AddRangeAsync(newIzvrsilacKategorijeRows);
+                await _context.SaveChangesAsync();
+            }
+            else
+                throw new Exception($"Majstor seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
     }
 }
