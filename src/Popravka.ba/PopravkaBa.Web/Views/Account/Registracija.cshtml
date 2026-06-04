@@ -4,6 +4,13 @@
     Layout = null;
     ViewData["Title"] = Model.ActiveTab == PopravkaBa.Web.Models.Enums.AuthTab.Registracija ? "Registracija - Popravka.ba" : "Prijava - Popravka.ba";
 }
+@functions {
+    static string KantonNaziv(PopravkaBa.Domain.Enums.Kanton k)
+        => k.GetType().GetMember(k.ToString()).First()
+            .GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false)
+            .Cast<System.ComponentModel.DataAnnotations.DisplayAttribute>()
+            .FirstOrDefault()?.Name ?? k.ToString();
+}
 <!DOCTYPE html>
 <html lang="bs">
 <head>
@@ -28,13 +35,14 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans', system-ui, sans-serif; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+        html, body { height: 100%; }
+        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
 
-        .split { display: flex; min-height: 100vh; width: 100%; }
+        .split { display: flex; height: 100vh; width: 100%; }
 
-        /* Left panel */
+        /* Left panel - fixed in place */
         .panel-blue {
-    flex: 0 0 60%;
+    flex: 0 0 55%;
     background: var(--blue-darker);
     display: flex;
     align-items: center;
@@ -42,6 +50,7 @@
     padding: 4rem 3rem;
     position: relative;
     overflow: hidden;
+    height: 100vh;
 }
 .panel-blue::before {
     content: '';
@@ -78,14 +87,15 @@
     color: #ffffff;
     letter-spacing: 0.02em;
 }
-        /* Right panel */
-        .panel-form { flex: 0 0 40%; display: flex; align-items: center; justify-content: center; padding: 3rem; flex-direction:column;}
-        .form-container { width: 100%; max-width: 380px; }
+        /* Right panel - scrollable */
+        .panel-form { flex: 0 0 45%; display: flex; align-items: center; justify-content: flex-start; padding: 4rem 3rem; flex-direction:column; height: 100vh; overflow-y: auto; }
+        .form-container { width: 100%; max-width: 520px; }
 
-        .card { background: var(--white); padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(16,24,40,0.06); border:1px solid rgba(16,24,40,0.03); }
+        .card { background: var(--white); padding: 2rem 2.5rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(16,24,40,0.06); border:1px solid rgba(16,24,40,0.03); }
             .back-link {
                 display: flex;
-                margin-right:auto;
+                width: 100%;
+                max-width: 520px;
                 text-align:left;
                 color: var(--blue-darker);
                 font-weight: 600;
@@ -104,7 +114,7 @@
 
         /* type selector cards */
         .type-grid { display:flex; gap:0.6rem; margin:0.6rem 0 1rem 0; }
-        .type-card { flex:0 0 76px; height:76px; border-radius:8px; border:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:#fff; cursor:pointer; }
+        .type-card { flex:1 1 0; height:72px; border-radius:8px; border:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:#fff; cursor:pointer; }
         .type-card .icon { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#f3f4f6; color:var(--text-soft); }
         .type-card.active { border-color: var(--blue); box-shadow: 0 4px 10px rgba(11,95,214,0.06); }
 
@@ -119,7 +129,7 @@
         .form-subtitle {
             color: var(--text-muted);
             font-size: 0.95rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
 
         .register-type-group { display:flex; gap:0.5rem; margin:1rem 0 1.25rem 0; }
@@ -129,13 +139,13 @@
         .register-type-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
         /* Form fields */
-        .field { margin-bottom: 1.25rem; }
+        .field { margin-bottom: 0.75rem; }
         .field-label {
             display: block;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
         }
 
         .input-wrap {
@@ -171,11 +181,11 @@
 
         .field-input {
             width: 100%;
-            padding: 0.75rem 0.9rem 0.75rem 2.6rem;
+            padding: 0.5rem 0.75rem 0.5rem 2.6rem;
             background: var(--white);
             border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text);
             font-family: inherit;
             outline: none;
@@ -279,6 +289,132 @@
     transition: background 0.15s ease;
 }
 
+        /* plain text inputs (no leading icon) */
+        .field-input--plain { padding-left: 0.9rem; }
+
+        /* ===== Combobox (searchable dropdown, like homepage lokacija) ===== */
+        .combo { position: relative; }
+        .combo + .combo { margin-top: 0.6rem; }
+
+        .combo-control {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            min-height: 42px;
+            padding: 0.35rem 2.2rem 0.35rem 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .combo-control:focus,
+        .combo.open .combo-control {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(26,111,212,0.12);
+        }
+        .combo.disabled .combo-control {
+            background: #f9fafb;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .combo-placeholder { color: var(--text-soft); font-size: 0.9rem; }
+        .combo-placeholder.chosen { color: var(--text); font-weight: 600; }
+        .combo-control.has-value .combo-placeholder { display: none; }
+
+        .combo-caret {
+            position: absolute;
+            right: 0.75rem;
+            width: 16px; height: 16px;
+            color: var(--text-soft);
+            pointer-events: none;
+            transition: transform 0.15s ease;
+        }
+        .combo.open .combo-caret { transform: rotate(180deg); }
+
+        .combo-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: var(--blue-light);
+            color: var(--blue-darker);
+            padding: 0.15rem 0.45rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .combo-chip button {
+            border: 0; background: transparent; cursor: pointer;
+            color: var(--blue-darker); font-weight: 700; line-height: 1;
+            padding: 0; font-size: 0.95rem;
+        }
+
+        .combo-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0; right: 0;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 50;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.12);
+        }
+        .combo.open .combo-dropdown { display: block; }
+
+        .combo-search-wrap {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.45rem 0.7rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .combo-search-wrap svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--text-soft); }
+        .combo-search { width: 100%; border: 0; outline: none; font-size: 0.875rem; font-family: inherit; color: var(--text); }
+
+        .combo-options { max-height: 220px; overflow-y: auto; }
+        .combo-group {
+            padding: 0.45rem 0.85rem 0.2rem;
+            font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--blue-dark);
+            border-top: 1px solid var(--border);
+            margin-top: 0.2rem;
+        }
+        .combo-group:first-child { border-top: 0; margin-top: 0; }
+        .combo-option {
+            padding: 0.5rem 0.85rem;
+            font-size: 0.875rem; font-weight: 500;
+            cursor: pointer; color: var(--text);
+            transition: background 0.12s ease, color 0.12s ease;
+        }
+        .combo-option:hover { background: #f3f4f6; }
+        .combo-option.selected { background: var(--blue); color: #fff; }
+        .combo-option.hidden { display: none; }
+        .combo-empty { padding: 0.6rem 0.85rem; font-size: 0.85rem; color: var(--text-soft); }
+
+        /* ===== Logo upload ===== */
+        .logo-drop {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 1rem;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            text-align: center;
+            color: var(--text-soft);
+            cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+        }
+        .logo-drop:hover { border-color: var(--blue); background: #f8fbff; }
+        .logo-drop svg { width: 22px; height: 22px; }
+        .logo-drop small { font-size: 0.75rem; }
+        .logo-drop.has-file { border-style: solid; border-color: var(--blue); color: var(--text); background: #f8fbff; }
+        .logo-drop-text { font-size: 0.875rem; font-weight: 600; }
+
     </style>
 </head>
 <body>
@@ -350,68 +486,178 @@
                     <p class="form-footer">Nemate račun? <a asp-controller="Account" asp-action="Registracija">Registrujte se</a></p>
                 </div>
 
-                <div id="register-panel" style="display:@(Model.ActiveTab==PopravkaBa.Web.Models.Enums.AuthTab.Registracija?"block":"none");">
+                @{
+                    // Koji je tip registracije aktivan (npr. nakon neuspjelog POST-a vrati se na isti tab).
+                    var aktivniRegTip = Model.FirmaDTO != null ? "firma"
+                        : Model.MajstorDTO != null ? "majstor"
+                        : "klijent";
+                }
+                <div id="register-panel" data-aktivni-tip="@aktivniRegTip" style="display:@(Model.ActiveTab==PopravkaBa.Web.Models.Enums.AuthTab.Registracija?"block":"none");">
                     <h1 class="form-title">Kreirajte nalog</h1>
                     <p class="form-subtitle">Popunite podatke i počnite koristiti platformu.</p>
 
                     <label style="font-weight:700;margin-bottom:6px;display:block;color:var(--text);">Prijavljujem se kao...</label>
                     <div class="type-grid">
-                        <div id="card-klijent" class="type-card active" onclick="showRegisterType('klijent')"><div class="icon">👤</div><div style="font-size:0.85rem;color:var(--text-soft);">Klijent</div></div>
-                        <div id="card-majstor" class="type-card" onclick="showRegisterType('majstor')"><div class="icon">🔧</div><div style="font-size:0.85rem;color:var(--text-soft);">Majstor</div></div>
-                        <div id="card-firma" class="type-card" onclick="showRegisterType('firma')"><div class="icon">🏢</div><div style="font-size:0.85rem;color:var(--text-soft);">Firma</div></div>
+                        <div id="card-klijent" class="type-card @(aktivniRegTip == "klijent" ? "active" : "")" onclick="showRegisterType('klijent')"><div class="icon">👤</div><div style="font-size:0.85rem;color:var(--text-soft);">Klijent</div></div>
+                        <div id="card-majstor" class="type-card @(aktivniRegTip == "majstor" ? "active" : "")" onclick="showRegisterType('majstor')"><div class="icon">🔧</div><div style="font-size:0.85rem;color:var(--text-soft);">Majstor</div></div>
+                        <div id="card-firma" class="type-card @(aktivniRegTip == "firma" ? "active" : "")" onclick="showRegisterType('firma')"><div class="icon">🏢</div><div style="font-size:0.85rem;color:var(--text-soft);">Firma</div></div>
                     </div>
 
+                    @{
+                        var nadkategorije = Model.Kategorije.Where(k => k.NadkategorijaID == null).OrderBy(k => k.Naziv).ToList();
+                        var potkategorije = Model.Kategorije.Where(k => k.NadkategorijaID != null).OrderBy(k => k.Naziv).ToList();
+                        var mjestaPoKantonu = Model.Mjesta.GroupBy(m => m.Kanton).OrderBy(g => (int)g.Key).ToList();
+                    }
+
                     <!-- Klijent form -->
-                    <div id="reg-klijent" style="display:block;">
+                    <div id="reg-klijent" style="display:@(aktivniRegTip == "klijent" ? "block" : "none");">
                         <form asp-controller="Account" asp-action="RegistracijaKlijenta" method="post">
                             @Html.AntiForgeryToken()
                             <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
-                            <div class="two-col">
-                                <div class="field"><label asp-for="KlijentDTO.Ime" class="field-label">Ime</label><input asp-for="KlijentDTO.Ime" class="field-input" /></div>
-                                <div class="field"><label asp-for="KlijentDTO.Prezime" class="field-label">Prezime</label><input asp-for="KlijentDTO.Prezime" class="field-input" /></div>
+
+                            <div class="field">
+                                <label asp-for="KlijentDTO.KorisnickoIme" class="field-label">Korisničko ime</label>
+                                <input asp-for="KlijentDTO.KorisnickoIme" class="field-input field-input--plain" autocomplete="username" />
+                                <span asp-validation-for="KlijentDTO.KorisnickoIme" class="field-error"></span>
                             </div>
-                            <div class="field"><label asp-for="KlijentDTO.Email" class="field-label">E-mail adresa</label><input asp-for="KlijentDTO.Email" class="field-input" /></div>
-                            <div class="field"><label asp-for="KlijentDTO.Lozinka" class="field-label">Lozinka</label><input asp-for="KlijentDTO.Lozinka" class="field-input" type="password" /></div>
-                            <div class="field"><label asp-for="KlijentDTO.PotvrdaLozinke" class="field-label">Potvrdite lozinku</label><input asp-for="KlijentDTO.PotvrdaLozinke" class="field-input" type="password" /></div>
-                            <div class="field"><label class="field-label">Lokacija</label><select asp-for="KlijentDTO.MjestaID" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Mjesta, "MjestoID", "Naziv"))" multiple class="field-input" style="height:120px;"></select></div>
+                            <div class="two-col">
+                                <div class="field"><label asp-for="KlijentDTO.Ime" class="field-label">Ime</label><input asp-for="KlijentDTO.Ime" class="field-input field-input--plain" /><span asp-validation-for="KlijentDTO.Ime" class="field-error"></span></div>
+                                <div class="field"><label asp-for="KlijentDTO.Prezime" class="field-label">Prezime</label><input asp-for="KlijentDTO.Prezime" class="field-input field-input--plain" /><span asp-validation-for="KlijentDTO.Prezime" class="field-error"></span></div>
+                            </div>
+                            <div class="field"><label asp-for="KlijentDTO.Email" class="field-label">E-mail adresa</label><input asp-for="KlijentDTO.Email" class="field-input field-input--plain" /><span asp-validation-for="KlijentDTO.Email" class="field-error"></span></div>
+                            <div class="two-col">
+                                <div class="field"><label asp-for="KlijentDTO.Lozinka" class="field-label">Lozinka</label><input asp-for="KlijentDTO.Lozinka" class="field-input field-input--plain" type="password" /><span asp-validation-for="KlijentDTO.Lozinka" class="field-error"></span></div>
+                                <div class="field"><label asp-for="KlijentDTO.PotvrdaLozinke" class="field-label">Potvrda lozinke</label><input asp-for="KlijentDTO.PotvrdaLozinke" class="field-input field-input--plain" type="password" /><span asp-validation-for="KlijentDTO.PotvrdaLozinke" class="field-error"></span></div>
+                            </div>
+
+                            <div class="field">
+                                <label class="field-label">Lokacija</label>
+                                <div class="combo" data-combo="multi" data-max="1" data-name="KlijentDTO.MjestaID">
+                                    <div class="combo-control" tabindex="0">
+                                        <div class="combo-chips"></div>
+                                        <span class="combo-placeholder">Odaberite lokaciju...</span>
+                                        <svg class="combo-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    </div>
+                                    <div class="combo-dropdown">
+                                        <div class="combo-search-wrap">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                            <input type="text" class="combo-search" placeholder="Pretraži mjesto..." autocomplete="off" />
+                                        </div>
+                                        <div class="combo-options">
+                                            @foreach (var grupa in mjestaPoKantonu)
+                                            {
+                                                var kantonNaziv = KantonNaziv(grupa.Key);
+                                                <div class="combo-group" data-group="@kantonNaziv">@kantonNaziv</div>
+                                                @foreach (var m in grupa.OrderBy(m => m.Naziv))
+                                                {
+                                                    <div class="combo-option" data-value="@m.MjestoID" data-label="@m.Naziv" data-group="@kantonNaziv">@m.Naziv</div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="combo-hidden"></div>
+                                </div>
+                                <span asp-validation-for="KlijentDTO.MjestaID" class="field-error"></span>
+                            </div>
 
                             <button type="submit" class="btn-submit">Registracija</button>
                         </form>
                     </div>
 
                     <!-- Majstor form -->
-                    <div id="reg-majstor" style="display:none;">
+                    <div id="reg-majstor" style="display:@(aktivniRegTip == "majstor" ? "block" : "none");">
                         <form asp-controller="Account" asp-action="RegistracijaMajstora" method="post">
                             @Html.AntiForgeryToken()
                             <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                            <div class="field">
+                                <label asp-for="MajstorDTO.KorisnickoIme" class="field-label">Korisničko ime</label>
+                                <input asp-for="MajstorDTO.KorisnickoIme" class="field-input field-input--plain" autocomplete="username" />
+                                <span asp-validation-for="MajstorDTO.KorisnickoIme" class="field-error"></span>
+                            </div>
                             <div class="two-col">
-                                <div class="field"><label asp-for="MajstorDTO.Ime" class="field-label">Ime</label><input asp-for="MajstorDTO.Ime" class="field-input" /></div>
-                                <div class="field"><label asp-for="MajstorDTO.Prezime" class="field-label">Prezime</label><input asp-for="MajstorDTO.Prezime" class="field-input" /></div>
+                                <div class="field"><label asp-for="MajstorDTO.Ime" class="field-label">Ime</label><input asp-for="MajstorDTO.Ime" class="field-input field-input--plain" /><span asp-validation-for="MajstorDTO.Ime" class="field-error"></span></div>
+                                <div class="field"><label asp-for="MajstorDTO.Prezime" class="field-label">Prezime</label><input asp-for="MajstorDTO.Prezime" class="field-input field-input--plain" /><span asp-validation-for="MajstorDTO.Prezime" class="field-error"></span></div>
                             </div>
-                            <div class="field"><label asp-for="MajstorDTO.Email" class="field-label">E-mail adresa</label><input asp-for="MajstorDTO.Email" class="field-input" /></div>
-                            <div class="field"><label asp-for="MajstorDTO.Lozinka" class="field-label">Lozinka</label><input asp-for="MajstorDTO.Lozinka" class="field-input" type="password" /></div>
-
-                            <div class="field"><label class="field-label">Zanimanje (max 5)</label>
-                                <div class="multi-select" id="ms-kategorije-majstor">
-                                    <div class="ms-chips" id="chips-kategorije-majstor"></div>
-                                    <input type="text" class="ms-input" id="input-kategorije-majstor" placeholder="Pretražite kategorije..." />
-                                    <div class="ms-dropdown" id="dropdown-kategorije-majstor">
-                                        @foreach(var k in Model.Kategorije){<div class="ms-item" data-id="@k.ID">@k.Naziv</div>}
-                                    </div>
-                                </div>
-                                <!-- hidden values to post -->
-                                <input type="hidden" name="MajstorDTO.KategorijeID" id="hidden-kategorije-majstor" />
+                            <div class="field"><label asp-for="MajstorDTO.Email" class="field-label">E-mail adresa</label><input asp-for="MajstorDTO.Email" class="field-input field-input--plain" /><span asp-validation-for="MajstorDTO.Email" class="field-error"></span></div>
+                            <div class="two-col">
+                                <div class="field"><label asp-for="MajstorDTO.Lozinka" class="field-label">Lozinka</label><input asp-for="MajstorDTO.Lozinka" class="field-input field-input--plain" type="password" /><span asp-validation-for="MajstorDTO.Lozinka" class="field-error"></span></div>
+                                <div class="field"><label asp-for="MajstorDTO.PotvrdaLozinke" class="field-label">Potvrda lozinke</label><input asp-for="MajstorDTO.PotvrdaLozinke" class="field-input field-input--plain" type="password" /><span asp-validation-for="MajstorDTO.PotvrdaLozinke" class="field-error"></span></div>
                             </div>
 
-                            <div class="field"><label class="field-label">Lokacija (max 3)</label>
-                                <div class="multi-select" id="ms-mjesta-majstor">
-                                    <div class="ms-chips" id="chips-mjesta-majstor"></div>
-                                    <input type="text" class="ms-input" id="input-mjesta-majstor" placeholder="Pretražite gradove..." />
-                                    <div class="ms-dropdown" id="dropdown-mjesta-majstor">
-                                        @foreach(var m in Model.Mjesta){<div class="ms-item" data-id="@m.MjestoID">@m.Naziv</div>}
+                            <div class="field">
+                                <label class="field-label">Zanimanje (max 5)</label>
+                                <div class="cascade" data-max="5" data-name="MajstorDTO.KategorijeID">
+                                    <div class="combo" data-combo="single" data-role="nad">
+                                        <div class="combo-control" tabindex="0">
+                                            <span class="combo-placeholder">Odaberite oblast...</span>
+                                            <svg class="combo-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                        </div>
+                                        <div class="combo-dropdown">
+                                            <div class="combo-search-wrap">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                                <input type="text" class="combo-search" placeholder="Pretraži oblast..." autocomplete="off" />
+                                            </div>
+                                            <div class="combo-options">
+                                                @foreach (var nad in nadkategorije)
+                                                {
+                                                    <div class="combo-option" data-value="@nad.ID" data-label="@nad.Naziv">@nad.Naziv</div>
+                                                }
+                                            </div>
+                                        </div>
                                     </div>
+                                    <div class="combo disabled" data-combo="multi" data-role="pot">
+                                        <div class="combo-control" tabindex="0">
+                                            <div class="combo-chips"></div>
+                                            <span class="combo-placeholder">Prvo odaberite oblast</span>
+                                            <svg class="combo-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                        </div>
+                                        <div class="combo-dropdown">
+                                            <div class="combo-search-wrap">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                                <input type="text" class="combo-search" placeholder="Pretraži kategoriju..." autocomplete="off" />
+                                            </div>
+                                            <div class="combo-options">
+                                                @foreach (var k in potkategorije)
+                                                {
+                                                    <div class="combo-option" data-value="@k.ID" data-label="@k.Naziv" data-parent="@k.NadkategorijaID">@k.Naziv</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="combo-hidden"></div>
                                 </div>
-                                <input type="hidden" name="MajstorDTO.MjestaID" id="hidden-mjesta-majstor" />
+                                <span asp-validation-for="MajstorDTO.KategorijeID" class="field-error"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field-label">Lokacija (max 3)</label>
+                                <div class="combo" data-combo="multi" data-max="3" data-name="MajstorDTO.MjestaID">
+                                    <div class="combo-control" tabindex="0">
+                                        <div class="combo-chips"></div>
+                                        <span class="combo-placeholder">Odaberite lokaciju...</span>
+                                        <svg class="combo-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    </div>
+                                    <div class="combo-dropdown">
+                                        <div class="combo-search-wrap">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                            <input type="text" class="combo-search" placeholder="Pretraži mjesto..." autocomplete="off" />
+                                        </div>
+                                        <div class="combo-options">
+                                            @foreach (var grupa in mjestaPoKantonu)
+                                            {
+                                                var kantonNaziv = KantonNaziv(grupa.Key);
+                                                <div class="combo-group" data-group="@kantonNaziv">@kantonNaziv</div>
+                                                @foreach (var m in grupa.OrderBy(m => m.Naziv))
+                                                {
+                                                    <div class="combo-option" data-value="@m.MjestoID" data-label="@m.Naziv" data-group="@kantonNaziv">@m.Naziv</div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="combo-hidden"></div>
+                                </div>
+                                <span asp-validation-for="MajstorDTO.MjestaID" class="field-error"></span>
                             </div>
 
                             <button type="submit" class="btn-submit">Registracija</button>
@@ -419,41 +665,108 @@
                     </div>
 
                     <!-- Firma form -->
-                    <div id="reg-firma" style="display:none;">
-                        <form asp-controller="Account" asp-action="RegistracijaFirme" method="post">
+                    <div id="reg-firma" style="display:@(aktivniRegTip == "firma" ? "block" : "none");">
+                        <form asp-controller="Account" asp-action="RegistracijaFirme" method="post" enctype="multipart/form-data">
                             @Html.AntiForgeryToken()
                             <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
-                            <div class="field"><label asp-for="FirmaDTO.NazivFirme" class="field-label">Naziv firme</label><input asp-for="FirmaDTO.NazivFirme" class="field-input" /></div>
-                            <div class="field"><label asp-for="FirmaDTO.Email" class="field-label">E-mail adresa</label><input asp-for="FirmaDTO.Email" class="field-input" /></div>
-                            <div class="field"><label asp-for="FirmaDTO.Lozinka" class="field-label">Lozinka</label><input asp-for="FirmaDTO.Lozinka" class="field-input" type="password" /></div>
+                            <div class="field">
+                                <label asp-for="FirmaDTO.KorisnickoIme" class="field-label">Korisničko ime</label>
+                                <input asp-for="FirmaDTO.KorisnickoIme" class="field-input field-input--plain" autocomplete="username" />
+                                <span asp-validation-for="FirmaDTO.KorisnickoIme" class="field-error"></span>
+                            </div>
+                            <div class="field"><label asp-for="FirmaDTO.NazivFirme" class="field-label">Naziv firme</label><input asp-for="FirmaDTO.NazivFirme" class="field-input field-input--plain" /><span asp-validation-for="FirmaDTO.NazivFirme" class="field-error"></span></div>
+                            <div class="field"><label asp-for="FirmaDTO.Email" class="field-label">E-mail adresa</label><input asp-for="FirmaDTO.Email" class="field-input field-input--plain" /><span asp-validation-for="FirmaDTO.Email" class="field-error"></span></div>
+                            <div class="two-col">
+                                <div class="field"><label asp-for="FirmaDTO.Lozinka" class="field-label">Lozinka</label><input asp-for="FirmaDTO.Lozinka" class="field-input field-input--plain" type="password" /><span asp-validation-for="FirmaDTO.Lozinka" class="field-error"></span></div>
+                                <div class="field"><label asp-for="FirmaDTO.PotvrdaLozinke" class="field-label">Potvrda lozinke</label><input asp-for="FirmaDTO.PotvrdaLozinke" class="field-input field-input--plain" type="password" /><span asp-validation-for="FirmaDTO.PotvrdaLozinke" class="field-error"></span></div>
+                            </div>
+                            <div class="field"><label asp-for="FirmaDTO.VelicinaFirme" class="field-label">Veličina firme</label><select asp-for="FirmaDTO.VelicinaFirme" asp-items="Html.GetEnumSelectList<PopravkaBa.Domain.Enums.VelicinaFirme>()" class="field-input field-input--plain"></select><span asp-validation-for="FirmaDTO.VelicinaFirme" class="field-error"></span></div>
+                            <div class="field"><label asp-for="FirmaDTO.WebStranica" class="field-label">Web stranica <span style="color:var(--text-soft);font-weight:400;">(opcionalno)</span></label><input asp-for="FirmaDTO.WebStranica" class="field-input field-input--plain" placeholder="https://..." /><span asp-validation-for="FirmaDTO.WebStranica" class="field-error"></span></div>
 
-                            <div class="field"><label class="field-label">Djelatnost (max 5)</label>
-                                <div class="multi-select" id="ms-kategorije-firma">
-                                    <div class="ms-chips" id="chips-kategorije-firma"></div>
-                                    <input type="text" class="ms-input" id="input-kategorije-firma" placeholder="Pretražite djelatnosti..." />
-                                    <div class="ms-dropdown" id="dropdown-kategorije-firma">
-                                        @foreach(var k in Model.Kategorije){<div class="ms-item" data-id="@k.ID">@k.Naziv</div>}
+                            <div class="field">
+                                <label class="field-label">Djelatnost (max 5)</label>
+                                <div class="cascade" data-max="5" data-name="FirmaDTO.KategorijeID">
+                                    <div class="combo" data-combo="single" data-role="nad">
+                                        <div class="combo-control" tabindex="0">
+                                            <span class="combo-placeholder">Odaberite oblast...</span>
+                                            <svg class="combo-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                        </div>
+                                        <div class="combo-dropdown">
+                                            <div class="combo-search-wrap">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                                <input type="text" class="combo-search" placeholder="Pretraži oblast..." autocomplete="off" />
+                                            </div>
+                                            <div class="combo-options">
+                                                @foreach (var nad in nadkategorije)
+                                                {
+                                                    <div class="combo-option" data-value="@nad.ID" data-label="@nad.Naziv">@nad.Naziv</div>
+                                                }
+                                            </div>
+                                        </div>
                                     </div>
+                                    <div class="combo disabled" data-combo="multi" data-role="pot">
+                                        <div class="combo-control" tabindex="0">
+                                            <div class="combo-chips"></div>
+                                            <span class="combo-placeholder">Prvo odaberite oblast</span>
+                                            <svg class="combo-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                        </div>
+                                        <div class="combo-dropdown">
+                                            <div class="combo-search-wrap">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                                <input type="text" class="combo-search" placeholder="Pretraži kategoriju..." autocomplete="off" />
+                                            </div>
+                                            <div class="combo-options">
+                                                @foreach (var k in potkategorije)
+                                                {
+                                                    <div class="combo-option" data-value="@k.ID" data-label="@k.Naziv" data-parent="@k.NadkategorijaID">@k.Naziv</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="combo-hidden"></div>
                                 </div>
-                                <input type="hidden" name="FirmaDTO.KategorijeID" id="hidden-kategorije-firma" />
+                                <span asp-validation-for="FirmaDTO.KategorijeID" class="field-error"></span>
                             </div>
 
-                            <div class="field"><label class="field-label">Lokacija (max 3)</label>
-                                <div class="multi-select" id="ms-mjesta-firma">
-                                    <div class="ms-chips" id="chips-mjesta-firma"></div>
-                                    <input type="text" class="ms-input" id="input-mjesta-firma" placeholder="Pretražite gradove..." />
-                                    <div class="ms-dropdown" id="dropdown-mjesta-firma">
-                                        @foreach(var m in Model.Mjesta){<div class="ms-item" data-id="@m.MjestoID">@m.Naziv</div>}
+                            <div class="field">
+                                <label class="field-label">Lokacija (max 3)</label>
+                                <div class="combo" data-combo="multi" data-max="3" data-name="FirmaDTO.MjestaID">
+                                    <div class="combo-control" tabindex="0">
+                                        <div class="combo-chips"></div>
+                                        <span class="combo-placeholder">Odaberite lokaciju...</span>
+                                        <svg class="combo-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                     </div>
+                                    <div class="combo-dropdown">
+                                        <div class="combo-search-wrap">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                            <input type="text" class="combo-search" placeholder="Pretraži mjesto..." autocomplete="off" />
+                                        </div>
+                                        <div class="combo-options">
+                                            @foreach (var grupa in mjestaPoKantonu)
+                                            {
+                                                var kantonNaziv = KantonNaziv(grupa.Key);
+                                                <div class="combo-group" data-group="@kantonNaziv">@kantonNaziv</div>
+                                                @foreach (var m in grupa.OrderBy(m => m.Naziv))
+                                                {
+                                                    <div class="combo-option" data-value="@m.MjestoID" data-label="@m.Naziv" data-group="@kantonNaziv">@m.Naziv</div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="combo-hidden"></div>
                                 </div>
-                                <input type="hidden" name="FirmaDTO.MjestaID" id="hidden-mjesta-firma" />
+                                <span asp-validation-for="FirmaDTO.MjestaID" class="field-error"></span>
                             </div>
 
-
-
-                            <div class="field"><label class="field-label">Logo / fotografija firme</label>
-                                <div style="border:1px dashed var(--border);padding:1rem;border-radius:8px;text-align:center;color:var(--text-soft);">Kliknite za upload<br/><small>jpg, png – max 5MB</small></div>
+                            <div class="field">
+                                <label class="field-label">Logo / fotografija firme <span style="color:var(--text-soft);font-weight:400;">(opcionalno)</span></label>
+                                <label class="logo-drop" id="logoDrop">
+                                    <input type="file" name="logo" id="logoInput" accept=".jpg,.jpeg,.png,image/jpeg,image/png" hidden />
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                    <span class="logo-drop-text" id="logoDropText">Kliknite za upload</span>
+                                    <small>jpg, png – max 5MB</small>
+                                </label>
                             </div>
 
                             <button type="submit" class="btn-submit">Registracija</button>
@@ -488,61 +801,188 @@
         }
     </script>
     <script>
-        // multi-select helper
-        function setupMultiSelect(prefix, max) {
-            const input = document.getElementById(`input-${prefix}`);
-            const dropdown = document.getElementById(`dropdown-${prefix}`);
-            const chipsWrap = document.getElementById(`chips-${prefix}`);
-            const hidden = document.getElementById(`hidden-${prefix}`);
-
-            let selected = [];
-
-            input.addEventListener('focus', () => dropdown.style.display = 'block');
-            input.addEventListener('input', () => {
-                const q = input.value.toLowerCase();
-                Array.from(dropdown.children).forEach(item => {
-                    item.style.display = item.textContent.toLowerCase().includes(q) ? 'block' : 'none';
-                });
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!dropdown.contains(e.target) && e.target !== input) dropdown.style.display = 'none';
-            });
-
-            Array.from(dropdown.children).forEach(item => {
-                item.addEventListener('click', () => {
-                    const id = item.getAttribute('data-id');
-                    const text = item.textContent.trim();
-                    if (selected.find(s => s.id === id)) return;
-                    if (max && selected.length >= max) return;
-                    selected.push({ id, text });
-                    render();
-                });
-            });
-
-            function render() {
-                chipsWrap.innerHTML = '';
-                selected.forEach(s => {
-                    const chip = document.createElement('span');
-                    chip.className = 'ms-chip';
-                    chip.innerHTML = `${s.text} <button type="button">×</button>`;
-                    chip.querySelector('button').addEventListener('click', () => {
-                        selected = selected.filter(x => x.id !== s.id);
-                        render();
-                    });
-                    chipsWrap.appendChild(chip);
-                });
-                hidden.value = selected.map(s => s.id).join(',');
+        // ===== Searchable comboboxes (lokacija + kaskadno zanimanje) =====
+        (function () {
+            function closeAll(except) {
+                document.querySelectorAll('.combo.open').forEach(c => { if (c !== except) c.classList.remove('open'); });
             }
-        }
+            document.addEventListener('click', (e) => { if (!e.target.closest('.combo')) closeAll(); });
 
-        // initialize multi-selects
-        document.addEventListener('DOMContentLoaded', function() {
-            setupMultiSelect('kategorije-majstor', 5);
-            setupMultiSelect('mjesta-majstor', 3);
-            setupMultiSelect('kategorije-firma', 5);
-            setupMultiSelect('mjesta-firma', 3);
-        });
+            // Show/hide options based on search text, parent filter and already-selected values.
+            function filterOptions(combo, { query = '', parent = null, selected = null } = {}) {
+                const q = query.toLowerCase();
+                const groups = combo.querySelectorAll('.combo-group');
+                const options = combo.querySelectorAll('.combo-option');
+                const visibleGroups = new Set();
+                let anyVisible = false;
+
+                options.forEach(opt => {
+                    let vis = opt.dataset.label.toLowerCase().includes(q);
+                    if (parent != null && opt.dataset.parent !== String(parent)) vis = false;
+                    if (selected && selected.has(opt.dataset.value)) vis = false;
+                    opt.classList.toggle('hidden', !vis);
+                    if (vis) { anyVisible = true; if (opt.dataset.group) visibleGroups.add(opt.dataset.group); }
+                });
+                groups.forEach(g => g.classList.toggle('hidden', !visibleGroups.has(g.dataset.group)));
+
+                let empty = combo.querySelector('.combo-empty');
+                if (!anyVisible) {
+                    if (!empty) {
+                        empty = document.createElement('div');
+                        empty.className = 'combo-empty';
+                        empty.textContent = 'Nema rezultata.';
+                        combo.querySelector('.combo-options').appendChild(empty);
+                    }
+                    empty.style.display = '';
+                } else if (empty) {
+                    empty.style.display = 'none';
+                }
+            }
+
+            function wireToggle(combo, onOpen) {
+                const control = combo.querySelector('.combo-control');
+                const search = combo.querySelector('.combo-search');
+                control.addEventListener('click', (e) => {
+                    if (e.target.closest('.combo-chip')) return;
+                    if (combo.classList.contains('disabled')) return;
+                    const willOpen = !combo.classList.contains('open');
+                    closeAll(combo);
+                    combo.classList.toggle('open', willOpen);
+                    if (willOpen) { if (onOpen) onOpen(); if (search) search.focus(); }
+                });
+            }
+
+            // Multi-select combo with chips + one hidden <input> per selected value.
+            function createMultiCombo(combo, { name, hiddenContainer, max, getParent }) {
+                const control = combo.querySelector('.combo-control');
+                const chipsWrap = combo.querySelector('.combo-chips');
+                const search = combo.querySelector('.combo-search');
+                const selected = new Map(); // value -> label
+
+                function refilter() {
+                    filterOptions(combo, { query: search ? search.value : '', parent: getParent ? getParent() : null, selected });
+                }
+
+                function sync() {
+                    chipsWrap.innerHTML = '';
+                    hiddenContainer.innerHTML = '';
+                    selected.forEach((label, value) => {
+                        const chip = document.createElement('span');
+                        chip.className = 'combo-chip';
+                        const text = document.createElement('span');
+                        text.textContent = label;
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.setAttribute('aria-label', 'Ukloni');
+                        btn.textContent = '×';
+                        btn.addEventListener('click', (e) => { e.stopPropagation(); selected.delete(value); sync(); });
+                        chip.appendChild(text);
+                        chip.appendChild(btn);
+                        chipsWrap.appendChild(chip);
+
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = name;
+                        input.value = value;
+                        hiddenContainer.appendChild(input);
+                    });
+                    control.classList.toggle('has-value', selected.size > 0);
+                    refilter();
+                }
+
+                combo.querySelectorAll('.combo-option').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        const value = opt.dataset.value;
+                        if (selected.has(value)) return;
+                        if (max && selected.size >= max) return;
+                        selected.set(value, opt.dataset.label);
+                        if (search) search.value = '';
+                        sync();
+                    });
+                });
+
+                if (search) search.addEventListener('input', refilter);
+                wireToggle(combo, refilter);
+                return { refilter };
+            }
+
+            // Single-select combo; shows chosen label in place of the placeholder.
+            function createSingleCombo(combo, { onSelect }) {
+                const placeholder = combo.querySelector('.combo-placeholder');
+                const search = combo.querySelector('.combo-search');
+
+                function refilter() { filterOptions(combo, { query: search ? search.value : '' }); }
+
+                combo.querySelectorAll('.combo-option').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        combo.querySelectorAll('.combo-option').forEach(o => o.classList.remove('selected'));
+                        opt.classList.add('selected');
+                        placeholder.textContent = opt.dataset.label;
+                        placeholder.classList.add('chosen');
+                        combo.classList.remove('open');
+                        if (onSelect) onSelect(opt.dataset.value, opt.dataset.label);
+                    });
+                });
+
+                if (search) search.addEventListener('input', refilter);
+                wireToggle(combo, refilter);
+            }
+
+            // Cascading "zanimanje": pick Nadkategorija, then its specific Kategorije.
+            function setupCascade(cascade) {
+                const nadCombo = cascade.querySelector('.combo[data-role="nad"]');
+                const potCombo = cascade.querySelector('.combo[data-role="pot"]');
+                const potPlaceholder = potCombo.querySelector('.combo-placeholder');
+                const hidden = cascade.querySelector('.combo-hidden');
+                let currentParent = null;
+
+                const multi = createMultiCombo(potCombo, {
+                    name: cascade.dataset.name,
+                    hiddenContainer: hidden,
+                    max: parseInt(cascade.dataset.max, 10) || Infinity,
+                    getParent: () => currentParent
+                });
+
+                createSingleCombo(nadCombo, {
+                    onSelect: (value) => {
+                        currentParent = value;
+                        potCombo.classList.remove('disabled');
+                        potPlaceholder.textContent = 'Odaberite kategoriju...';
+                        multi.refilter();
+                    }
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.cascade').forEach(setupCascade);
+
+                // Standalone multi combos (lokacija); skip the ones owned by a cascade.
+                document.querySelectorAll('.combo[data-combo="multi"]').forEach(combo => {
+                    if (combo.dataset.role) return;
+                    createMultiCombo(combo, {
+                        name: combo.dataset.name,
+                        hiddenContainer: combo.querySelector('.combo-hidden'),
+                        max: parseInt(combo.dataset.max, 10) || Infinity
+                    });
+                });
+
+                // Logo upload: prikaži ime odabranog fajla.
+                const logoInput = document.getElementById('logoInput');
+                if (logoInput) {
+                    const drop = document.getElementById('logoDrop');
+                    const text = document.getElementById('logoDropText');
+                    logoInput.addEventListener('change', () => {
+                        if (logoInput.files && logoInput.files.length) {
+                            text.textContent = logoInput.files[0].name;
+                            drop.classList.add('has-file');
+                        } else {
+                            text.textContent = 'Kliknite za upload';
+                            drop.classList.remove('has-file');
+                        }
+                    });
+                }
+            });
+        })();
     </script>
     <script>
         function showTab(tab) {

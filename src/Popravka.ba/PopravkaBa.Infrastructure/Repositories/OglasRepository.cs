@@ -130,6 +130,7 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(o => o.Ponude)
                 .OrderByDescending(o => o.DatumObjave)
                 // TODO: Dodati logiku za završen oglas i dodati WHERE uslov da se ne prikazuju završeni oglasi
+                .Where(o => o.StatusOglasa == Domain.Enums.Status.Aktivan)
                 .Take(topN)
                 .ToListAsync();
 
@@ -149,6 +150,7 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(o => o.Notifikacije)
                 .Include(o => o.Ponude)
                 .Where(o => o.Naslov.Contains(pretraga) || o.Opis.Contains(pretraga))
+                .Where(o => o.StatusOglasa == Domain.Enums.Status.Aktivan)
                 .ToListAsync();
 
         public async Task ObrisiAsync(int id)
@@ -168,7 +170,10 @@ namespace PopravkaBa.Infrastructure.Repositories
         }
 
         // TODO: Dodati WHERE uslov kada obrazložimo logiku za izvršen oglas
-        public async Task<int> DajBrojZavrsenih() => await _context.OglasiUsluga.CountAsync();
+        public async Task<int> DajBrojZavrsenih() => 
+            await _context.OglasiUsluga
+                .Where(o => o.StatusOglasa == Domain.Enums.Status.Isporuceno)
+                .CountAsync();
     }
 
 
@@ -201,6 +206,7 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(orm => orm.Mjesto)
                 .Include(orm => orm.Kategorije)
                 .Include(orm => orm.Notifikacije)
+                .Where(orm => orm.StatusOglasa == Domain.Enums.Status.Aktivan)
                .OrderByDescending(o => o.DatumObjave)
                .Take(topN)
                .ToListAsync();
@@ -234,6 +240,7 @@ namespace PopravkaBa.Infrastructure.Repositories
             .Include(orm => orm.Kategorije)
             .Include(orm => orm.Notifikacije)
             .Where(orm => orm.Naslov.Contains(pretraga) || orm.Opis.Contains(pretraga))
+            .Where(orm => orm.StatusOglasa == Domain.Enums.Status.Aktivan)
             .ToListAsync();
 
         public async Task ObrisiAsync(int id)

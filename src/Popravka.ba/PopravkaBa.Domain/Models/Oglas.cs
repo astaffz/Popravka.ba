@@ -1,5 +1,6 @@
 ﻿
 
+using PopravkaBa.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -28,5 +29,7 @@ namespace PopravkaBa.Domain.Models
         public IEnumerable<NotifikacijaOglas>? Notifikacije { get; set; }
 
         public virtual int BrojPrijava => 0;
+
+        public Status StatusOglasa { get; set; } = Status.Aktivan; // Status.Aktivan ili Status.Neaktivan
     }
 }

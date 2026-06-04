@@ -11,6 +11,7 @@ namespace PopravkaBa.Domain.Enums
         NaCekanju,
         Prihvaceno,
         Odbijeno,
+        Aktivan,
         Neaktivan, // TODO Osmisliti pravilan enum za verifikacioni token
         Isporuceno
     }
