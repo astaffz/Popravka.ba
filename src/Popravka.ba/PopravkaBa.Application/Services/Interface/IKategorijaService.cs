@@ -12,5 +12,6 @@ namespace PopravkaBa.Application.Services.Interface
         Task UkloniSveKategorijeIzvrsiocu(string izvrsilacId);
         Task AzurirajKategorijeIzvrsioca(string izvrsilacId, List<int> kategorijaIds);
 
+        Task<IEnumerable<(Kategorija, int)>> DajTopKategorijePoMajstorimaAsync(int topN);
     }
 }

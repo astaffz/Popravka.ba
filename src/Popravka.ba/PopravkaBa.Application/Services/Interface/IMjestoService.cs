@@ -6,6 +6,8 @@ namespace PopravkaBa.Application.Services.Interface
     {
         Task<IEnumerable<Mjesto>> DajSvaMjestaAsync();
         Task<Mjesto?> DajMjestoPoIdAsync(int id);
+
+        Task<IEnumerable<Mjesto>?> DajMjestaPoKantonuAsync(int kanton);
         Task<IEnumerable<Mjesto>> PronadjiMjestaAsync(string pretraga);
         Task<IEnumerable<Mjesto>> DajSveKorisnikeMjestaAsync(string korisnikId);
 
@@ -16,5 +18,7 @@ namespace PopravkaBa.Application.Services.Interface
         Task<IEnumerable<OglasMajstora>> DajOglaseMajstoraPoMjestu(int mjestoId);
         Task<IEnumerable<OglasRadnoMjesto>> DajOglaseRadnogMjestaPoMjestu(int mjestoId);
         Task<IEnumerable<OglasUsluge>> DajOglaseUslugePoMjestu(int mjestoId);
+
+      
     }
 }

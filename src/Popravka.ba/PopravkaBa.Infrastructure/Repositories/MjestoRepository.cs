@@ -16,16 +16,21 @@ namespace PopravkaBa.Infrastructure.Repositories
         }
 
         public async Task<IEnumerable<Mjesto>> DajSvaMjestaAsync()
-            => await _context.Mjesta.ToListAsync();
+            => await _context.Mjesta
+                    .ToListAsync();
 
+        public async Task<IEnumerable<Mjesto>?> DajMjestaPoKantonuAsync(int kantonID)
+            => await _context.Mjesta
+                    .Where(m => m.Kanton.Equals(kantonID))
+                    .ToListAsync();
         public async Task<Mjesto?> DajPoIdAsync(int id)
             => await _context.Mjesta
                 .FirstOrDefaultAsync(m => m.MjestoID == id);
+                
 
         public async Task<IEnumerable<Mjesto>> PronadjiMjestaAsync(string pretraga)
             => await _context.Mjesta
-                .Where(m => m.Naziv.Contains(pretraga))
-                .ToListAsync();
+                  .ToListAsync();
 
         public async Task<IEnumerable<Mjesto>> DajSveKorisnikeMjestaAsync(string korisnikId)
             => await _context.KorisnikMjesto

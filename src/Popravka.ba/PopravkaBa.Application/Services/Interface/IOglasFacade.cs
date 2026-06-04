@@ -3,6 +3,7 @@ using PopravkaBa.Domain.Models;
 
 namespace PopravkaBa.Application.Services.Interface
 {
+   
     public interface IOglasMajstoraFacade
     {
         Task<IEnumerable<OglasMajstora>> DajSveOglase();
@@ -37,5 +38,10 @@ namespace PopravkaBa.Application.Services.Interface
         Task ObrisiOglas(int oglasId);
 
         Task<int> DajBrojZavrsenihAsync();
+    }
+    public interface IOglasFacade
+    {
+        Task<IEnumerable<Oglas>> DajNedavne(int topN);
+
     }
 }

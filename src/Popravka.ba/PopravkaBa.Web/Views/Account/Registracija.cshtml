@@ -2,7 +2,7 @@
 @model RegistracijaViewModel
 @{
     Layout = null;
-    ViewData["Title"] = "Prijava - Popravka.ba";
+    ViewData["Title"] = Model.ActiveTab == PopravkaBa.Web.Models.Enums.AuthTab.Registracija ? "Registracija - Popravka.ba" : "Prijava - Popravka.ba";
 }
 <!DOCTYPE html>
 <html lang="bs">
@@ -34,12 +34,12 @@
 
         /* Left panel */
         .panel-blue {
-    flex: 1;
+    flex: 0 0 60%;
     background: var(--blue-darker);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3rem;
+    padding: 4rem 3rem;
     position: relative;
     overflow: hidden;
 }
@@ -79,8 +79,36 @@
     letter-spacing: 0.02em;
 }
         /* Right panel */
-        .panel-form { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; flex-direction:column;}
-        .form-container { width: 100%; max-width: 420px; }
+        .panel-form { flex: 0 0 40%; display: flex; align-items: center; justify-content: center; padding: 3rem; flex-direction:column;}
+        .form-container { width: 100%; max-width: 380px; }
+
+        .card { background: var(--white); padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(16,24,40,0.06); border:1px solid rgba(16,24,40,0.03); }
+            .back-link {
+                display: flex;
+                margin-right:auto;
+                text-align:left;
+                color: var(--blue-darker);
+                font-weight: 600;
+                text-decoration: none;
+                margin-bottom: 0.75rem;
+				padding: 0.25rem 0.5rem 0.5rem;
+            }
+        .card-header { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:0.5rem; }
+        .card-title { font-family:'Plus Jakarta Sans', sans-serif; font-size:1.25rem; font-weight:800; }
+        .card-sub { color:var(--text-muted); font-size:0.9rem; }
+
+        /* top tabs */
+        .auth-tabs { display:inline-flex; background: #f3f4f6; border-radius:8px; padding:4px; gap:6px; }
+        .auth-tab { padding:6px 12px; border-radius:6px; font-weight:700; color:var(--text-muted); cursor:pointer; }
+        .auth-tab.active { background:#fff; color:var(--blue-darker); box-shadow:0 1px 0 rgba(16,24,40,0.04) inset; }
+
+        /* type selector cards */
+        .type-grid { display:flex; gap:0.6rem; margin:0.6rem 0 1rem 0; }
+        .type-card { flex:0 0 76px; height:76px; border-radius:8px; border:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; background:#fff; cursor:pointer; }
+        .type-card .icon { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#f3f4f6; color:var(--text-soft); }
+        .type-card.active { border-color: var(--blue); box-shadow: 0 4px 10px rgba(11,95,214,0.06); }
+
+        .two-col { display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; }
 
         .form-title {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -93,6 +121,12 @@
             font-size: 0.95rem;
             margin-bottom: 2rem;
         }
+
+        .register-type-group { display:flex; gap:0.5rem; margin:1rem 0 1.25rem 0; }
+        .register-type-btn {
+            flex:1; padding:0.6rem 0.75rem; border-radius:999px; border:1px solid var(--border); background:var(--white); color:var(--text); font-weight:700; cursor:pointer;
+        }
+        .register-type-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
         /* Form fields */
         .field { margin-bottom: 1.25rem; }
@@ -178,6 +212,21 @@
         }
         .btn-submit:hover { background: var(--blue-dark); }
 
+        .panel-logo { max-width: 260px; }
+        .panel-logo-text { font-size: 2.25rem; margin-top:0.5rem }
+        .panel-center { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; }
+
+        
+        /* multi-select chips */
+        .multi-select { border: 1px solid var(--border); padding:0.5rem; border-radius:8px; background:#fff; }
+        .ms-chips { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem; }
+        .ms-chip { background:#eef6ff; color:var(--blue-darker); padding:0.25rem 0.5rem; border-radius:999px; font-size:0.85rem; display:inline-flex; gap:0.4rem; align-items:center; }
+        .ms-chip button { border:0;background:transparent; cursor:pointer;color:var(--blue-darker); font-weight:700; }
+        .ms-input { width:100%; border:0; outline:none; padding:0.4rem 0.25rem; }
+        .ms-dropdown { border:1px solid var(--border); max-height:200px; overflow:auto; margin-top:0.35rem; border-radius:6px; display:none; background:#fff; }
+        .ms-item { padding:0.5rem; cursor:pointer; }
+        .ms-item:hover { background:#f3f4f6; }
+
         
         .validation-summary {
             background: #fef2f2;
@@ -238,64 +287,182 @@
             <a asp-controller="Home" asp-action="Index" class="panel-link" aria-label="Popravka.ba početna">
                 <img src="~/images/logo512.png" alt="Popravka.ba" class="panel-logo" />
                 <span class="panel-logo-text">Popravka.ba</span>
-            </a>
+             </a>
         </div>
 
         <div class="panel-form">
-            <a asp-controller="Home" asp-action="Index" class="error-page-btn">
-            Nazad na početnu
-        </a>
-            <div class="form-container">
-                <h1 class="form-title">Dobrodošli nazad</h1>
-                <p class="form-subtitle">Unesite vaše podatke za pristup nalogu.</p>
-
-                <form asp-controller="Account" asp-action="Login" method="post">
-                    @Html.AntiForgeryToken()
-
-                    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
-
-                    <div class="field">
-                        <label asp-for="Login.EmailUsername" class="field-label">E-mail adresa ili korisničko ime</label>
-                        <div class="input-wrap">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                <polyline points="22,6 12,13 2,6"></polyline>
-                            </svg>
-                            <input asp-for="Login.EmailUsername" class="field-input" placeholder="vas@email.com" autocomplete="username" />
-                        </div>
-                        <span asp-validation-for="Login.EmailUsername" class="field-error"></span>
+            <a asp-controller="Home" asp-action="Index" class="back-link">Nazad</a>
+            <div class="form-container card">
+                <div class="card-header">
+                   
+                </div>
+                <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;">
+                    <div class="auth-tabs">
+                        <div id="tab-login" class="auth-tab @(Model.ActiveTab==PopravkaBa.Web.Models.Enums.AuthTab.Prijava?"active":"")" onclick="showTab('login')">Prijava</div>
+                        <div id="tab-register" class="auth-tab @(Model.ActiveTab==PopravkaBa.Web.Models.Enums.AuthTab.Registracija?"active":"")" onclick="showTab('register')">Registracija</div>
                     </div>
+                </div>
 
-                    <div class="field">
-                        <label asp-for="Login.Lozinka" class="field-label">Lozinka</label>
-                        <div class="input-wrap">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                            <input asp-for="Login.Lozinka" id="lozinkaInput" type="password" class="field-input field-input--password" placeholder="••••••••" autocomplete="current-password" />
-                            <button type="button" class="input-toggle" onclick="togglePassword()" aria-label="Prikaži lozinku">
-                                <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
+                <div id="login-panel" style="display:@(Model.ActiveTab==PopravkaBa.Web.Models.Enums.AuthTab.Prijava?"block":"none");">
+                    <h1 class="form-title">Dobrodošli nazad</h1>
+                    <p class="form-subtitle">Unesite vaše podatke za pristup nalogu.</p>
+
+                    <form asp-controller="Account" asp-action="Login" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                        <div class="field">
+                            <label asp-for="Login.EmailUsername" class="field-label">E-mail adresa ili korisničko ime</label>
+                            <div class="input-wrap">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
                                 </svg>
-                            </button>
+                                <input asp-for="Login.EmailUsername" class="field-input" placeholder="vas@email.com" autocomplete="username" />
+                            </div>
+                            <span asp-validation-for="Login.EmailUsername" class="field-error"></span>
                         </div>
-                        <span asp-validation-for="Login.Lozinka" class="field-error"></span>
-                        <div class="form-meta">
-                            <a asp-controller="Account" asp-action="ZaboravljenaLozinka" class="form-link">Zaboravili ste lozinku?</a>
+
+                        <div class="field">
+                            <label asp-for="Login.Lozinka" class="field-label">Lozinka</label>
+                            <div class="input-wrap">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                <input asp-for="Login.Lozinka" id="lozinkaInput" type="password" class="field-input field-input--password" placeholder="••••••••" autocomplete="current-password" />
+                                <button type="button" class="input-toggle" onclick="togglePassword()" aria-label="Prikaži lozinku">
+                                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Login.Lozinka" class="field-error"></span>
+                            <div class="form-meta">
+                                <a asp-controller="Account" asp-action="ZaboravljenaLozinka" class="form-link">Zaboravili ste lozinku?</a>
+                            </div>
                         </div>
+
+                        <button type="submit" class="btn-submit">Prijavi se</button>
+                    </form>
+
+                    <p class="form-footer">Nemate račun? <a asp-controller="Account" asp-action="Registracija">Registrujte se</a></p>
+                </div>
+
+                <div id="register-panel" style="display:@(Model.ActiveTab==PopravkaBa.Web.Models.Enums.AuthTab.Registracija?"block":"none");">
+                    <h1 class="form-title">Kreirajte nalog</h1>
+                    <p class="form-subtitle">Popunite podatke i počnite koristiti platformu.</p>
+
+                    <label style="font-weight:700;margin-bottom:6px;display:block;color:var(--text);">Prijavljujem se kao...</label>
+                    <div class="type-grid">
+                        <div id="card-klijent" class="type-card active" onclick="showRegisterType('klijent')"><div class="icon">👤</div><div style="font-size:0.85rem;color:var(--text-soft);">Klijent</div></div>
+                        <div id="card-majstor" class="type-card" onclick="showRegisterType('majstor')"><div class="icon">🔧</div><div style="font-size:0.85rem;color:var(--text-soft);">Majstor</div></div>
+                        <div id="card-firma" class="type-card" onclick="showRegisterType('firma')"><div class="icon">🏢</div><div style="font-size:0.85rem;color:var(--text-soft);">Firma</div></div>
                     </div>
 
-                    <button type="submit" class="btn-submit">Prijavi se</button>
-                </form>
+                    <!-- Klijent form -->
+                    <div id="reg-klijent" style="display:block;">
+                        <form asp-controller="Account" asp-action="RegistracijaKlijenta" method="post">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+                            <div class="two-col">
+                                <div class="field"><label asp-for="KlijentDTO.Ime" class="field-label">Ime</label><input asp-for="KlijentDTO.Ime" class="field-input" /></div>
+                                <div class="field"><label asp-for="KlijentDTO.Prezime" class="field-label">Prezime</label><input asp-for="KlijentDTO.Prezime" class="field-input" /></div>
+                            </div>
+                            <div class="field"><label asp-for="KlijentDTO.Email" class="field-label">E-mail adresa</label><input asp-for="KlijentDTO.Email" class="field-input" /></div>
+                            <div class="field"><label asp-for="KlijentDTO.Lozinka" class="field-label">Lozinka</label><input asp-for="KlijentDTO.Lozinka" class="field-input" type="password" /></div>
+                            <div class="field"><label asp-for="KlijentDTO.PotvrdaLozinke" class="field-label">Potvrdite lozinku</label><input asp-for="KlijentDTO.PotvrdaLozinke" class="field-input" type="password" /></div>
+                            <div class="field"><label class="field-label">Lokacija</label><select asp-for="KlijentDTO.MjestaID" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Mjesta, "MjestoID", "Naziv"))" multiple class="field-input" style="height:120px;"></select></div>
 
-                <p class="form-footer">
-                    Nemate račun?
-                    <a asp-controller="Account" asp-action="Registracija">Registrujte se</a>
-                </p>
+                            <button type="submit" class="btn-submit">Registracija</button>
+                        </form>
+                    </div>
+
+                    <!-- Majstor form -->
+                    <div id="reg-majstor" style="display:none;">
+                        <form asp-controller="Account" asp-action="RegistracijaMajstora" method="post">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+                            <div class="two-col">
+                                <div class="field"><label asp-for="MajstorDTO.Ime" class="field-label">Ime</label><input asp-for="MajstorDTO.Ime" class="field-input" /></div>
+                                <div class="field"><label asp-for="MajstorDTO.Prezime" class="field-label">Prezime</label><input asp-for="MajstorDTO.Prezime" class="field-input" /></div>
+                            </div>
+                            <div class="field"><label asp-for="MajstorDTO.Email" class="field-label">E-mail adresa</label><input asp-for="MajstorDTO.Email" class="field-input" /></div>
+                            <div class="field"><label asp-for="MajstorDTO.Lozinka" class="field-label">Lozinka</label><input asp-for="MajstorDTO.Lozinka" class="field-input" type="password" /></div>
+
+                            <div class="field"><label class="field-label">Zanimanje (max 5)</label>
+                                <div class="multi-select" id="ms-kategorije-majstor">
+                                    <div class="ms-chips" id="chips-kategorije-majstor"></div>
+                                    <input type="text" class="ms-input" id="input-kategorije-majstor" placeholder="Pretražite kategorije..." />
+                                    <div class="ms-dropdown" id="dropdown-kategorije-majstor">
+                                        @foreach(var k in Model.Kategorije){<div class="ms-item" data-id="@k.ID">@k.Naziv</div>}
+                                    </div>
+                                </div>
+                                <!-- hidden values to post -->
+                                <input type="hidden" name="MajstorDTO.KategorijeID" id="hidden-kategorije-majstor" />
+                            </div>
+
+                            <div class="field"><label class="field-label">Lokacija (max 3)</label>
+                                <div class="multi-select" id="ms-mjesta-majstor">
+                                    <div class="ms-chips" id="chips-mjesta-majstor"></div>
+                                    <input type="text" class="ms-input" id="input-mjesta-majstor" placeholder="Pretražite gradove..." />
+                                    <div class="ms-dropdown" id="dropdown-mjesta-majstor">
+                                        @foreach(var m in Model.Mjesta){<div class="ms-item" data-id="@m.MjestoID">@m.Naziv</div>}
+                                    </div>
+                                </div>
+                                <input type="hidden" name="MajstorDTO.MjestaID" id="hidden-mjesta-majstor" />
+                            </div>
+
+                            <button type="submit" class="btn-submit">Registracija</button>
+                        </form>
+                    </div>
+
+                    <!-- Firma form -->
+                    <div id="reg-firma" style="display:none;">
+                        <form asp-controller="Account" asp-action="RegistracijaFirme" method="post">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                            <div class="field"><label asp-for="FirmaDTO.NazivFirme" class="field-label">Naziv firme</label><input asp-for="FirmaDTO.NazivFirme" class="field-input" /></div>
+                            <div class="field"><label asp-for="FirmaDTO.Email" class="field-label">E-mail adresa</label><input asp-for="FirmaDTO.Email" class="field-input" /></div>
+                            <div class="field"><label asp-for="FirmaDTO.Lozinka" class="field-label">Lozinka</label><input asp-for="FirmaDTO.Lozinka" class="field-input" type="password" /></div>
+
+                            <div class="field"><label class="field-label">Djelatnost (max 5)</label>
+                                <div class="multi-select" id="ms-kategorije-firma">
+                                    <div class="ms-chips" id="chips-kategorije-firma"></div>
+                                    <input type="text" class="ms-input" id="input-kategorije-firma" placeholder="Pretražite djelatnosti..." />
+                                    <div class="ms-dropdown" id="dropdown-kategorije-firma">
+                                        @foreach(var k in Model.Kategorije){<div class="ms-item" data-id="@k.ID">@k.Naziv</div>}
+                                    </div>
+                                </div>
+                                <input type="hidden" name="FirmaDTO.KategorijeID" id="hidden-kategorije-firma" />
+                            </div>
+
+                            <div class="field"><label class="field-label">Lokacija (max 3)</label>
+                                <div class="multi-select" id="ms-mjesta-firma">
+                                    <div class="ms-chips" id="chips-mjesta-firma"></div>
+                                    <input type="text" class="ms-input" id="input-mjesta-firma" placeholder="Pretražite gradove..." />
+                                    <div class="ms-dropdown" id="dropdown-mjesta-firma">
+                                        @foreach(var m in Model.Mjesta){<div class="ms-item" data-id="@m.MjestoID">@m.Naziv</div>}
+                                    </div>
+                                </div>
+                                <input type="hidden" name="FirmaDTO.MjestaID" id="hidden-mjesta-firma" />
+                            </div>
+
+
+
+                            <div class="field"><label class="field-label">Logo / fotografija firme</label>
+                                <div style="border:1px dashed var(--border);padding:1rem;border-radius:8px;text-align:center;color:var(--text-soft);">Kliknite za upload<br/><small>jpg, png – max 5MB</small></div>
+                            </div>
+
+                            <button type="submit" class="btn-submit">Registracija</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </div>
+
+    
     </div>
 
     <script>
@@ -320,5 +487,87 @@
             }
         }
     </script>
+    <script>
+        // multi-select helper
+        function setupMultiSelect(prefix, max) {
+            const input = document.getElementById(`input-${prefix}`);
+            const dropdown = document.getElementById(`dropdown-${prefix}`);
+            const chipsWrap = document.getElementById(`chips-${prefix}`);
+            const hidden = document.getElementById(`hidden-${prefix}`);
+
+            let selected = [];
+
+            input.addEventListener('focus', () => dropdown.style.display = 'block');
+            input.addEventListener('input', () => {
+                const q = input.value.toLowerCase();
+                Array.from(dropdown.children).forEach(item => {
+                    item.style.display = item.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target) && e.target !== input) dropdown.style.display = 'none';
+            });
+
+            Array.from(dropdown.children).forEach(item => {
+                item.addEventListener('click', () => {
+                    const id = item.getAttribute('data-id');
+                    const text = item.textContent.trim();
+                    if (selected.find(s => s.id === id)) return;
+                    if (max && selected.length >= max) return;
+                    selected.push({ id, text });
+                    render();
+                });
+            });
+
+            function render() {
+                chipsWrap.innerHTML = '';
+                selected.forEach(s => {
+                    const chip = document.createElement('span');
+                    chip.className = 'ms-chip';
+                    chip.innerHTML = `${s.text} <button type="button">×</button>`;
+                    chip.querySelector('button').addEventListener('click', () => {
+                        selected = selected.filter(x => x.id !== s.id);
+                        render();
+                    });
+                    chipsWrap.appendChild(chip);
+                });
+                hidden.value = selected.map(s => s.id).join(',');
+            }
+        }
+
+        // initialize multi-selects
+        document.addEventListener('DOMContentLoaded', function() {
+            setupMultiSelect('kategorije-majstor', 5);
+            setupMultiSelect('mjesta-majstor', 3);
+            setupMultiSelect('kategorije-firma', 5);
+            setupMultiSelect('mjesta-firma', 3);
+        });
+    </script>
+    <script>
+        function showTab(tab) {
+            document.getElementById('login-panel').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('register-panel').style.display = tab === 'register' ? 'block' : 'none';
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+        }
+
+        function showRegisterType(type) {
+            document.getElementById('reg-klijent').style.display = type === 'klijent' ? 'block' : 'none';
+            document.getElementById('reg-majstor').style.display = type === 'majstor' ? 'block' : 'none';
+            document.getElementById('reg-firma').style.display = type === 'firma' ? 'block' : 'none';
+
+            // toggle active state on type cards
+            document.getElementById('card-klijent').classList.toggle('active', type === 'klijent');
+            document.getElementById('card-majstor').classList.toggle('active', type === 'majstor');
+            document.getElementById('card-firma').classList.toggle('active', type === 'firma');
+        }
+    </script>
+
+    @section Scripts {
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js" integrity="" crossorigin="anonymous"></script>
+    }
 </body>
 </html>

@@ -9,6 +9,12 @@ namespace PopravkaBa.Domain.Models
 
         public string Naziv { get; set; }
 
+        public int? NadkategorijaID { get; set; }
+
+        public Kategorija? Nadkategorija { get; set; }
+        
+        public ICollection<Kategorija> Potkategorije { get; set; }
+
 
     }
 }

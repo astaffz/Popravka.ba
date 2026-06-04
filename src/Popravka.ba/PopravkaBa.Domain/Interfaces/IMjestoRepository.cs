@@ -12,6 +12,7 @@ namespace PopravkaBa.Domain.Interfaces
         Task<IEnumerable<Mjesto>> DajSvaMjestaAsync();
         Task<Mjesto?> DajPoIdAsync(int id);
         Task<IEnumerable<Mjesto>> PronadjiMjestaAsync(string pretraga);
+        Task<IEnumerable<Mjesto>?> DajMjestaPoKantonuAsync(int kantonID);
         Task DodajMjestaKorisniku(string korisnikId, List<int> mjestaID);
         Task UkloniSvaMjestaKorisniku(string korisnikId);
         Task AzurirajMjestaKorisnika(string korisnikId, List<int> mjestaID);

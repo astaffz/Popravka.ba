@@ -2,6 +2,10 @@ using PopravkaBa.Domain.Models;
 
 namespace PopravkaBa.Domain.Interfaces
 {
+    public interface IOglasRepository
+    {
+            Task<IEnumerable<Oglas>?> DajNedavneAsync(int topN);
+    }
     public interface IOglasMajstoraRepository
     {
         Task<IEnumerable<OglasMajstora>> DajSveAsync();
@@ -10,6 +14,7 @@ namespace PopravkaBa.Domain.Interfaces
         Task UrediAsync(OglasMajstora oglas);
         Task ObrisiAsync(int id);
         Task<IEnumerable<OglasMajstora>> IzvrsiPretraguTekstaAsync(string pretraga);
+        Task<IEnumerable<OglasMajstora>> DajNedavneAsync(int topN);
     }
 
     public interface IOglasUslugeRepository
@@ -21,6 +26,7 @@ namespace PopravkaBa.Domain.Interfaces
         Task ObrisiAsync(int id);
         Task<IEnumerable<OglasUsluge>> IzvrsiPretraguTekstaAsync(string pretraga);
         Task<int> DajBrojZavrsenih();
+      Task<IEnumerable<OglasUsluge>> DajNedavneAsync(int topN);
     }
 
     public interface IOglasRadnoMjestoRepository
@@ -31,6 +37,7 @@ namespace PopravkaBa.Domain.Interfaces
         Task UrediAsync(OglasRadnoMjesto oglas);
         Task ObrisiAsync(int id);
         Task<IEnumerable<OglasRadnoMjesto>> IzvrsiPretraguTekstaAsync(string pretraga);
+      Task<IEnumerable<OglasRadnoMjesto>> DajNedavneAsync(int topN);
     }
 
 }

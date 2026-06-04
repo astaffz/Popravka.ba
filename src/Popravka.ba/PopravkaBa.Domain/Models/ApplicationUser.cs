@@ -7,7 +7,7 @@ namespace PopravkaBa.Domain.Models
     {
         public string? Ime { get; set; }
         public string? Prezime  { get; set; }
-        public DateTime DatumRegistracije { get; set; } = DateTime.Now;
+        public DateTime DatumRegistracije { get; set; } = DateTime.UtcNow;
         public string? Slika { get; set; }
         public ICollection<Oglas>? Oglasi { get; set; }
 

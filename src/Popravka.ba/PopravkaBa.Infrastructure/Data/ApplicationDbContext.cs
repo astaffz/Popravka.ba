@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PopravkaBa.Domain.Models;
+using System.Reflection.Emit;
 namespace Popravka.ba.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -49,7 +50,7 @@ namespace Popravka.ba.Data
             builder.Entity<EmailVerifikacijaFirme>().ToTable("EmailVerifikacijaFirme");
             builder.Entity<IzvrsilacKategorija>().ToTable("IzvrsilacKategorija");
             builder.Entity<Kategorija>().ToTable("Kategorija"); 
-            builder.Entity<KorisnikMjesto>().ToTable("KorisnikMjesto"); 
+            builder.Entity<KorisnikMjesto>().ToTable("KorisnikMjesto");
             builder.Entity<Mjesto>().ToTable("Mjesto");
             builder.Entity<OglasKategorija>().ToTable("OglasKategorija");
             builder.Entity<OglasMajstora>().ToTable("OglasMajstora");
@@ -82,7 +83,7 @@ namespace Popravka.ba.Data
                 .WithMany(m => m.PrijaveZaRadnoMjesto)
                 .HasForeignKey(p => p.MajstorID)
                 .OnDelete(DeleteBehavior.NoAction);
-            builder.Entity<Recenzija>().ToTable("Recenzija", t => t.HasCheckConstraint("CK_Recenzija_Ocjena", "Ocjena >= 1 AND Ocjena <= 5"));
+            builder.Entity<Recenzija>().ToTable("Recenzija", t => t.HasCheckConstraint("CK_Recenzija_Ocjena", "\"Ocjena\" >= 1 AND \"Ocjena\" <= 5")); 
             builder.Entity<Recenzija>()
                 .HasOne(r => r.Klijent)
                 .WithMany(k => k.Recenzije)
@@ -94,8 +95,12 @@ namespace Popravka.ba.Data
                 .HasForeignKey(r => r.IzvrsilacID)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<UvjetOglasa>().ToTable("UvjetOglasa");
-  
-            
+
+            builder.Entity<IzvrsilacKategorija>()
+                .HasIndex(ik => ik.KategorijaID);
+
+            builder.Entity<Oglas>()
+                .HasIndex(o => o.DatumObjave);
 
         }
     }

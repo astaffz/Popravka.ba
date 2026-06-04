@@ -1,5 +1,6 @@
-/* ===== Design tokens ===== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* ===== Design tokens ===== */
 :root {
     --brand-blue: #1e6fe0;
     --brand-blue-hover: #1a5fc4;
@@ -9,10 +10,11 @@
     --text-secondary: #4b5563;
     --text-muted: #6b7280;
     --border-light: #e5e7eb;
+    --font-heading: 'Poppins', system-ui, sans-serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
 /* ===== Base ===== */
-
 html {
     font-size: 14px;
     min-height: 100%;
@@ -29,13 +31,17 @@ body {
     flex-direction: column;
     margin: 0;
     min-height: 100vh;
+    font-family: var(--font-body);
 }
 
 main {
     flex: 1;
 }
 
-/* Accessibility — keep focus rings visible */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+}
+
 .btn:focus,
 .btn:active:focus,
 .btn-link.nav-link:focus,
@@ -45,7 +51,6 @@ main {
 }
 
 /* ===== Navbar ===== */
-
 .navbar-logo {
     height: 54px;
     width: 54px;
@@ -55,13 +60,13 @@ main {
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--brand-blue-dark);
+    font-family: var(--font-heading);
 }
 
 .navbar .nav-link {
     color: var(--text-primary);
     font-weight: 500;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-inline: 1rem;
 }
 
     .navbar .nav-link:hover {
@@ -69,22 +74,19 @@ main {
     }
 
 /* ===== Hero ===== */
-
 .hero {
-    display: flex;
-    flex-direction: column;
     background: var(--brand-blue);
-    color: #ffffff;
+    color: #fff;
     padding: 4rem 1.5rem 2rem;
     text-align: center;
 }
 
 .hero-inner {
-    display: flex;
-    flex-direction: column;
     max-width: 720px;
     width: 100%;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .hero-title {
@@ -92,10 +94,11 @@ main {
     font-weight: 700;
     line-height: 1.2;
     margin: 0 0 2rem;
+    font-family: var(--font-heading);
 }
 
 .hero-title-accent {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255,255,255,0.7);
 }
 
 .hero-actions {
@@ -106,6 +109,13 @@ main {
     margin-bottom: 1rem;
 }
 
+.hero-stat {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin: 0 0 1.5rem;
+}
+
+/* ===== Hero button ===== */
 .hero-btn {
     display: inline-flex;
     align-items: center;
@@ -113,14 +123,15 @@ main {
     gap: 0.5rem;
     min-width: 220px;
     padding: 0.85rem 1.5rem;
-    background: #ffffff;
+    background: #fff;
     color: var(--text-primary);
-    border: none;
+    border: 1px solid transparent;
     border-radius: 2px;
     font-size: 1rem;
     font-weight: 600;
+    font-family: var(--font-body);
     text-decoration: none;
-    transition: transform 0.15s ease, color 0.15s ease;
+    transition: transform 0.15s, color 0.15s, background 0.15s;
 }
 
     .hero-btn:hover {
@@ -135,28 +146,21 @@ main {
 
 .hero-btn--primary {
     background: transparent;
-    border: 1px solid #ffffff;
-    color: #ffffff;
+    border-color: #fff;
+    color: #fff;
 }
 
     .hero-btn--primary:hover {
         background: var(--brand-blue-hover);
-        color: #ffffff;
+        color: #fff;
     }
 
-.hero-stat {
-    font-size: 0.95rem;
-    opacity: 0.9;
-    margin: 0 0 1.5rem;
-}
-
 /* ===== Hero search ===== */
-
 .hero-search {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #ffffff;
+    background: #fff;
     border-radius: 2px;
     padding: 0.5rem;
     margin-top: auto;
@@ -183,19 +187,9 @@ main {
         border: none;
         outline: none;
         font-size: 0.95rem;
+        font-family: var(--font-body);
         color: var(--text-primary);
     }
-
-.hero-search-select {
-    padding: 0.5rem 0.75rem;
-    background: transparent;
-    border: none;
-    border-left: 1px solid var(--border-light);
-    font-size: 0.95rem;
-    color: var(--text-primary);
-    outline: none;
-    cursor: pointer;
-}
 
 .hero-search-submit {
     display: inline-flex;
@@ -203,12 +197,13 @@ main {
     gap: 0.4rem;
     padding: 0.6rem 1.25rem;
     background: var(--brand-blue);
-    color: #ffffff;
+    color: #fff;
     border: none;
     border-radius: 6px;
     font-weight: 600;
+    font-family: var(--font-body);
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: background 0.15s;
 }
 
     .hero-search-submit:hover {
@@ -220,13 +215,152 @@ main {
         height: 16px;
     }
 
-/* ===== Footer ===== */
+/* ===== Location dropdown ===== */
+.hero-search-select-wrapper {
+    position: relative;
+}
 
+.hero-search-select-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    height: 100%;
+    min-width: 140px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    border-left: 1px solid #1f2937;
+}
+
+    .hero-search-select-display svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+.lokacija-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 200px;
+    background: #fff;
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+    .lokacija-dropdown.open {
+        display: block;
+    }
+
+.lokacija-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-bottom: 1px solid #1f2937;
+}
+
+    .lokacija-search-wrap svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        color: var(--text-primary);
+    }
+
+    .lokacija-search-wrap input {
+        width: 100%;
+        background: none;
+        border: none;
+        outline: none;
+        font-size: 0.875rem;
+        font-family: var(--font-body);
+        color: var(--text-primary);
+    }
+
+.lokacija-options {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.lokacija-group-label {
+    padding: 8px 15px 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-blue-hover);
+    border-top: 1px solid var(--border-light);
+    margin-top: 4px;
+}
+
+    .lokacija-group-label:first-child {
+        border-top: none;
+        margin-top: 0;
+    }
+
+.lokacija-option {
+    padding: 8px 12px 8px 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: background 0.15s;
+}
+
+    .lokacija-option:hover,
+    .lokacija-option.selected {
+        background: var(--brand-blue-darker);
+        color: #fff;
+    }
+
+/* ===== CTA section ===== */
+.cta-section {
+    background: var(--brand-blue-dark);
+    color: #fff;
+    padding: 4rem 1.5rem;
+}
+
+.cta-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.cta-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    font-family: var(--font-heading);
+}
+
+.cta-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.9;
+    margin: 0 0 1.5rem;
+}
+
+
+.cta-image {
+    font-size: 8rem;
+    color: rgba(255,255,255,0.25);
+    flex-shrink: 0;
+}
+
+/* ===== Footer ===== */
 .site-footer {
     width: 100%;
     padding: 1.5rem 2rem;
     background: var(--brand-blue-darker);
-    color: #ffffff;
+    color: #fff;
 }
 
 .site-footer-inner {
@@ -237,12 +371,13 @@ main {
 .site-footer-title {
     font-size: 1.125rem;
     font-weight: 700;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.5rem;
+    font-family: var(--font-heading);
 }
 
 .site-footer-text {
     font-size: 0.875rem;
-    margin: 0 0 0.25rem 0;
+    margin: 0 0 0.25rem;
     opacity: 0.95;
 }
 
@@ -251,7 +386,6 @@ main {
 }
 
 /* ===== Error pages ===== */
-
 .error-page {
     display: flex;
     align-items: center;
@@ -271,7 +405,7 @@ main {
     height: auto;
     margin-bottom: 2rem;
     border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
 .error-page-code {
@@ -280,6 +414,7 @@ main {
     line-height: 1;
     color: var(--brand-blue);
     margin: 0 0 0.5rem;
+    font-family: var(--font-heading);
 }
 
 .error-page-title {
@@ -287,6 +422,7 @@ main {
     font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 1rem;
+    font-family: var(--font-heading);
 }
 
 .error-page-text {
@@ -302,14 +438,178 @@ main {
     justify-content: center;
     padding: 0.75rem 2rem;
     background: var(--brand-blue);
-    color: #ffffff;
+    color: #fff;
     border-radius: 4px;
     font-weight: 600;
+    font-family: var(--font-body);
     text-decoration: none;
-    transition: background 0.15s ease;
+    transition: background 0.15s;
 }
 
     .error-page-btn:hover {
         background: var(--brand-blue-hover);
-        color: #ffffff;
+        color: #fff;
+    }
+/* ===== Kategorije ===== */
+.kategorije-section {
+    padding: 3rem 1.5rem;
+}
+
+.kategorije-inner {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.kategorije-header {
+    display: flex;
+    flex-direction:column;
+   
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+    .kategorije-header h2 {
+        margin: 0;
+        align-items: center;
+        font-size: 1.5rem;
+    }
+
+    .kategorije-header a {
+        margin: 0;
+        text-align:right;
+        font-size: 0.875rem;
+        color: var(--brand-blue);
+        text-decoration: none;
+        
+    }
+
+.kategorije-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.kategorija-card {
+    display: flex;
+    flex-direction: column;
+    text-align:center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 1.5rem;
+    aspect-ratio: 1.5;
+    background: var(--brand-blue);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.15s;
+}
+
+    .kategorija-card:hover {
+        background: var(--brand-blue-hover);
+        transform: translateY(-2px);
+    }
+
+    .kategorija-card strong {
+        color: #fff;
+        font-size: 1rem;
+        font-family: var(--font-heading);
+    }
+
+    .kategorija-card span {
+        color: rgba(255,255,255,0.75);
+        font-size: 0.825rem;
+    }
+
+/* ===== Oglasi ===== */
+.oglasi-section {
+    padding: 3rem 1.5rem;
+    background: #f9fafb;
+}
+
+.oglasi-inner {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.oglasi-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+    .oglasi-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        text-align:center;
+    }
+
+    .oglasi-header a {
+        font-size: 0.875rem;
+        color: var(--brand-blue);
+        text-decoration: none;
+        text-align: right;
+    }
+
+.oglasi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.oglas-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: #fff;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+
+    .oglas-card:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+
+.oglas-body {
+    margin-bottom: 1.5rem;
+}
+
+    .oglas-body strong {
+        display: block;
+        font-size: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .oglas-body p {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin: 0;
+        line-height: 1.5;
+    }
+
+.oglas-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.825rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-light);
+    padding-top: 0.75rem;
+}
+
+.oglas-autor {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+    .oglas-autor i {
+        font-size: 1.25rem;
+        color: var(--text-muted);
     }

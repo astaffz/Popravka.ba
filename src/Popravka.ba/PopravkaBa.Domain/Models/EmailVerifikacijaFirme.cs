@@ -9,13 +9,13 @@ namespace PopravkaBa.Domain.Models
         public override void PodnesiVerifikaciju()
         {
             StatusVerifikacije = Status.NaCekanju;
-            DatumPodnosenja = DateTime.Now;
+            DatumPodnosenja = DateTime.UtcNow;
         }
 
         public override void ObradiVerifikaciju(bool odobri)
         {
             StatusVerifikacije = odobri ? Status.Prihvaceno : Status.Odbijeno;
-            DatumObrade = DateTime.Now;
+            DatumObrade = DateTime.UtcNow;
         }
 
         public string FormatIntoEmail(bool zaAdmina)
