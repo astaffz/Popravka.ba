@@ -58,6 +58,10 @@ builder.Services.AddScoped<IKategorijaRepository, KategorijaRepository>();
 builder.Services.AddScoped<IMjestoService, MjestoService>();
 builder.Services.AddScoped<IMjestoRepository,MjestoRepository>();
 
+
+builder.Services.AddScoped<IOglasRepository, OglasRepository>();
+builder.Services.AddScoped<IOglasService, OglasService>();
+
 builder.Services.AddScoped<IOglasMajstoraService, OglasMajstoraService>();
 builder.Services.AddScoped<IOglasMajstoraRepository, OglasMajstoraRepository>();
 

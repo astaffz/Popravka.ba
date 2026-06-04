@@ -34,6 +34,7 @@ public class DbSeeder
         await SeedKategorijeAsync();
         await SeedMjestaAsync();
         await SeedUserAsync();
+        await SeedOglasAsync();
     }
 
     private async Task SeedRolesAsync()
@@ -49,7 +50,7 @@ public class DbSeeder
 
     private async Task SeedKategorijeAsync()
     {
-        if (await _context.Kategorije.AnyAsync()) { _context.Kategorije.RemoveRange(_context.Kategorije); await _context.SaveChangesAsync(); };
+        if (await _context.Kategorije.AnyAsync()) return;
 
 
         var nadkategorije = new Dictionary<string, Kategorija>
@@ -75,6 +76,52 @@ public class DbSeeder
 
         await _context.Kategorije.AddRangeAsync(nadkategorije.Values);
         await _context.SaveChangesAsync();
+
+      
+        var haso = await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba");
+        if (haso is not null)
+        {
+            var esmirUser = await _userManager.FindByEmailAsync("esmir.b@amerika.ba");
+            var edinUser = await _userManager.FindByEmailAsync("edin.dz@amerika.ba");
+
+            var ponudeToAdd = new List<PonudaUsluge>();
+
+            if (esmirUser is not null)
+            {
+                var esmirOglasi = await _context.OglasiUsluga.Where(o => o.VlasnikOglasaID == esmirUser.Id).ToListAsync();
+                foreach (var og in esmirOglasi)
+                {
+                    ponudeToAdd.Add(new PonudaUsluge
+                    {
+                        IzvrsilacID = haso.Id,
+                        OglasUslugeID = og.OglasID,
+                        DatumSlanja = DateTime.UtcNow,
+                        StatusPonude = Status.NaCekanju
+                    });
+                }
+            }
+
+            if (edinUser is not null)
+            {
+                var edinOglasi = await _context.OglasiUsluga.Where(o => o.VlasnikOglasaID == edinUser.Id).ToListAsync();
+                foreach (var og in edinOglasi)
+                {
+                    ponudeToAdd.Add(new PonudaUsluge
+                    {
+                        IzvrsilacID = haso.Id,
+                        OglasUslugeID = og.OglasID,
+                        DatumSlanja = DateTime.UtcNow,
+                        StatusPonude = Status.NaCekanju
+                    });
+                }
+            }
+
+            if (ponudeToAdd.Any())
+            {
+                await _context.PonudeUsluge.AddRangeAsync(ponudeToAdd);
+                await _context.SaveChangesAsync();
+            }
+        }
 
         var potkategorije = new List<Kategorija>
         {
@@ -479,6 +526,169 @@ public class DbSeeder
             else
                 throw new Exception($"Majstor seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
+
+        // Seed a phony plumber (majstor) for testing
+        if (await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba") == null)
+        {
+            var plumber = new Majstor
+            {
+                UserName = "hasoinstalacije",
+                Email = "kontakt@hasoinstalacije.ba",
+                EmailConfirmed = true,
+                Ime = "Hasan",
+                Prezime = "Ibrahimović",
+                Opis = "Iskusni vodoinstalater za hitne popravke i ugradnju vodovodne opreme."
+            };
+
+            var res = await _userManager.CreateAsync(plumber, "Majstor#1234");
+            if (res.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(plumber, KorisnickeUloge.Majstor.ToString());
+
+                var vodoinstalaterske = await _context.Kategorije
+                    .Where(k => k.Naziv == "Vodoinstalaterske usluge")
+                    .ToListAsync();
+
+                var rows = vodoinstalaterske.Select(k => new IzvrsilacKategorija
+                {
+                    IzvrsilacID = plumber.Id,
+                    KategorijaID = k.ID
+                });
+
+                await _context.IzvrsilacKategorija.AddRangeAsync(rows);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception($"Plumber seeding failed: {string.Join(", ", res.Errors.Select(e => e.Description))}");
+            }
+        }
        
+    }
+
+    private async Task SeedOglasAsync()
+    {
+        
+        if (await _context.OglasiUsluga.AnyAsync() || await _context.OglasiMajstora.AnyAsync() || await _context.OglasiRadnogMjesta.AnyAsync())
+            return;
+
+        var mjesto = await _context.Mjesta.SingleOrDefaultAsync(m => m.Naziv == "Sarajevo");
+        if (mjesto is null) return;
+
+        
+        var existingMajstor = await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba");
+
+        
+        var clients = new[]
+        {
+            new { Email = "esmir.b@amerika.ba", UserName = "esmirb", Ime = "Esmir", Prezime = "Barjaktarević" , Naziv = "Montaža novog bojlera", Opis = "Potrebna montaža novog bojlera od 100L. Postoji priprema. Hitno za sutra.", Ponude = 1 },
+            new { Email = "kerim.a@amerika.ba", UserName = "kerima", Ime = "Kerim", Prezime = "Alajbegović", Naziv = "Renoviranje kuhinje - stolarski radovi", Opis = "Potrebna je izrada kuhinjskih elemenata po mjeri. Dimenzije prostorije su 3x4m.", Ponude = 0 },
+            new { Email = "edin.dz@amerika.ba", UserName = "edindz", Ime = "Edin", Prezime = "Džeko", Naziv = "Popravka curenja vode u kupatilu", Opis = "Potrebno je zamijeniti spojni ventil i provjeriti cijelu instalaciju ispod sudopere. Preferiram majstora koji može izaći u roku od 24 sata.", Ponude = 1 }
+        };
+
+        var createdClientIds = new List<string>();
+        foreach (var c in clients)
+        {
+            var user = await _userManager.FindByEmailAsync(c.Email);
+            if (user == null)
+            {
+                var klijent = new Klijent
+                {
+                    UserName = c.UserName,
+                    Email = c.Email,
+                    EmailConfirmed = true,
+                    Ime = c.Ime,
+                    Prezime = c.Prezime,
+                };
+
+                var result = await _userManager.CreateAsync(klijent, "Klijent#1234");
+                if (!result.Succeeded)
+                {
+                 
+                    continue;
+                }
+                await _userManager.AddToRoleAsync(klijent, KorisnickeUloge.Klijent.ToString());
+                createdClientIds.Add(klijent.Id);
+            }
+            else
+            {
+                createdClientIds.Add(user.Id);
+            }
+        }
+
+    
+        var majstorId = existingMajstor?.Id;
+
+        for (int i = 0; i < clients.Length && i < createdClientIds.Count; i++)
+        {
+            var c = clients[i];
+            var oglas = new OglasUsluge
+            {
+                Naslov = c.Naziv,
+                Opis = c.Opis,
+                MjestoID = mjesto.MjestoID,
+                MinBudzet = 0,
+                MaxBudzet = 0,
+                DatumObjave = DateTime.UtcNow,
+                VlasnikOglasaID = createdClientIds[i]
+            };
+
+            await _context.OglasiUsluga.AddAsync(oglas);
+        }
+
+        await _context.SaveChangesAsync();
+
+        // After ads are saved, create explicit PonudaUsluge rows so FKs are correct
+        if (majstorId is not null)
+        {
+            var hasoId = majstorId;
+            var ponudeToAdd = new List<PonudaUsluge>();
+
+            // Esmir
+            var esmirUser = await _userManager.FindByEmailAsync("esmir.b@amerika.ba");
+            if (esmirUser is not null)
+            {
+                var esmirOglasi = await _context.OglasiUsluga
+                    .Where(o => o.VlasnikOglasaID == esmirUser.Id)
+                    .ToListAsync();
+
+                foreach (var og in esmirOglasi)
+                {
+                    ponudeToAdd.Add(new PonudaUsluge
+                    {
+                        IzvrsilacID = hasoId,
+                        OglasUslugeID = og.OglasID,
+                        DatumSlanja = DateTime.UtcNow,
+                        StatusPonude = Status.NaCekanju
+                    });
+                }
+            }
+
+            // Edin
+            var edinUser = await _userManager.FindByEmailAsync("edin.dz@amerika.ba");
+            if (edinUser is not null)
+            {
+                var edinOglasi = await _context.OglasiUsluga
+                    .Where(o => o.VlasnikOglasaID == edinUser.Id)
+                    .ToListAsync();
+
+                foreach (var og in edinOglasi)
+                {
+                    ponudeToAdd.Add(new PonudaUsluge
+                    {
+                        IzvrsilacID = hasoId,
+                        OglasUslugeID = og.OglasID,
+                        DatumSlanja = DateTime.UtcNow,
+                        StatusPonude = Status.NaCekanju
+                    });
+                }
+            }
+
+            if (ponudeToAdd.Any())
+            {
+                await _context.PonudeUsluge.AddRangeAsync(ponudeToAdd);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

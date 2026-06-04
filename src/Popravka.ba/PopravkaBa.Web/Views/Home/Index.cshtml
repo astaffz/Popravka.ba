@@ -1,5 +1,4 @@
 ﻿@model HomeViewModel
-@using System.Reflection
 @{
     ViewData["Title"] = "Popravka.ba - Vaš online prostor za provjerene usluge";
 }
@@ -124,20 +123,26 @@
             <a asp-controller="Oglas" asp-action="Index">Pogledaj još →</a>
         </div>
         <div class="oglasi-grid">
-            @foreach (var oglas in new[] {
-                new { Naziv = "Montaža novog bojlera", Opis = "Potrebna montaža novog bojlera od 100L. Postoji priprema. Hitno za sutra.", Autor = "Esmir B.", BrojPonuda = 5 },
-                new { Naziv = "Renoviranje kuhinje - stolarski radovi", Opis = "Potrebna je izrada kuhinjskih elemenata po mjeri. Dimenzije prostorije su 3x4m.", Autor = "Kerim A.", BrojPonuda = 3 },
-                new { Naziv = "Popravka curenja vode u kupatilu", Opis = "Potrebno je zamijeniti spojni ventil i provjeriti cijelu instalaciju ispod sudopere. Preferiram majstora koji može izaći u roku od 24 sata.", Autor = "Edin Dž.", BrojPonuda = 1 },
-            })
+            @foreach (var oglas in Model.NedavniOglasi)
             {
                 <a class="oglas-card" href="#">
                     <div class="oglas-body">
-                        <strong>@oglas.Naziv</strong>
+                        <strong>@oglas.Naslov</strong>
                         <p>@oglas.Opis</p>
                     </div>
                     <div class="oglas-footer">
-                        <span class="oglas-autor"><i class="fa-solid fa-circle-user"></i> @oglas.Autor</span>
-                        <span>Ponuda primljeno: @oglas.BrojPonuda</span>
+                        <span class="oglas-autor">
+                            @if (oglas.VlasnikOglasaSlika != null)
+                            {
+                                <img src="@oglas.VlasnikOglasaSlika" class="oglas-avatar" />
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-circle-user"></i>
+                            }
+                            @oglas.VlasnikOglasaSkracenoIme
+                        </span>
+                        <span>Broj odgovora: @oglas.BrojPonuda</span>
                     </div>
                 </a>
             }

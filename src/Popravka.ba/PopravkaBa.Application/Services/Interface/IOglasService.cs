@@ -34,5 +34,11 @@ namespace PopravkaBa.Application.Services.Interface
 
         Task<int> DajBrojZavrsenihAsync();
     }
+
+    public interface IOglasService
+    {
+        Task<IEnumerable<Oglas>?> DajNedavne(int topN);
+
+    }
 }
    

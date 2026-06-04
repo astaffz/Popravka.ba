@@ -11,14 +11,6 @@ namespace PopravkaBa.Domain.Models
         public double MinCijena { get; set; } = 0;
         public TipIsplate TipIsplate { get; set; }
 
-        public override void DodajKategoriju(Kategorija kategorija)
-        {
-            
-        }
-
-        public override void UkloniKategoriju(int kategorijaID)
-        {
-            
-        }
+       
     }
 }
