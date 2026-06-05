@@ -443,7 +443,7 @@
                     <h1 class="form-title">Dobrodošli nazad</h1>
                     <p class="form-subtitle">Unesite vaše podatke za pristup nalogu.</p>
 
-                    <form asp-controller="Account" asp-action="Login" method="post">
+                    <form asp-controller="Account" asp-action="Login" method="post" novalidate>
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
@@ -511,7 +511,7 @@
 
                     <!-- Klijent form -->
                     <div id="reg-klijent" style="display:@(aktivniRegTip == "klijent" ? "block" : "none");">
-                        <form asp-controller="Account" asp-action="RegistracijaKlijenta" method="post">
+                        <form asp-controller="Account" asp-action="RegistracijaKlijenta" method="post" novalidate>
                             @Html.AntiForgeryToken()
                             <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
@@ -566,7 +566,7 @@
 
                     <!-- Majstor form -->
                     <div id="reg-majstor" style="display:@(aktivniRegTip == "majstor" ? "block" : "none");">
-                        <form asp-controller="Account" asp-action="RegistracijaMajstora" method="post">
+                        <form asp-controller="Account" asp-action="RegistracijaMajstora" method="post" novalidate>
                             @Html.AntiForgeryToken()
                             <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
@@ -666,7 +666,7 @@
 
                     <!-- Firma form -->
                     <div id="reg-firma" style="display:@(aktivniRegTip == "firma" ? "block" : "none");">
-                        <form asp-controller="Account" asp-action="RegistracijaFirme" method="post" enctype="multipart/form-data">
+                        <form asp-controller="Account" asp-action="RegistracijaFirme" method="post" enctype="multipart/form-data" novalidate>
                             @Html.AntiForgeryToken()
                             <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
