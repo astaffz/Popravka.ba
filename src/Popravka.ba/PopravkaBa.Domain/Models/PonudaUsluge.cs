@@ -23,8 +23,5 @@ namespace PopravkaBa.Domain.Models
         public DateTime? DatumOcekivanogZavrsetka { get; set; }
         public Status StatusPonude { get; set; } = Status.NaCekanju;
 
-        public void PrihvatiPonudu() {  }
-        public void OdbijPonudu() { }
-
     }
 }

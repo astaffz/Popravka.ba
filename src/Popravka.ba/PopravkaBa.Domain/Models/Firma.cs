@@ -22,7 +22,7 @@ namespace PopravkaBa.Domain.Models
         public string? WebStranica { get; set; }
 
    
-        public DateOnly DatumOsnivanja { get; set; }
+        public DateOnly? DatumOsnivanja { get; set; }
 
         public ICollection<VerifikacijaFirme>? ZahtjeviVerifikacije { get; set; }
 

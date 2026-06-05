@@ -47,8 +47,9 @@ namespace PopravkaBa.Application.DTOs
 
         [DataType(DataType.Password)]
         [Compare("Lozinka", ErrorMessage = "Lozinke se ne poklapaju.")]
-        public string PotvrdaLozinke { get; set; }
+        public string? PotvrdaLozinke { get; set; }
 
+        [Required(ErrorMessage = "Minimalno jedna lokacija poslovanja.")]
         [MinLength(1, ErrorMessage = "Minimalno jedna lokacija poslovanja.")]
         public List<int> MjestaID { get; set; }
     }
@@ -70,20 +71,19 @@ namespace PopravkaBa.Application.DTOs
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Lozinka je obavezna.")]
+        [RegularExpression(@"^(?=.*\d).{8,}$", ErrorMessage = "Lozinka mora biti min. 8 karaktera i sadržavati min. jednu cifru.")]
         [DataType(DataType.Password)]
         public string Lozinka { get; set; }
 
         [DataType(DataType.Password)]
         [Compare("Lozinka", ErrorMessage = "Lozinke se ne poklapaju.")]
-        public string PotvrdaLozinke { get; set; }
+        public string? PotvrdaLozinke { get; set; }
 
-        public string? Adresa { get; set; }
-
-        public int? StambeniBroj { get; set; }
-
+        [Required(ErrorMessage = "Najmanje jedna kategorija zanimanja.")]
         [MinLength(1, ErrorMessage = "Najmanje jedna kategorija zanimanja.")]
         public List<int> KategorijeID { get; set; }
 
+        [Required(ErrorMessage = "Najmanje jedna lokacija poslovanja.")]
         [MinLength(1, ErrorMessage = "Najmanje jedna lokacija poslovanja.")]
         public List<int> MjestaID { get; set; }
     }
@@ -108,12 +108,7 @@ namespace PopravkaBa.Application.DTOs
 
         [DataType(DataType.Password)]
         [Compare("Lozinka", ErrorMessage = "Lozinke se ne poklapaju.")]
-        public string PotvrdaLozinke { get; set; }
-
-        [Required(ErrorMessage = "Adresa je obavezna.")]
-        public string Adresa { get; set; }
-
-        public int? StambeniBroj { get; set; }
+        public string? PotvrdaLozinke { get; set; }
 
         [Required(ErrorMessage = "Unesite veličinu firme.")]
         public VelicinaFirme VelicinaFirme { get; set; } = VelicinaFirme.Mikro;
@@ -122,11 +117,11 @@ namespace PopravkaBa.Application.DTOs
         [Url(ErrorMessage = "Unesite validnu URL adresu.")]
         public string? WebStranica { get; set; }
 
-        public DateTime DatumOsnivanja { get; set; }
-
+        [Required(ErrorMessage = "Minimalno jedna kategorija zanimanja.")]
         [MinLength(1, ErrorMessage = "Minimalno jedna kategorija zanimanja.")]
         public List<int> KategorijeID { get; set; }
 
+        [Required(ErrorMessage = "Minimalno jedna lokacija poslovanja.")]
         [MinLength(1, ErrorMessage = "Minimalno jedna lokacija poslovanja.")]
         public List<int> MjestaID { get; set; }
     }
