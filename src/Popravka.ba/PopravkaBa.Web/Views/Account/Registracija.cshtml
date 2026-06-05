@@ -392,7 +392,7 @@
         }
         .combo-option:hover { background: #f3f4f6; }
         .combo-option.selected { background: var(--blue); color: #fff; }
-        .combo-option.hidden { display: none; }
+        .combo-option.hidden, .combo-group.hidden { display: none; }
         .combo-empty { padding: 0.6rem 0.85rem; font-size: 0.85rem; color: var(--text-soft); }
 
         /* ===== Logo upload ===== */
@@ -541,7 +541,8 @@
                                     <div class="combo-dropdown">
                                         <div class="combo-search-wrap">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                            <input type="text" class="combo-search" placeholder="Pretraži mjesto..." autocomplete="off" />
+                                            <input type="text" class="combo-search" placeholder="Pretraži mjesto..." autocomplete="off" 
+                                                   oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()" />
                                         </div>
                                         <div class="combo-options">
                                             @foreach (var grupa in mjestaPoKantonu)
@@ -596,7 +597,8 @@
                                         <div class="combo-dropdown">
                                             <div class="combo-search-wrap">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                                <input type="text" class="combo-search" placeholder="Pretraži oblast..." autocomplete="off" />
+                                                <input type="text" class="combo-search" placeholder="Pretraži oblast..." autocomplete="off" 
+                                                       oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()" />
                                             </div>
                                             <div class="combo-options">
                                                 @foreach (var nad in nadkategorije)
@@ -615,7 +617,8 @@
                                         <div class="combo-dropdown">
                                             <div class="combo-search-wrap">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                                <input type="text" class="combo-search" placeholder="Pretraži kategoriju..." autocomplete="off" />
+                                                <input type="text" class="combo-search" placeholder="Pretraži kategoriju..." autocomplete="off"
+                                                       oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()" />
                                             </div>
                                             <div class="combo-options">
                                                 @foreach (var k in potkategorije)
@@ -641,7 +644,8 @@
                                     <div class="combo-dropdown">
                                         <div class="combo-search-wrap">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                            <input type="text" class="combo-search" placeholder="Pretraži mjesto..." autocomplete="off" />
+                                            <input type="text" class="combo-search" placeholder="Pretraži mjesto..." autocomplete="off" 
+                                                   oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()" />
                                         </div>
                                         <div class="combo-options">
                                             @foreach (var grupa in mjestaPoKantonu)
@@ -695,7 +699,8 @@
                                         <div class="combo-dropdown">
                                             <div class="combo-search-wrap">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                                <input type="text" class="combo-search" placeholder="Pretraži oblast..." autocomplete="off" />
+                                                <input type="text" class="combo-search" placeholder="Pretraži oblast..."
+                                                       oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()" />
                                             </div>
                                             <div class="combo-options">
                                                 @foreach (var nad in nadkategorije)
@@ -714,7 +719,9 @@
                                         <div class="combo-dropdown">
                                             <div class="combo-search-wrap">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                                <input type="text" class="combo-search" placeholder="Pretraži kategoriju..." autocomplete="off" />
+                                                <input type="text" class="combo-search" placeholder="Pretraži kategoriju..."
+                                                oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()"
+                                                />
                                             </div>
                                             <div class="combo-options">
                                                 @foreach (var k in potkategorije)
@@ -740,7 +747,7 @@
                                     <div class="combo-dropdown">
                                         <div class="combo-search-wrap">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                            <input type="text" class="combo-search" placeholder="Pretraži mjesto..." autocomplete="off" />
+                                            <input type="text" class="combo-search" placeholder="Pretraži mjesto..."                                               oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()"           />
                                         </div>
                                         <div class="combo-options">
                                             @foreach (var grupa in mjestaPoKantonu)

@@ -52,7 +52,7 @@ namespace PopravkaBa.Web.Controllers
                     Naslov = oglas.Naslov,
                     Opis = oglas.Opis,
                     DatumObjave = oglas.DatumObjave,
-                    VlasnikOglasaSkracenoIme = (oglas.VlasnikOglasa.Ime + " " + oglas.VlasnikOglasa.Prezime[0] + ".") ?? oglas.VlasnikOglasa.UserName,
+                    VlasnikOglasaSkracenoIme = oglas.VlasnikOglasa.SkracenoIme.Length > 15 ? oglas.VlasnikOglasa.SkracenoIme.Substring(0, 15) + "..." : oglas.VlasnikOglasa.SkracenoIme,
                     VlasnikOglasaSlika = oglas.VlasnikOglasa.Slika,
                     BrojPonuda = oglas.BrojPrijava
                 }) ?? Enumerable.Empty<NedavniOglasiViewModel>()

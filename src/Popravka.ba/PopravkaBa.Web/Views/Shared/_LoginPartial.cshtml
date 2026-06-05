@@ -1,21 +1,74 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PopravkaBa.Domain.Models
+@using PopravkaBa.Domain.Enums
 @inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav gap-2 align-items-center">
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item">
-            <a class="nav-link" asp-controller="Home" asp-action="Index">
-                Pozdrav, @User.Identity?.Name!
-            </a>
-        </li>
-        <li class="nav-item">
-            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-outline-primary">Odjava</button>
-            </form>
-        </li>
+        var user = await UserManager.GetUserAsync(User);
+        if (user is not null)
+        {
+            var uloga = (await UserManager.GetRolesAsync(user)).FirstOrDefault();
+            var displayName = user.DisplayName.Length > 35
+                ? user.DisplayName.Substring(0, 32) + "..."
+                : user.DisplayName;
+
+            // TODO: zamijeni s tvojim stvarnim svojstvom za verifikaciju
+			var isVerified = user.StatusVerifikacije == PopravkaBa.Domain.Enums.Status.Aktivan;
+
+            <li class="nav-item dropdown">
+                <a class="nav-link pp-toggle" href="#" id="userDropdown"
+                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    @if (!string.IsNullOrEmpty(user.Slika))
+                    {
+                        <img src="@user.Slika" alt="@displayName" class="pp-avatar" />
+                    }
+                    else
+                    {
+                        <span class="pp-avatar pp-avatar-fallback"><i class="bi bi-person-fill"></i></span>
+                    }
+                    <span class="pp-toggle-text">
+                        <span class="pp-toggle-role">@uloga:</span>
+                        <span class="pp-toggle-name">@displayName</span>
+                    </span>
+                    <i class="bi bi-caret-down-fill pp-caret"></i>
+                </a>
+
+                <div class="dropdown-menu dropdown-menu-end pp-menu" aria-labelledby="userDropdown">
+                    <div class="pp-header">
+                        <div class="pp-header-name">
+                            @displayName
+                            @if (isVerified)
+                            {
+                                <i class="bi bi-patch-check-fill pp-verified"></i>
+                            }
+                        </div>
+                        <div class="pp-header-role">@uloga</div>
+                    </div>
+
+                    <a class="dropdown-item pp-item" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-person"></i><span>Profil</span>
+                    </a>
+                    <a class="dropdown-item pp-item" asp-controller="Oglas" asp-action="Index">
+                        <i class="bi bi-file-earmark-text"></i><span>Ponude</span>
+                    </a>
+                    <a class="dropdown-item pp-item" asp-controller="Account" asp-action="Postavke">
+                        <i class="bi bi-gear"></i><span>Postavke</span>
+                    </a>
+
+                    <hr class="pp-divider" />
+
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="dropdown-item pp-item pp-logout">
+                            <i class="bi bi-box-arrow-right"></i><span>Odjava</span>
+                        </button>
+                    </form>
+                </div>
+            </li>
+        }
     }
     else
     {
@@ -27,3 +80,122 @@
         </li>
     }
 </ul>
+
+<style>
+    /* ===== Toggle (bordered card) ===== */
+    .pp-toggle {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: .5rem .85rem;
+        border: 1px solid #1e3a8a;
+        border-radius: 8px;
+        text-decoration: none;
+        line-height: 1;
+    }
+        .pp-toggle:hover, .pp-toggle:focus { background: #f6f9ff; }
+
+    .pp-toggle-text {
+        display: flex;
+        flex-direction: column;
+        gap: .15rem;
+        font-weight: 700;
+    }
+    .pp-toggle-role { color: #111827; font-size: .95rem; }
+    .pp-toggle-name {
+        color: #1a6fd4;
+        font-size: .95rem;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .pp-caret { color: #9bb8e6; font-size: .8rem; margin-left: .15rem; transition: transform .15s ease; }
+    .pp-toggle[aria-expanded="true"] .pp-caret { transform: rotate(180deg); }
+
+    /* ===== Avatar (large, solid blue) ===== */
+    .pp-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .pp-avatar-fallback {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #1a6fd4;
+        color: #fff;
+        font-size: 1.5rem;
+    }
+
+    /* ===== Menu ===== */
+    .pp-menu {
+        min-width: 252px;
+        padding: 0;
+        margin-top: .5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        box-shadow: 0 12px 30px rgba(0,0,0,.14);
+        overflow: hidden;
+    }
+
+    /* ===== Header ===== */
+    .pp-header {
+        padding: 1rem 1.1rem .85rem;
+        border-bottom: 1px solid #eef0f2;
+    }
+    .pp-header-name {
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: #111827;
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+        line-height: 1.2;
+    }
+    .pp-header-role {
+        font-size: .9rem;
+        color: #6b7280;
+        margin-top: .15rem;
+    }
+    .pp-verified { color: #111827; font-size: 1rem; }
+
+    /* ===== Items ===== */
+    .pp-item {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        padding: .7rem 1.1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e3a8a;
+        border: 0;
+        background: transparent;
+        width: 100%;
+        text-align: start;
+        text-decoration: none;
+    }
+        .pp-item .bi {
+            font-size: 1.15rem;
+            color: #1a6fd4;
+            width: 1.3rem;
+            text-align: center;
+        }
+        .pp-item:hover, .pp-item:focus {
+            background: #eff6ff;
+            color: #1e3a8a;
+        }
+
+    .pp-divider {
+        margin: .35rem 0;
+        border: 0;
+        border-top: 1px solid #eef0f2;
+    }
+
+    /* ===== Odjava ===== */
+    .pp-logout { color: #dc2626; text-decoration: underline; }
+        .pp-logout .bi { color: #dc2626; }
+        .pp-logout:hover, .pp-logout:focus { background: #fef2f2; color: #b91c1c; }
+</style>
