@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Popravka.ba.Data;
 using PopravkaBa.Application.Services;
@@ -55,6 +54,7 @@ builder.Services.AddRateLimiter(options =>
         }));
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
+
 
 // TODO 1HIGHPRIORITY: Da li implementirati na engleskom aplikaciju?
 // TODO Registriraj sve dependency injectione po dodavanju, implementirati zakomentarisane

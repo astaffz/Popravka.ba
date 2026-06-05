@@ -15,8 +15,7 @@
                 ? user.DisplayName.Substring(0, 32) + "..."
                 : user.DisplayName;
 
-            // TODO: zamijeni s tvojim stvarnim svojstvom za verifikaciju
-			var isVerified = user.StatusVerifikacije == PopravkaBa.Domain.Enums.Status.Aktivan;
+            var isVerified = user.StatusVerifikacije == Status.Aktivan;
 
             <li class="nav-item dropdown">
                 <a class="nav-link pp-toggle" href="#" id="userDropdown"
@@ -27,7 +26,9 @@
                     }
                     else
                     {
-                        <span class="pp-avatar pp-avatar-fallback"><i class="bi bi-person-fill"></i></span>
+                        <span class="pp-avatar pp-avatar-fallback">
+                            <i class="bi bi-person-fill"></i>
+                        </span>
                     }
                     <span class="pp-toggle-text">
                         <span class="pp-toggle-role">@uloga:</span>
@@ -48,15 +49,30 @@
                         <div class="pp-header-role">@uloga</div>
                     </div>
 
-                    <a class="dropdown-item pp-item" asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-person"></i><span>Profil</span>
-                    </a>
-                    <a class="dropdown-item pp-item" asp-controller="Oglas" asp-action="Index">
-                        <i class="bi bi-file-earmark-text"></i><span>Ponude</span>
-                    </a>
-                    <a class="dropdown-item pp-item" asp-controller="Account" asp-action="Postavke">
-                        <i class="bi bi-gear"></i><span>Postavke</span>
-                    </a>
+                    @if (uloga == KorisnickeUloge.Administrator.ToString())
+                    {
+                        <a class="dropdown-item pp-item" asp-controller="Admin" asp-action="Index">
+                            <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+                        </a>
+                    }
+                    else
+                    {
+                        var (oglasiLabel, oglasiAction) = uloga switch
+                        {
+                            var u when u == KorisnickeUloge.Klijent.ToString() => ("Moji oglasi", "Oglasi"),
+                            _ => ("Ponude", "Ponude")
+                        };
+
+                        <a class="dropdown-item pp-item" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-person"></i><span>Moj profil</span>
+                        </a>
+                        <a class="dropdown-item pp-item" asp-controller="Profil" asp-action="@oglasiAction">
+                            <i class="bi bi-file-earmark-text"></i><span>@oglasiLabel</span>
+                        </a>
+                        <a class="dropdown-item pp-item" asp-controller="Account" asp-action="Postavke">
+                            <i class="bi bi-gear"></i><span>Postavke</span>
+                        </a>
+                    }
 
                     <hr class="pp-divider" />
 
@@ -93,7 +109,10 @@
         text-decoration: none;
         line-height: 1;
     }
-        .pp-toggle:hover, .pp-toggle:focus { background: #f6f9ff; }
+
+        .pp-toggle:hover, .pp-toggle:focus {
+            background: #f6f9ff;
+        }
 
     .pp-toggle-text {
         display: flex;
@@ -101,7 +120,12 @@
         gap: .15rem;
         font-weight: 700;
     }
-    .pp-toggle-role { color: #111827; font-size: .95rem; }
+
+    .pp-toggle-role {
+        color: #111827;
+        font-size: .95rem;
+    }
+
     .pp-toggle-name {
         color: #1a6fd4;
         font-size: .95rem;
@@ -110,10 +134,19 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .pp-caret { color: #9bb8e6; font-size: .8rem; margin-left: .15rem; transition: transform .15s ease; }
-    .pp-toggle[aria-expanded="true"] .pp-caret { transform: rotate(180deg); }
 
-    /* ===== Avatar (large, solid blue) ===== */
+    .pp-caret {
+        color: #9bb8e6;
+        font-size: .8rem;
+        margin-left: .15rem;
+        transition: transform .15s ease;
+    }
+
+    .pp-toggle[aria-expanded="true"] .pp-caret {
+        transform: rotate(180deg);
+    }
+
+    /* ===== Avatar ===== */
     .pp-avatar {
         width: 46px;
         height: 46px;
@@ -121,6 +154,7 @@
         object-fit: cover;
         flex-shrink: 0;
     }
+
     .pp-avatar-fallback {
         display: inline-flex;
         align-items: center;
@@ -146,6 +180,7 @@
         padding: 1rem 1.1rem .85rem;
         border-bottom: 1px solid #eef0f2;
     }
+
     .pp-header-name {
         font-weight: 700;
         font-size: 1.05rem;
@@ -155,12 +190,17 @@
         gap: .4rem;
         line-height: 1.2;
     }
+
     .pp-header-role {
         font-size: .9rem;
         color: #6b7280;
         margin-top: .15rem;
     }
-    .pp-verified { color: #111827; font-size: 1rem; }
+
+    .pp-verified {
+        color: #111827;
+        font-size: 1rem;
+    }
 
     /* ===== Items ===== */
     .pp-item {
@@ -177,12 +217,14 @@
         text-align: start;
         text-decoration: none;
     }
+
         .pp-item .bi {
             font-size: 1.15rem;
             color: #1a6fd4;
             width: 1.3rem;
             text-align: center;
         }
+
         .pp-item:hover, .pp-item:focus {
             background: #eff6ff;
             color: #1e3a8a;
@@ -195,7 +237,17 @@
     }
 
     /* ===== Odjava ===== */
-    .pp-logout { color: #dc2626; text-decoration: underline; }
-        .pp-logout .bi { color: #dc2626; }
-        .pp-logout:hover, .pp-logout:focus { background: #fef2f2; color: #b91c1c; }
+    .pp-logout {
+        color: #dc2626;
+        text-decoration: underline;
+    }
+
+        .pp-logout .bi {
+            color: #dc2626;
+        }
+
+        .pp-logout:hover, .pp-logout:focus {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
 </style>

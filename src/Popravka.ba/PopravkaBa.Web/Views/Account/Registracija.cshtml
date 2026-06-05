@@ -415,6 +415,15 @@
         .logo-drop.has-file { border-style: solid; border-color: var(--blue); color: var(--text); background: #f8fbff; }
         .logo-drop-text { font-size: 0.875rem; font-weight: 600; }
 
+
+			.form-check {
+				display: flex;
+				gap: 0.4rem;
+				align-content: center;
+				margin-top: 0.5rem;
+			}
+
+			
     </style>
 </head>
 <body>
@@ -475,6 +484,10 @@
                                 </button>
                             </div>
                             <span asp-validation-for="Login.Lozinka" class="field-error"></span>
+                            <div class="form-check">
+                                <input asp-for="Login.ZapamtiMe" class="form-check-input" />
+                                <label asp-for="Login.ZapamtiMe" class="field-label">Zapamti me</label>
+                            </div>
                             <div class="form-meta">
                                 <a asp-controller="Account" asp-action="ZaboravljenaLozinka" class="form-link">Zaboravili ste lozinku?</a>
                             </div>

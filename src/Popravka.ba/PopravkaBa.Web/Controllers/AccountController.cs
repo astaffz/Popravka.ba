@@ -79,7 +79,7 @@ namespace PopravkaBa.Web.Controllers
             var signInResult = await _signInManager.PasswordSignInAsync(
                 user,
                 dto.Lozinka,
-                dto.ZapamtiMe, 
+                false, 
                 lockoutOnFailure: true);
 
             if (!signInResult.Succeeded)
