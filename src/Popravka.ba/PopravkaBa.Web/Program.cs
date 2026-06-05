@@ -58,6 +58,10 @@ builder.Services.AddScoped<IKategorijaRepository, KategorijaRepository>();
 builder.Services.AddScoped<IMjestoService, MjestoService>();
 builder.Services.AddScoped<IMjestoRepository,MjestoRepository>();
 
+
+builder.Services.AddScoped<IOglasRepository, OglasRepository>();
+builder.Services.AddScoped<IOglasService, OglasService>();
+
 builder.Services.AddScoped<IOglasMajstoraService, OglasMajstoraService>();
 builder.Services.AddScoped<IOglasMajstoraRepository, OglasMajstoraRepository>();
 
@@ -87,6 +91,8 @@ var app = builder.Build();
 // Lokalni blok koda za kreiranje uloga i popunavanju baze pri pokretanju aplikacije, NE STAVITI IZNAD LINIJE builder.Build()!
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
     var seeder =  scope.ServiceProvider.GetRequiredService<DbSeeder>();
     await seeder.SeedAsync();
 }

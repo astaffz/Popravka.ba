@@ -67,10 +67,10 @@ namespace PopravkaBa.Application.Services
         public async Task<IEnumerable<OglasMajstora>> PronadjiOglase(string pretraga, int? lokacija)
             => await _repo.IzvrsiPretraguTekstaAsync(pretraga);
 
-      
+
     }
 
-public class OglasRadnoMjestoService : IOglasRadnoMjestoService
+    public class OglasRadnoMjestoService : IOglasRadnoMjestoService
     {
         private readonly IOglasRadnoMjestoRepository _repo;
         public OglasRadnoMjestoService(IOglasRadnoMjestoRepository repo)
@@ -82,7 +82,7 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
 
         public async Task<IEnumerable<OglasRadnoMjesto>> DajSveOglase() => await _repo.DajSveAsync();
 
-        public async Task<int> ObjaviOglas(ObjaviOglasRadnoMjestoDto dto,string vlasnikId)
+        public async Task<int> ObjaviOglas(ObjaviOglasRadnoMjestoDto dto, string vlasnikId)
         {
             var oglas = new OglasRadnoMjesto
             {
@@ -107,13 +107,13 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
             if (oglas is null)
                 throw new KeyNotFoundException($"Oglas sa ID {id} nije pronađen.");
 
-            await _repo.ObrisiAsync(id); 
+            await _repo.ObrisiAsync(id);
         }
 
         public async Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija)
         {
             var oglasi = await _repo.IzvrsiPretraguTekstaAsync(pretraga);
-            if(lokacija is not null)
+            if (lokacija is not null)
             {
                 oglasi = oglasi.Where(t => t.MjestoID == lokacija)
                                .ToList();
@@ -137,10 +137,10 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
             oglas.MinPrihod = dto.MinPrihod;
             oglas.MaxPrihod = dto.MaxPrihod;
             oglas.TipIsplate = dto.TipIsplate;
-            
+
             await _repo.UrediAsync(oglas);
         }
-        
+
     }
 
     public class OglasUslugeService : IOglasUslugeService
@@ -166,7 +166,7 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
             throw new NotImplementedException();
         }
 
-        
+
 
         public Task ObrisiOglas(int id)
         {
@@ -184,5 +184,16 @@ public class OglasRadnoMjestoService : IOglasRadnoMjestoService
         }
 
         public async Task<int> DajBrojZavrsenihAsync() => await _repo.DajBrojZavrsenih();
+    }
+    public class OglasService : IOglasService
+    {
+
+        private readonly IOglasRepository _oglasRepo;
+        public OglasService(IOglasRepository oglasRepo)
+        {
+            _oglasRepo = oglasRepo;
+        }
+        public async Task<IEnumerable<Oglas>?> DajNedavne(int topN)
+        => await _oglasRepo.DajNedavneAsync(topN);
     }
 }

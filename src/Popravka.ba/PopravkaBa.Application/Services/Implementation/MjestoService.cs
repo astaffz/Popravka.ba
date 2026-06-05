@@ -17,6 +17,8 @@ namespace PopravkaBa.Application.Services
         public async Task<IEnumerable<Mjesto>> DajSvaMjestaAsync()
             => await _repo.DajSvaMjestaAsync();
 
+        public async Task<IEnumerable<Mjesto>?> DajMjestaPoKantonuAsync(int kantonID)
+            => await _repo.DajMjestaPoKantonuAsync(kantonID);
         public async Task<Mjesto?> DajMjestoPoIdAsync(int id)
             => await _repo.DajPoIdAsync(id);
 

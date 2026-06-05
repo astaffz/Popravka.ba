@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Popravka.ba.Data;
@@ -11,9 +12,11 @@ using Popravka.ba.Data;
 namespace PopravkaBa.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260531201812_InitialMigrationRenderCom")]
+    partial class InitialMigrationRenderCom
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -384,8 +387,6 @@ namespace PopravkaBa.Infrastructure.Migrations
 
                     b.HasKey("OglasID");
 
-                    b.HasIndex("DatumObjave");
-
                     b.HasIndex("MjestoID");
 
                     b.HasIndex("VlasnikOglasaID");
@@ -754,6 +755,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<int>("BrojIzvrsilaca")
                         .HasColumnType("integer");
 
+                    b.Property<int>("BrojPrijava")
+                        .HasColumnType("integer");
+
                     b.Property<int>("MaxPrihod")
                         .HasColumnType("integer");
 
@@ -772,6 +776,9 @@ namespace PopravkaBa.Infrastructure.Migrations
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasUsluge", b =>
                 {
                     b.HasBaseType("PopravkaBa.Domain.Models.Oglas");
+
+                    b.Property<int>("BrojPrijava")
+                        .HasColumnType("integer");
 
                     b.Property<int>("MaxBudzet")
                         .HasColumnType("integer");

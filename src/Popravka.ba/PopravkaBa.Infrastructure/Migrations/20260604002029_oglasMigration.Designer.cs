@@ -12,8 +12,8 @@ using Popravka.ba.Data;
 namespace PopravkaBa.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260523230355_IntialPostgresMigration")]
-    partial class IntialPostgresMigration
+    [Migration("20260604002029_oglasMigration")]
+    partial class oglasMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -320,6 +320,9 @@ namespace PopravkaBa.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MjestoID"));
 
+                    b.Property<int>("Kanton")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Naziv")
                         .IsRequired()
                         .HasColumnType("text");
@@ -383,6 +386,8 @@ namespace PopravkaBa.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("OglasID");
+
+                    b.HasIndex("DatumObjave");
 
                     b.HasIndex("MjestoID");
 
@@ -750,9 +755,6 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.HasBaseType("PopravkaBa.Domain.Models.Oglas");
 
                     b.Property<int>("BrojIzvrsilaca")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("BrojPrijava")
                         .HasColumnType("integer");
 
                     b.Property<int>("MaxPrihod")

@@ -18,21 +18,21 @@ namespace PopravkaBa.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize] 
+        [Authorize]
         async Task<IActionResult> Index(FilterPretrageDto filteri)
         {
             var ulogaString = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            
+
 
             if (ulogaString == null)
-                return RedirectToAction("Login", "Account"); 
+                return RedirectToAction("Login", "Account");
 
             var uloga = Enum.Parse<KorisnickeUloge>(ulogaString);
 
             var result = await _pretragaService.PretraziAsync(filteri, uloga);
             return View(result);
         }
-
+    }
        
 }

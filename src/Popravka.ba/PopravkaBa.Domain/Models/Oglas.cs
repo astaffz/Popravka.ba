@@ -23,9 +23,10 @@ namespace PopravkaBa.Domain.Models
         [ForeignKey("ApplicationUser")]
         public string VlasnikOglasaID { get; set; }
         public ApplicationUser VlasnikOglasa { get; set; }
-        public ICollection<NotifikacijaOglas>? Notifikacije { get; set; }
-        public ICollection<OglasKategorija> Kategorije {  get; set; }
-        public abstract void DodajKategoriju(Kategorija kategorija);
-         public abstract void UkloniKategoriju(int kategorijaID);
+
+        public IEnumerable<OglasKategorija>? Kategorije { get; set; }
+        public IEnumerable<NotifikacijaOglas>? Notifikacije { get; set; }
+
+        public virtual int BrojPrijava => 0;
     }
 }

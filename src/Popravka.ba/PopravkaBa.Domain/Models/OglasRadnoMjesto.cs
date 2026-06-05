@@ -18,32 +18,7 @@ namespace PopravkaBa.Domain.Models
         public int MinPrihod { get; set; } = 0;
         public int MaxPrihod { get; set; } = 0;
         public TipIsplate TipIsplate { get; set; }
-        public int BrojPrijava { get; set; } = 0;
-        public override void DodajKategoriju(Kategorija kategorija)
-        {
-            
-        }
-
-        public override void UkloniKategoriju(int kategorijaID)
-        {
-            
-        }
-        public void DodajUvjet(string uvjet)
-        {
-
-        }
-        public void UkloniUvjet(int uvjetID)
-        {
-
-        }
-        public void DodajPrijavu(PrijavaRadnoMjesto prijava)
-        {
-
-        }
-        public void UkloniPrijavu(int prijavaID)
-        {
-
-        }
-
+        public override int BrojPrijava => Prijave?.Count ?? 0;
+        
     }
 }

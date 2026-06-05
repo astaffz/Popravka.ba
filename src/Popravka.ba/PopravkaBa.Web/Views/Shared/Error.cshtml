@@ -14,8 +14,19 @@
             <p><strong>Request ID:</strong> <code>@Model.RequestId</code></p>
         }
 
+        @if (!string.IsNullOrEmpty(Model?.ExceptionMessage))
+        {
+            <div class="error-details">
+                <p><strong>Greška:</strong> @Model.ExceptionMessage</p>
+                @if (!string.IsNullOrEmpty(Model.StackTrace))
+                {
+                    <pre>@Model.StackTrace</pre>
+                }
+            </div>
+        }
+
         <a asp-controller="Home" asp-action="Index" class="error-page-btn">
             Nazad na početnu
         </a>
     </div>
-</div>  
+</div>

@@ -14,6 +14,7 @@ public class DbSeeder
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _appConfig;
 
+
     public DbSeeder(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
@@ -32,7 +33,8 @@ public class DbSeeder
         await SeedRolesAsync();
         await SeedKategorijeAsync();
         await SeedMjestaAsync();
-        await SeedAdminAsync();
+        await SeedUserAsync();
+        await SeedOglasAsync();
     }
 
     private async Task SeedRolesAsync()
@@ -48,9 +50,9 @@ public class DbSeeder
 
     private async Task SeedKategorijeAsync()
     {
-        if (!await _context.Kategorije.AnyAsync()) return; // TODO: Promjenuti kada su usaglašene kategorije.
+        if (await _context.Kategorije.AnyAsync()) return;
 
-     
+
         var nadkategorije = new Dictionary<string, Kategorija>
         {
             ["Građevinski radovi"] = new() { Naziv = "Građevinski radovi" },
@@ -74,6 +76,52 @@ public class DbSeeder
 
         await _context.Kategorije.AddRangeAsync(nadkategorije.Values);
         await _context.SaveChangesAsync();
+
+      
+        var haso = await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba");
+        if (haso is not null)
+        {
+            var esmirUser = await _userManager.FindByEmailAsync("esmir.b@amerika.ba");
+            var edinUser = await _userManager.FindByEmailAsync("edin.dz@amerika.ba");
+
+            var ponudeToAdd = new List<PonudaUsluge>();
+
+            if (esmirUser is not null)
+            {
+                var esmirOglasi = await _context.OglasiUsluga.Where(o => o.VlasnikOglasaID == esmirUser.Id).ToListAsync();
+                foreach (var og in esmirOglasi)
+                {
+                    ponudeToAdd.Add(new PonudaUsluge
+                    {
+                        IzvrsilacID = haso.Id,
+                        OglasUslugeID = og.OglasID,
+                        DatumSlanja = DateTime.UtcNow,
+                        StatusPonude = Status.NaCekanju
+                    });
+                }
+            }
+
+            if (edinUser is not null)
+            {
+                var edinOglasi = await _context.OglasiUsluga.Where(o => o.VlasnikOglasaID == edinUser.Id).ToListAsync();
+                foreach (var og in edinOglasi)
+                {
+                    ponudeToAdd.Add(new PonudaUsluge
+                    {
+                        IzvrsilacID = haso.Id,
+                        OglasUslugeID = og.OglasID,
+                        DatumSlanja = DateTime.UtcNow,
+                        StatusPonude = Status.NaCekanju
+                    });
+                }
+            }
+
+            if (ponudeToAdd.Any())
+            {
+                await _context.PonudeUsluge.AddRangeAsync(ponudeToAdd);
+                await _context.SaveChangesAsync();
+            }
+        }
 
         var potkategorije = new List<Kategorija>
         {
@@ -177,7 +225,7 @@ public class DbSeeder
             new() { Naziv = "Animatori i zabava za djecu",              NadkategorijaID = nadkategorije["Eventi"].ID },
             new() { Naziv = "Dekoracija prostora",                      NadkategorijaID = nadkategorije["Eventi"].ID },
             new() { Naziv = "Cvjećarstvo i aranžmani",                  NadkategorijaID = nadkategorije["Eventi"].ID },
-            new() { Naziv = "Grill Majstor",                            NadkategorijaID = nadkategorije["Eventi"].ID },
+            new() { Naziv = "Grill majstor",                            NadkategorijaID = nadkategorije["Eventi"].ID },
 
             // Krojačke usluge
             new() { Naziv = "Šivanje po mjeri",                         NadkategorijaID = nadkategorije["Krojačke usluge"].ID },
@@ -233,202 +281,414 @@ public class DbSeeder
     }
     private async Task SeedMjestaAsync()
     {
-        if (await _context.Mjesta.AnyAsync()) return;
+        if (await _context.Mjesta.AnyAsync())
+        {
+            _context.Mjesta.RemoveRange(_context.Mjesta);
+            await _context.SaveChangesAsync();
+        }
 
         var mjesta = new List<Mjesto>
     {
-        new() { Naziv = "Blažuj" },
-        new() { Naziv = "Binježevo" },
-        new() { Naziv = "Hadžići" },
-        new() { Naziv = "Ilidža" },
-        new() { Naziv = "Ilijaš" },
-        new() { Naziv = "Sarajevo" },
-        new() { Naziv = "Sarajevo - Centar" },
-        new() { Naziv = "Sarajevo - Novi Grad" },
-        new() { Naziv = "Sarajevo - Novo Sarajevo" },
-        new() { Naziv = "Sarajevo - Stari Grad" },
-        new() { Naziv = "Vogošća" },
+        // Kanton Sarajevo (9)
+        new() { Naziv = "Blažuj",                       Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Binježevo",                    Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Hadžići",                      Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Ilidža",                       Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Ilijaš",                       Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Sarajevo",                     Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Sarajevo - Centar",            Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Sarajevo - Novi Grad",         Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Sarajevo - Novo Sarajevo",     Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Sarajevo - Stari Grad",        Kanton = Kanton.Sarajevski },
+        new() { Naziv = "Vogošća",                      Kanton = Kanton.Sarajevski },
 
-        new() { Naziv = "Bihać" },
-        new() { Naziv = "Bosanska Krupa" },
-        new() { Naziv = "Bosanski Petrovac" },
-        new() { Naziv = "Bužim" },
-        new() { Naziv = "Cazin" },
-        new() { Naziv = "Ključ" },
-        new() { Naziv = "Sanski Most" },
-        new() { Naziv = "Velika Kladuša" },
-        new() { Naziv = "Mala Kladuša" },
+        // Unsko-sanski kanton (1)
+        new() { Naziv = "Bihać",                        Kanton = Kanton.UnskoSanski },
+        new() { Naziv = "Bosanska Krupa",               Kanton = Kanton.UnskoSanski },
+        new() { Naziv = "Bosanski Petrovac",            Kanton = Kanton.UnskoSanski },
+        new() { Naziv = "Bužim",                        Kanton = Kanton.UnskoSanski },
+        new() { Naziv = "Cazin",                        Kanton = Kanton.UnskoSanski },
+        new() { Naziv = "Ključ",                        Kanton = Kanton.UnskoSanski },
+        new() { Naziv = "Sanski Most",                  Kanton = Kanton.UnskoSanski },
+        new() { Naziv = "Velika Kladuša",               Kanton = Kanton.UnskoSanski },
+        new() { Naziv = "Mala Kladuša",                 Kanton = Kanton.UnskoSanski },
 
-        new() { Naziv = "Domaljevac" },
-        new() { Naziv = "Odžak" },
-        new() { Naziv = "Orašje" },
+        // Posavski kanton (2)
+        new() { Naziv = "Domaljevac",                   Kanton = Kanton.Posavski },
+        new() { Naziv = "Odžak",                        Kanton = Kanton.Posavski },
+        new() { Naziv = "Orašje",                       Kanton = Kanton.Posavski },
 
-        new() { Naziv = "Banovići" },
-        new() { Naziv = "Briješnica Mala" },
-        new() { Naziv = "Briješnica Velika" },
-        new() { Naziv = "Čelić" },
-        new() { Naziv = "Gračanica" },
-        new() { Naziv = "Gradačac" },
-        new() { Naziv = "Kalesija" },
-        new() { Naziv = "Kladanj" },
-        new() { Naziv = "Klokotnica" },
-        new() { Naziv = "Lukavac" },
-        new() { Naziv = "Sapna" },
-        new() { Naziv = "Srebrenik" },
-        new() { Naziv = "Teočak" },
-        new() { Naziv = "Tuzla" },
-        new() { Naziv = "Živinice" },
+        // Tuzlanski kanton (3)
+        new() { Naziv = "Banovići",                     Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Briješnica Mala",              Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Briješnica Velika",            Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Čelić",                        Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Gračanica",                    Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Gradačac",                     Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Kalesija",                     Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Kladanj",                      Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Klokotnica",                   Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Lukavac",                      Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Sapna",                        Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Srebrenik",                    Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Teočak",                       Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Tuzla",                        Kanton = Kanton.Tuzlanski },
+        new() { Naziv = "Živinice",                     Kanton = Kanton.Tuzlanski },
 
-        new() { Naziv = "Breza" },
-        new() { Naziv = "Doboj Jug" },
-        new() { Naziv = "Kakanj" },
-        new() { Naziv = "Maglaj" },
-        new() { Naziv = "Matuzići" },
-        new() { Naziv = "Mravići" },
-        new() { Naziv = "Olovo" },
-        new() { Naziv = "Tešanj" },
-        new() { Naziv = "Usora" },
-        new() { Naziv = "Vareš" },
-        new() { Naziv = "Visoko" },
-        new() { Naziv = "Zavidovići" },
-        new() { Naziv = "Zenica" },
-        new() { Naziv = "Žepče" },
+        // Zeničko-dobojski kanton (4)
+        new() { Naziv = "Breza",                        Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Doboj Jug",                    Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Kakanj",                       Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Maglaj",                       Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Matuzići",                     Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Mravići",                      Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Olovo",                        Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Tešanj",                       Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Usora",                        Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Vareš",                        Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Visoko",                       Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Zavidovići",                   Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Zenica",                       Kanton = Kanton.ZenickoDobojski },
+        new() { Naziv = "Žepče",                        Kanton = Kanton.ZenickoDobojski },
 
-        new() { Naziv = "Foča" },
-        new() { Naziv = "Goražde" },
-        new() { Naziv = "Ustikolina" },
-        new() { Naziv = "Prača" },
+        // Bosansko-podrinjski kanton (5)
+        new() { Naziv = "Foča",                         Kanton = Kanton.BosanskoPodrinjski },
+        new() { Naziv = "Goražde",                      Kanton = Kanton.BosanskoPodrinjski },
+        new() { Naziv = "Ustikolina",                   Kanton = Kanton.BosanskoPodrinjski },
+        new() { Naziv = "Prača",                        Kanton = Kanton.BosanskoPodrinjski },
 
-        new() { Naziv = "Bugojno" },
-        new() { Naziv = "Busovača" },
-        new() { Naziv = "Dobretići" },
-        new() { Naziv = "Donji Vakuf" },
-        new() { Naziv = "Fojnica" },
-        new() { Naziv = "Gornji Vakuf-Uskoplje" },
-        new() { Naziv = "Jajce" },
-        new() { Naziv = "Kiseljak" },
-        new() { Naziv = "Kreševo" },
-        new() { Naziv = "Novi Travnik" },
-        new() { Naziv = "Travnik" },
-        new() { Naziv = "Turbe"},
-        new() { Naziv = "Vitez" },
+        // Srednjobosanski kanton (6)
+        new() { Naziv = "Bugojno",                      Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Busovača",                     Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Dobretići",                    Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Donji Vakuf",                  Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Fojnica",                      Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Gornji Vakuf-Uskoplje",        Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Jajce",                        Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Kiseljak",                     Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Kreševo",                      Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Novi Travnik",                 Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Travnik",                      Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Turbe",                        Kanton = Kanton.SrednjoBosanski },
+        new() { Naziv = "Vitez",                        Kanton = Kanton.SrednjoBosanski },
 
-        new() { Naziv = "Buturović Polje" },
-        new() { Naziv = "Blagaj" },
-        new() { Naziv = "Čapljina" },
-        new() { Naziv = "Čitluk" },
-        new() { Naziv = "Donja Drežnica" },
-        new() { Naziv = "Gornja Drežnica" },
-        new() { Naziv = "Jablanica" },
-        new() { Naziv = "Konjic" },
-        new() { Naziv = "Mostar" },
-        new() { Naziv = "Neum" },
-        new() { Naziv = "Počitelj" },
-        new() { Naziv = "Potoci" },
-        new() { Naziv = "Prozor" },
-        new() { Naziv = "Raštani" },
-        new() { Naziv = "Ravno" },
-        new() { Naziv = "Stolac" },
+        // Hercegovačko-neretvanski kanton (7)
+        new() { Naziv = "Buturović Polje",              Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Blagaj",                       Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Čapljina",                     Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Čitluk",                       Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Donja Drežnica",               Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Gornja Drežnica",              Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Jablanica",                    Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Konjic",                       Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Mostar",                       Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Neum",                         Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Počitelj",                     Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Potoci",                       Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Prozor",                       Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Raštani",                      Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Ravno",                        Kanton = Kanton.HercegovackoNeretvanski },
+        new() { Naziv = "Stolac",                       Kanton = Kanton.HercegovackoNeretvanski },
 
-        new() { Naziv = "Grude" },
-        new() { Naziv = "Ljubuški" },
-        new() { Naziv = "Posušje" },
-        new() { Naziv = "Široki Brijeg" },
+        // Zapadnohercegovački kanton (8)
+        new() { Naziv = "Grude",                        Kanton = Kanton.ZapadnoHercegovacki },
+        new() { Naziv = "Ljubuški",                     Kanton = Kanton.ZapadnoHercegovacki },
+        new() { Naziv = "Posušje",                      Kanton = Kanton.ZapadnoHercegovacki },
+        new() { Naziv = "Široki Brijeg",                Kanton = Kanton.ZapadnoHercegovacki },
 
-        new() { Naziv = "Bosansko Grahovo" },
-        new() { Naziv = "Drvar" },
-        new() { Naziv = "Glamoč" },
-        new() { Naziv = "Kupres" },
-        new() { Naziv = "Livno" },
-        new() { Naziv = "Duvno" },
+        // Kanton 10 (10)
+        new() { Naziv = "Bosansko Grahovo",             Kanton = Kanton.Kanton10 },
+        new() { Naziv = "Drvar",                        Kanton = Kanton.Kanton10 },
+        new() { Naziv = "Glamoč",                       Kanton = Kanton.Kanton10 },
+        new() { Naziv = "Kupres",                       Kanton = Kanton.Kanton10 },
+        new() { Naziv = "Livno",                        Kanton = Kanton.Kanton10 },
+        new() { Naziv = "Duvno",                        Kanton = Kanton.Kanton10 },
 
-        new() { Naziv = "Banja Luka" },
-        new() { Naziv = "Bosanski Novi"},
-        new() { Naziv = "Čelinac" },
-        new() { Naziv = "Kneževo" },
-        new() { Naziv = "Kotor Varoš" },
-        new() { Naziv = "Laktaši" },
-        new() { Naziv = "Mrkonjić Grad" },
-        new() { Naziv = "Prijedor" },
-        new() { Naziv = "Prnjavor" },
-        new() { Naziv = "Ribnik" },
-        new() { Naziv = "Šipovo" },
-        new() { Naziv = "Srbac" },
-        new() { Naziv = "Bosanska Gradiška" },
-        new() { Naziv = "Kozarska Dubica" },
-        new() { Naziv = "Kostajnica" },
+        // Republika Srpska (11)
+        new() { Naziv = "Banja Luka",                   Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Bosanski Novi",                Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Čelinac",                      Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Kneževo",                      Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Kotor Varoš",                  Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Laktaši",                      Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Mrkonjić Grad",                Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Prijedor",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Prnjavor",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Ribnik",                       Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Šipovo",                       Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Srbac",                        Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Bosanska Gradiška",            Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Kozarska Dubica",              Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Kostajnica",                   Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Bosanski Brod",                Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Derventa",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Doboj",                        Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Modriča",                      Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Petrovo",                      Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Bosanski Šamac",               Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Teslić",                       Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Vukosavlje",                   Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Ozren",                        Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Bijeljina",                    Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Lopare",                       Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Pelagićevo",                   Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Ugljevik",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Zvornik",                      Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Bratunac",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Milići",                       Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Osmaci",                       Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Srebrenica",                   Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Šekovići",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Vlasenica",                    Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Istočna Ilidža",               Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Istočni Mostar",               Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Istočni Stari Grad",           Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Istočno Novo Sarajevo",        Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Pale",                         Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Sokolac",                      Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Trnovo",                       Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Han Pijesak",                  Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Rogatica",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Višegrad",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Berkovići",                    Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Bileća",                       Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Gacko",                        Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Kalinovik",                    Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Ljubinje",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Nevesinje",                    Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Trebinje",                     Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Čajniče",                      Kanton = Kanton.RepublikaSrpska },
+        new() { Naziv = "Rudo",                         Kanton = Kanton.RepublikaSrpska },
 
-        new() { Naziv = "Bosanski Brod" },
-        new() { Naziv = "Derventa" },
-        new() { Naziv = "Doboj" },
-        new() { Naziv = "Modriča" },
-        new() { Naziv = "Petrovo" },
-        new() { Naziv = "Bosanski Šamac" },
-        new() { Naziv = "Teslić" },
-        new() { Naziv = "Vukosavlje" },
-        new() { Naziv = "Ozren" },
-
-        new() { Naziv = "Bijeljina" },
-        new() { Naziv = "Lopare" },
-        new() { Naziv = "Pelagićevo" },
-        new() { Naziv = "Ugljevik" },
-        new() { Naziv = "Zvornik" },
-        new() { Naziv = "Bratunac" },
-        new() { Naziv = "Milići" },
-        new() { Naziv = "Osmaci" },
-        new() { Naziv = "Srebrenica" },
-        new() { Naziv = "Šekovići" },
-        new() { Naziv = "Vlasenica" },
-
-        new() { Naziv = "Istočna Ilidža" },
-        new() { Naziv = "Istočni Mostar" },
-        new() { Naziv = "Istočni Stari Grad" },
-        new() { Naziv = "Istočno Novo Sarajevo" },
-        new() { Naziv = "Pale" },
-        new() { Naziv = "Sokolac" },
-        new() { Naziv = "Trnovo" },
-        new() { Naziv = "Han Pijesak" },
-        new() { Naziv = "Rogatica" },
-        new() { Naziv = "Višegrad" },
-
-        new() { Naziv = "Berkovići" },
-        new() { Naziv = "Bileća" },
-        new() { Naziv = "Gacko" },
-        new() { Naziv = "Kalinovik" },
-        new() { Naziv = "Ljubinje" },
-        new() { Naziv = "Nevesinje" },
-        new() { Naziv = "Trebinje" },
-        new() { Naziv = "Čajniče" },
-        new() { Naziv = "Rudo" },
-        new() { Naziv = "Šekovići" },
-
-        new() { Naziv = "Brčko" },
-
+        // Brčko Distrikt (12)
+        new() { Naziv = "Brčko",                        Kanton = Kanton.BrckoDistrikt },
     };
 
         await _context.Mjesta.AddRangeAsync(mjesta);
         await _context.SaveChangesAsync();
     }
 
-    private async Task SeedAdminAsync()
+    private async Task SeedUserAsync()
     {
         string adminEmail = _appConfig["SeedData:AdminEmail"];
         string adminUser = _appConfig["SeedData:AdminUsername"];
 
-        if (await _userManager.FindByEmailAsync(adminEmail) != null) return;
-
-        var admin = new ApplicationUser
+        if (await _userManager.FindByEmailAsync(adminEmail) == null)
         {
-            UserName = adminUser,
-            Email = adminEmail,
-            EmailConfirmed = true,
-            Ime = "Tarik",
-            Prezime = "Redžić"
+
+            var admin = new Administrator
+            // U bazi je migriran kao ApplicationUser umjesto Administrator, ne znam da li je greška, zbog rolemanagera
+            {
+                UserName = adminUser,
+                Email = adminEmail,
+                EmailConfirmed = true,
+                Ime = "Tarik",
+                Prezime = "Redžić"
+            };
+
+            var result = await _userManager.CreateAsync(admin, _appConfig["SeedData:AdminPassword"]);
+            if (result.Succeeded)
+                await _userManager.AddToRoleAsync(admin, KorisnickeUloge.Administrator.ToString());
+            else
+                throw new Exception($"Admin seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+        
+        if (await _userManager.FindByEmailAsync("kontakt@hajro.ba") == null)
+        {
+            var phonyMajstor = new Majstor
+            {
+                UserName = "hajromustafic",
+                Email = "kontakt@hajro.ba",
+                EmailConfirmed = true,
+                Ime = "Hairudin",
+                Prezime = "Mustafić",
+                Opis = "Aidov babo.",
+            };
+            var result = await _userManager.CreateAsync(phonyMajstor, "Mojbabo#1234");
+
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(phonyMajstor, KorisnickeUloge.Majstor.ToString());
+
+                var kategorije = await _context.Kategorije
+                    .Where(k => k.Naziv == "Grill majstor" || k.Naziv == "Asfaltiranje")
+                    .ToListAsync();
+
+                var newIzvrsilacKategorijeRows = kategorije.Select(k => new IzvrsilacKategorija
+                {
+                    IzvrsilacID = phonyMajstor.Id,
+                    KategorijaID = k.ID
+                });
+
+                await _context.IzvrsilacKategorija.AddRangeAsync(newIzvrsilacKategorijeRows);
+                await _context.SaveChangesAsync();
+            }
+            else
+                throw new Exception($"Majstor seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+
+        // Seed a phony plumber (majstor) for testing
+        if (await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba") == null)
+        {
+            var plumber = new Majstor
+            {
+                UserName = "hasoinstalacije",
+                Email = "kontakt@hasoinstalacije.ba",
+                EmailConfirmed = true,
+                Ime = "Hasan",
+                Prezime = "Ibrahimović",
+                Opis = "Iskusni vodoinstalater za hitne popravke i ugradnju vodovodne opreme."
+            };
+
+            var res = await _userManager.CreateAsync(plumber, "Majstor#1234");
+            if (res.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(plumber, KorisnickeUloge.Majstor.ToString());
+
+                var vodoinstalaterske = await _context.Kategorije
+                    .Where(k => k.Naziv == "Vodoinstalaterske usluge")
+                    .ToListAsync();
+
+                var rows = vodoinstalaterske.Select(k => new IzvrsilacKategorija
+                {
+                    IzvrsilacID = plumber.Id,
+                    KategorijaID = k.ID
+                });
+
+                await _context.IzvrsilacKategorija.AddRangeAsync(rows);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception($"Plumber seeding failed: {string.Join(", ", res.Errors.Select(e => e.Description))}");
+            }
+        }
+       
+    }
+
+    private async Task SeedOglasAsync()
+    {
+        
+        if (await _context.OglasiUsluga.AnyAsync() || await _context.OglasiMajstora.AnyAsync() || await _context.OglasiRadnogMjesta.AnyAsync())
+            return;
+
+        var mjesto = await _context.Mjesta.SingleOrDefaultAsync(m => m.Naziv == "Sarajevo");
+        if (mjesto is null) return;
+
+        
+        var existingMajstor = await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba");
+
+        
+        var clients = new[]
+        {
+            new { Email = "esmir.b@amerika.ba", UserName = "esmirb", Ime = "Esmir", Prezime = "Barjaktarević" , Naziv = "Montaža novog bojlera", Opis = "Potrebna montaža novog bojlera od 100L. Postoji priprema. Hitno za sutra.", Ponude = 1 },
+            new { Email = "kerim.a@amerika.ba", UserName = "kerima", Ime = "Kerim", Prezime = "Alajbegović", Naziv = "Renoviranje kuhinje - stolarski radovi", Opis = "Potrebna je izrada kuhinjskih elemenata po mjeri. Dimenzije prostorije su 3x4m.", Ponude = 0 },
+            new { Email = "edin.dz@amerika.ba", UserName = "edindz", Ime = "Edin", Prezime = "Džeko", Naziv = "Popravka curenja vode u kupatilu", Opis = "Potrebno je zamijeniti spojni ventil i provjeriti cijelu instalaciju ispod sudopere. Preferiram majstora koji može izaći u roku od 24 sata.", Ponude = 1 }
         };
 
-        var result = await _userManager.CreateAsync(admin, _appConfig["SeedData:AdminPassword"]);
+        var createdClientIds = new List<string>();
+        foreach (var c in clients)
+        {
+            var user = await _userManager.FindByEmailAsync(c.Email);
+            if (user == null)
+            {
+                var klijent = new Klijent
+                {
+                    UserName = c.UserName,
+                    Email = c.Email,
+                    EmailConfirmed = true,
+                    Ime = c.Ime,
+                    Prezime = c.Prezime,
+                };
 
-        if (result.Succeeded)
-            await _userManager.AddToRoleAsync(admin, KorisnickeUloge.Administrator.ToString());
+                var result = await _userManager.CreateAsync(klijent, "Klijent#1234");
+                if (!result.Succeeded)
+                {
+                 
+                    continue;
+                }
+                await _userManager.AddToRoleAsync(klijent, KorisnickeUloge.Klijent.ToString());
+                createdClientIds.Add(klijent.Id);
+            }
+            else
+            {
+                createdClientIds.Add(user.Id);
+            }
+        }
+
+    
+        var majstorId = existingMajstor?.Id;
+
+        for (int i = 0; i < clients.Length && i < createdClientIds.Count; i++)
+        {
+            var c = clients[i];
+            var oglas = new OglasUsluge
+            {
+                Naslov = c.Naziv,
+                Opis = c.Opis,
+                MjestoID = mjesto.MjestoID,
+                MinBudzet = 0,
+                MaxBudzet = 0,
+                DatumObjave = DateTime.UtcNow,
+                VlasnikOglasaID = createdClientIds[i]
+            };
+
+            await _context.OglasiUsluga.AddAsync(oglas);
+        }
+
+        await _context.SaveChangesAsync();
+
+        // After ads are saved, create explicit PonudaUsluge rows so FKs are correct
+        if (majstorId is not null)
+        {
+            var hasoId = majstorId;
+            var ponudeToAdd = new List<PonudaUsluge>();
+
+            // Esmir
+            var esmirUser = await _userManager.FindByEmailAsync("esmir.b@amerika.ba");
+            if (esmirUser is not null)
+            {
+                var esmirOglasi = await _context.OglasiUsluga
+                    .Where(o => o.VlasnikOglasaID == esmirUser.Id)
+                    .ToListAsync();
+
+                foreach (var og in esmirOglasi)
+                {
+                    ponudeToAdd.Add(new PonudaUsluge
+                    {
+                        IzvrsilacID = hasoId,
+                        OglasUslugeID = og.OglasID,
+                        DatumSlanja = DateTime.UtcNow,
+                        StatusPonude = Status.NaCekanju
+                    });
+                }
+            }
+
+            // Edin
+            var edinUser = await _userManager.FindByEmailAsync("edin.dz@amerika.ba");
+            if (edinUser is not null)
+            {
+                var edinOglasi = await _context.OglasiUsluga
+                    .Where(o => o.VlasnikOglasaID == edinUser.Id)
+                    .ToListAsync();
+
+                foreach (var og in edinOglasi)
+                {
+                    ponudeToAdd.Add(new PonudaUsluge
+                    {
+                        IzvrsilacID = hasoId,
+                        OglasUslugeID = og.OglasID,
+                        DatumSlanja = DateTime.UtcNow,
+                        StatusPonude = Status.NaCekanju
+                    });
+                }
+            }
+
+            if (ponudeToAdd.Any())
+            {
+                await _context.PonudeUsluge.AddRangeAsync(ponudeToAdd);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
