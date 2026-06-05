@@ -73,7 +73,7 @@ namespace PopravkaBa.Web.Controllers
             }
 
             var signInResult = await _signInManager.PasswordSignInAsync(
-                user.UserName,
+                user,
                 dto.Lozinka,
                 dto.ZapamtiMe, 
                 lockoutOnFailure: true);
