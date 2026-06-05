@@ -52,4 +52,5 @@ namespace PopravkaBa.Application.DTOs
         [MinLength(1, ErrorMessage = "Minimalno jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
     }
+
 }

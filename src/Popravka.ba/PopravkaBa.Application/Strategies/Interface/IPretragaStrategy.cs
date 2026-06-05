@@ -1,4 +1,5 @@
 ﻿using PopravkaBa.Application.DTOs;
+using PopravkaBa.Domain.Enums;
 using PopravkaBa.Domain.Models;
 using PopravkaBa.Domain.Specifications.Interface;
 using System;
@@ -11,11 +12,11 @@ namespace PopravkaBa.Application.Strategies.Interface
 {
     public interface IPretragaStrategy
     {
+        public KorisnickeUloge DajUlogu();
         public IEnumerable<string> DajDozvoljeneTabove();
         public string DajDefaultniTab();
 
-        
-        public ISpecification<OglasMajstora>? NapraviMajstorSpec(FilterPretrageDto filteri);
+        public ISpecification<OglasMajstora>? NapraviIzvrsilacUslugeSpec(FilterPretrageDto filteri);
         public ISpecification<OglasRadnoMjesto>? NapraviRadnoMjestoSpec(FilterPretrageDto filteri);
         public ISpecification<OglasUsluge>? NapraviUslugeSpec(FilterPretrageDto filteri);
     }

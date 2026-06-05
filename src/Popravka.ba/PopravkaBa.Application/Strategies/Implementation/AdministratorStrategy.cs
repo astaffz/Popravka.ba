@@ -1,5 +1,6 @@
 ﻿using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Strategies.Interface;
+using PopravkaBa.Domain.Enums;
 using PopravkaBa.Domain.Models;
 using PopravkaBa.Domain.Specifications.Interface;
 using System;
@@ -12,14 +13,15 @@ namespace PopravkaBa.Application.Strategies.Implementation
 {
     public class AdministratorStrategy : IPretragaStrategy
     {
+        public KorisnickeUloge DajUlogu() { return KorisnickeUloge.Administrator; }
         public IEnumerable<string> DajDozvoljeneTabove()
-               => ["Oglasi majstora", "Oglasi usluga", "Oglasi za posao"];
-        public string DajDefaultniTab() => "Oglasi majstora";
+               => ["Izvrsioci usluga", "Oglasi usluga", "Oglasi za posao"];
+        public string DajDefaultniTab() => "Izvrsioci usluga";
 
 
-        public ISpecification<OglasMajstora>? NapraviMajstorSpec(FilterPretrageDto filteri)
+        public ISpecification<IzvrsilacUsluge>? NapraviIzvrsilacUslugeSpec(FilterPretrageDto filteri)
         {
-            if (filteri.AktivniTab != "Oglasi majstora") return null;
+            if (filteri.AktivniTab != "Izvrsioci usluga") return null;
 
 
         }

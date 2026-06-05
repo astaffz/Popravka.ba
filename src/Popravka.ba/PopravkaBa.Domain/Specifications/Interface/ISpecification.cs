@@ -9,7 +9,7 @@ namespace PopravkaBa.Domain.Specifications.Interface
 {
     public interface ISpecification<T>
     {
-        Expression<Func<T, bool>> ToExpression();
+        public Expression<Func<T, bool>> ToExpression();
     }
 
 }

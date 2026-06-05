@@ -5,6 +5,8 @@ using Popravka.ba.Data;
 using PopravkaBa.Application.Services;
 using PopravkaBa.Application.Services.Implementation;
 using PopravkaBa.Application.Services.Interface;
+using PopravkaBa.Application.Strategies.Implementation;
+using PopravkaBa.Application.Strategies.Interface;
 using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Interfaces.Repositories;
 using PopravkaBa.Domain.Models;
@@ -56,7 +58,6 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
-// TODO 1HIGHPRIORITY: Da li implementirati na engleskom aplikaciju?
 // TODO Registriraj sve dependency injectione po dodavanju, implementirati zakomentarisane
 // Dependency Injection za interfejse (Možda treba ubaciti u metodu)   
 builder.Services.AddScoped<IKategorijaService, KategorijaService>();
@@ -79,6 +80,7 @@ builder.Services.AddScoped<IUvjetOglasaService, UvjetOglasaService>();
 
 builder.Services.AddScoped<IOglasUslugeService, OglasUslugeService>();
 builder.Services.AddScoped<IOglasUslugeRepository, OglasUslugeRepository>();
+builder.Services.AddScoped<IIzvrsilacUslugeRepository, IzvrsilacUslugeRepository>();
 
 builder.Services.AddScoped<IOglasMajstoraFacade, OglasMajstoraFacade>();
 builder.Services.AddScoped<IOglasRadnoMjestoFacade, OglasRadnoMjestoFacade>();
@@ -89,6 +91,12 @@ builder.Services.AddScoped<IPonudaUslugeService, PonudaUslugeService>();
 // builder.Services.AddScoped<IPrijavaOglasService, PrijavaOglasService>();
 builder.Services.AddScoped<IRecenzijaService, RecenzijaService>();
 
+builder.Services.AddScoped<IPretragaStrategy, KlijentStrategy>();
+builder.Services.AddScoped<IPretragaStrategy, MajstorStrategy>();
+builder.Services.AddScoped<IPretragaStrategy, FirmaStrategy>();
+builder.Services.AddScoped<IPretragaStrategy, AdministratorStrategy>();
+
+builder.Services.AddScoped<IPretragaService, PretragaService>();
 
 builder.Services.AddScoped<IEmailSender, SmtpEmailAdapter>();
 builder.Services.AddScoped<DbSeeder>();
