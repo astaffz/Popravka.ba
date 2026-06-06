@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Popravka.ba.Data;
 using PopravkaBa.Application.Services;
@@ -126,6 +125,7 @@ else
     app.UseStatusCodePagesWithReExecute("/greska/{0}");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+
 }
 
 app.UseHttpsRedirection();
@@ -135,6 +135,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseRateLimiter();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

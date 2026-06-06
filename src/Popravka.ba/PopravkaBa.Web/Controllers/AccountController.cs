@@ -6,6 +6,7 @@ using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Domain.Enums;
 using PopravkaBa.Domain.Models;
+using PopravkaBa.Web.Attributes;
 using PopravkaBa.Web.Models.Enums;
 using PopravkaBa.Web.Models.ViewModels;
 
@@ -39,7 +40,9 @@ namespace PopravkaBa.Web.Controllers
             _logger = logger;
         }
 
+        
         [AllowAnonymous]
+        [RedirectIfAuthenticated]
         [HttpGet("/login")]
         public async Task<IActionResult> Login()
         {
@@ -55,6 +58,7 @@ namespace PopravkaBa.Web.Controllers
         }
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
+        [RedirectIfAuthenticated]
         [HttpPost("/login")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(RegistracijaViewModel vm)
@@ -73,9 +77,9 @@ namespace PopravkaBa.Web.Controllers
             }
 
             var signInResult = await _signInManager.PasswordSignInAsync(
-                user.UserName,
+                user,
                 dto.Lozinka,
-                dto.ZapamtiMe, 
+                false, 
                 lockoutOnFailure: true);
 
             if (!signInResult.Succeeded)
@@ -103,6 +107,7 @@ namespace PopravkaBa.Web.Controllers
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
         [HttpPost("/register/klijent")]
+        [RedirectIfAuthenticated]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistracijaKlijenta([Bind(Prefix = "KlijentDTO")] RegistracijaKlijentaDto dto)
         {
@@ -136,6 +141,7 @@ namespace PopravkaBa.Web.Controllers
 
 
         [AllowAnonymous]
+        [RedirectIfAuthenticated]
         [HttpGet("/register")]
         public async Task<IActionResult> Registracija()
         {
@@ -153,6 +159,7 @@ namespace PopravkaBa.Web.Controllers
    
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
+        [RedirectIfAuthenticated]
         [HttpPost("/register/majstor")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistracijaMajstora([Bind(Prefix = "MajstorDTO")] RegistracijaMajstoraDto dto)
@@ -195,6 +202,7 @@ namespace PopravkaBa.Web.Controllers
        
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
+        [RedirectIfAuthenticated]
         [HttpPost("/register/firma")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegistracijaFirme([Bind(Prefix = "FirmaDTO")] RegistracijaFirmeDto dto, IFormFile? logo)
