@@ -80,6 +80,7 @@ namespace PopravkaBa.Infrastructure.Repositories
 
         public async Task<IEnumerable<(Kategorija, int)>> DajTopKategorijePoMajstorimaAsync(int topN)
             => await _context.IzvrsilacKategorija
+                .Where(ik => ik.Izvrsilac.StatusVerifikacije == Domain.Enums.Status.Aktivan)
                 .GroupBy(ik => ik.Kategorija)
                 .Select(grupa => new {Kategorija = grupa.Key, IzvrsilacCount = grupa.Count()})
                 .OrderByDescending(query => query.IzvrsilacCount)

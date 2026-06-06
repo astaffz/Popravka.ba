@@ -17,9 +17,8 @@ namespace PopravkaBa.Domain.Models
         public int MinZaposlenih { get; set; } = 1;
         public int MaxZaposlenih { get; set; } = 5;
         private string? JIB { get; set; }
-        public bool AdminVerificirao { get; set; } = false; 
-        public override Status StatusVerifikacije =>
-            EmailConfirmed && AdminVerificirao ? Status.Aktivan : Status.NaCekanju;
+
+  
 
         // TODO Migration1: Cuvati informacije o satima u bazi, radnovrijeme za format i  kao enum u Firma.
         public TimeSpan? OtvorenoOd { get; set; }
@@ -33,6 +32,10 @@ namespace PopravkaBa.Domain.Models
         public DateOnly? DatumOsnivanja { get; set; }
 
         public ICollection<VerifikacijaFirme>? ZahtjeviVerifikacije { get; set; }
+
+        public bool AdminVerificirao { get; set; } = false;
+        public override Status Aktivan() =>
+            EmailConfirmed && AdminVerificirao ? Status.Aktivan : Status.NaCekanju;
 
     }
 }
