@@ -5,14 +5,25 @@
 namespace PopravkaBa.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class verificationMigration : Migration
+    public partial class activeUserMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            migrationBuilder.AddColumn<int>(
+                name: "MinIskustvo",
+                table: "OglasRadnoMjesto",
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
                 name: "StatusVerifikacije",
-                table: "AspNetUsers");
+                table: "AspNetUsers",
+                type: "integer",
+                nullable: false,
+                defaultValue: 0
+             );
 
             migrationBuilder.AddColumn<bool>(
                 name: "AdminVerificirao",
@@ -25,14 +36,17 @@ namespace PopravkaBa.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
+                name: "MinIskustvo",
+                table: "OglasRadnoMjesto");
+
+            migrationBuilder.DropColumn(
                 name: "AdminVerificirao",
                 table: "AspNetUsers");
 
-            migrationBuilder.AddColumn<int>(
+            migrationBuilder.DropColumn(
                 name: "StatusVerifikacije",
-                table: "AspNetUsers",
-                type: "integer",
-                nullable: true);
+                table: "AspNetUsers"
+                );
         }
     }
 }

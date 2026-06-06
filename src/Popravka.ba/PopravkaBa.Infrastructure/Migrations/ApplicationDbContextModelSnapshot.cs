@@ -216,6 +216,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<string>("Slika")
                         .HasColumnType("text");
 
+                    b.Property<int>("StatusVerifikacije")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -760,6 +763,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<int>("MaxPrihod")
                         .HasColumnType("integer");
 
+                    b.Property<int>("MinIskustvo")
+                        .HasColumnType("integer");
+
                     b.Property<int>("MinPrihod")
                         .HasColumnType("integer");
 
@@ -923,7 +929,7 @@ namespace PopravkaBa.Infrastructure.Migrations
             modelBuilder.Entity("PopravkaBa.Domain.Models.KorisnikMjesto", b =>
                 {
                     b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "Korisnik")
-                        .WithMany()
+                        .WithMany("Mjesta")
                         .HasForeignKey("KorisnikID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1136,6 +1142,8 @@ namespace PopravkaBa.Infrastructure.Migrations
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Mjesta");
+
                     b.Navigation("Oglasi");
                 });
 

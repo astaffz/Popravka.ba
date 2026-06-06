@@ -12,8 +12,8 @@ using Popravka.ba.Data;
 namespace PopravkaBa.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260605224806_verificationMigration")]
-    partial class verificationMigration
+    [Migration("20260606203453_activeUserMigration")]
+    partial class activeUserMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -218,6 +218,9 @@ namespace PopravkaBa.Infrastructure.Migrations
 
                     b.Property<string>("Slika")
                         .HasColumnType("text");
+
+                    b.Property<int>("StatusVerifikacije")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
@@ -763,6 +766,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<int>("MaxPrihod")
                         .HasColumnType("integer");
 
+                    b.Property<int>("MinIskustvo")
+                        .HasColumnType("integer");
+
                     b.Property<int>("MinPrihod")
                         .HasColumnType("integer");
 
@@ -926,7 +932,7 @@ namespace PopravkaBa.Infrastructure.Migrations
             modelBuilder.Entity("PopravkaBa.Domain.Models.KorisnikMjesto", b =>
                 {
                     b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "Korisnik")
-                        .WithMany()
+                        .WithMany("Mjesta")
                         .HasForeignKey("KorisnikID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1139,6 +1145,8 @@ namespace PopravkaBa.Infrastructure.Migrations
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Mjesta");
+
                     b.Navigation("Oglasi");
                 });
 
