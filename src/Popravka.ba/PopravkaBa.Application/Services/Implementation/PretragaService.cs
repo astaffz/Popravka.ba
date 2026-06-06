@@ -27,7 +27,7 @@ namespace PopravkaBa.Application.Services.Implementation
 
         public async Task<IEnumerable<Oglas>> PretraziAsync(FilterPretrageDto filteri, KorisnickeUloge uloga)
         {
-
+            return null;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace PopravkaBa.Application.Strategies.Interface
         public IEnumerable<string> DajDozvoljeneTabove();
         public string DajDefaultniTab();
 
-        public ISpecification<OglasMajstora>? NapraviIzvrsilacUslugeSpec(FilterPretrageDto filteri);
+        public ISpecification<IzvrsilacUsluge>? NapraviIzvrsilacUslugeSpec(FilterPretrageDto filteri);
         public ISpecification<OglasRadnoMjesto>? NapraviRadnoMjestoSpec(FilterPretrageDto filteri);
         public ISpecification<OglasUsluge>? NapraviUslugeSpec(FilterPretrageDto filteri);
     }

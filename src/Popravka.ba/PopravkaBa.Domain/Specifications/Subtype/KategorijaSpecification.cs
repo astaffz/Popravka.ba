@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class KategorijaSpecification<T> : ISpecification<T> where T : Oglas
+    public class KategorijaOglasSpecification<T> : ISpecification<T> where T : Oglas
     {
         private readonly List<int> _kategorijaIds;
 
-        public KategorijaSpecification(List<int> kategorijaIds)
+        public KategorijaOglasSpecification(List<int> kategorijaIds)
         {
             _kategorijaIds = kategorijaIds;
         }
@@ -24,6 +24,22 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             // SQL: WHERE EXISTS (SELECT 1 FROM OglasKategorija WHERE OglasID = o.OglasID AND KategorijaID IN (1,2,3))
             return oglas => oglas.Kategorije
                 .Any(ok => _kategorijaIds.Contains(ok.KategorijaID));
+        }
+    }
+
+    public class KategorijaIzvrsilacSpecification<T> : ISpecification<T> where T : IzvrsilacUsluge
+    {
+        private readonly List<int> _kategorijaIds;
+
+        public KategorijaIzvrsilacSpecification(List<int> kategorijaIds)
+        {
+            _kategorijaIds = kategorijaIds;
+        }
+
+        public Expression<Func<T, bool>> ToExpression()
+        {
+            return izvrsilac => izvrsilac.Kategorije
+                .Any(ik => _kategorijaIds.Contains(ik.KategorijaID));
         }
     }
 }

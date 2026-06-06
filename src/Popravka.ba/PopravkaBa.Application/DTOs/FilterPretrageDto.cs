@@ -10,7 +10,7 @@ namespace PopravkaBa.Application.DTOs
     public class FilterPretrageDto
     {
         public string? AktivniTab { get; set; }
-        public List<string> Lokacija { get; set; } = new();
+        public List<int> Lokacija { get; set; } = new();
         public List<int> KategorijaId { get; set; } = new();
         public int? MinBudzet {  get; set; }
         public int? MaxBudzet { get; set; }

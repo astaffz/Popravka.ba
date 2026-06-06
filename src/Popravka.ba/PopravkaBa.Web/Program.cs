@@ -10,6 +10,8 @@ using PopravkaBa.Application.Strategies.Interface;
 using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Interfaces.Repositories;
 using PopravkaBa.Domain.Models;
+using PopravkaBa.Domain.Specifications.Interface;
+using PopravkaBa.Domain.Specifications.Subtype;
 using PopravkaBa.Infrastructure.Adapters;
 using PopravkaBa.Infrastructure.Repositories;
 using PopravkaBa.Infrastructure.Seeders;
@@ -85,7 +87,6 @@ builder.Services.AddScoped<IIzvrsilacUslugeRepository, IzvrsilacUslugeRepository
 builder.Services.AddScoped<IOglasMajstoraFacade, OglasMajstoraFacade>();
 builder.Services.AddScoped<IOglasRadnoMjestoFacade, OglasRadnoMjestoFacade>();
 builder.Services.AddScoped<IOglasUslugeFacade, OglasUslugeFacade>();
-
 
 builder.Services.AddScoped<IPonudaUslugeService, PonudaUslugeService>();
 // builder.Services.AddScoped<IPrijavaOglasService, PrijavaOglasService>();

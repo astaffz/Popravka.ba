@@ -18,6 +18,7 @@ namespace PopravkaBa.Domain.Models
         public int MinPrihod { get; set; } = 0;
         public int MaxPrihod { get; set; } = 0;
         public TipIsplate TipIsplate { get; set; }
+        public int MinIskustvo { get; set; }
         public override int BrojPrijava => Prijave?.Count ?? 0;
         
     }
