@@ -41,6 +41,7 @@ namespace Popravka.ba.Data
         
         public DbSet<UvjetOglasa> UvjetiOglasa { get; set; }
 
+        public DbSet<VerifikacijskiToken> Tokeni { get; set; }
         
     
         protected override void OnModelCreating(ModelBuilder builder)
@@ -58,6 +59,7 @@ namespace Popravka.ba.Data
             builder.Entity<OglasUsluge>().ToTable("OglasUsluge");
             builder.Entity<OglasVozackaDozvola>().ToTable("OglasVozackaDozvola");
             builder.Entity<PonudaUsluge>().ToTable("PonudaUsluge");
+            builder.Entity<VerifikacijskiToken>().ToTable("VerifikacijskiToken");
             builder.Entity<PonudaUsluge>()
                 .HasOne(p => p.OglasUsluge)
                 .WithMany(o => o.Ponude)
@@ -101,6 +103,19 @@ namespace Popravka.ba.Data
 
             builder.Entity<Oglas>()
                 .HasIndex(o => o.DatumObjave);
+
+            builder.Entity<VerifikacijskiToken>()
+                .HasIndex(t => t.TokenHash).IsUnique();
+            builder.Entity<VerifikacijskiToken>()
+                .HasIndex(t => t.VrijemeIsteka);
+            builder.Entity<VerifikacijskiToken>()
+                .HasIndex(t => new { t.KorisnikID, t.Tip, t.VrijemeGenerisanja });
+            builder.Entity<VerifikacijskiToken>()
+                .HasOne(t => t.Korisnik)
+                .WithMany()
+                .HasForeignKey(t => t.KorisnikID)
+                .OnDelete(DeleteBehavior.Cascade);
+                
 
         }
     }
