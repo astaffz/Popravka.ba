@@ -31,8 +31,6 @@ namespace PopravkaBa.Application.Services.Implementation
         {
             filteri.AktivniTab ??= strategija.DajDefaultniTab();
 
-            // ⚠️ Caka 4: stranica mora biti minimalno 1
-            // korisnik može ručno upisati /pretraga?Stranica=0 ili negativan broj
             var stranica = Math.Max(1, filteri.Stranica);
             var stavkiPoStranici = filteri.StavkiPoStranici > 0
                 ? filteri.StavkiPoStranici
