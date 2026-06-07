@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class OrSpecification<T> : ISpecification<T>
+    public class OrSpecification<T> : BaseSpecification<T>
     {
         private readonly ISpecification<T> _lijevi;
         private readonly ISpecification<T> _desni;
@@ -19,7 +19,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _desni = desni;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             var lijeviIzraz = _lijevi.ToExpression();
             var desniIzraz = _desni.ToExpression();

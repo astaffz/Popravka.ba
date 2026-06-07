@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class NotSpecification<T> : ISpecification<T>
+    public class NotSpecification<T> : BaseSpecification<T>
     {
         private readonly ISpecification<T> _specification;
 
@@ -17,7 +17,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _specification = specification;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             Expression<Func<T, bool>> expression =
                 _specification.ToExpression();

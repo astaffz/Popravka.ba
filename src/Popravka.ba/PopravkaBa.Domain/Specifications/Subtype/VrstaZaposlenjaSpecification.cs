@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class VrstaZaposlenjaSpecification<T> : ISpecification<T> where T : OglasRadnoMjesto
+    public class VrstaZaposlenjaSpecification<T> : BaseSpecification<T> where T : OglasRadnoMjesto
     {
         private readonly VrstaZaposlenja _vrsta;
         public VrstaZaposlenjaSpecification(VrstaZaposlenja vrsta) 
         {
             _vrsta = vrsta;
         }
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
             => x => x.VrstaZaposlenja == _vrsta;
     }
 }

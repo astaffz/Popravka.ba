@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class KategorijaOglasSpecification<T> : ISpecification<T> where T : Oglas
+    public class KategorijaOglasSpecification<T> : BaseSpecification<T> where T : Oglas
     {
         private readonly List<int> _kategorijaIds;
 
@@ -18,7 +18,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _kategorijaIds = kategorijaIds;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             // Mora proći kroz veznu tabelu OglasKategorija
             // SQL: WHERE EXISTS (SELECT 1 FROM OglasKategorija WHERE OglasID = o.OglasID AND KategorijaID IN (1,2,3))
@@ -27,7 +27,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
         }
     }
 
-    public class KategorijaIzvrsilacSpecification<T> : ISpecification<T> where T : IzvrsilacUsluge
+    public class KategorijaIzvrsilacSpecification<T> : BaseSpecification<T> where T : IzvrsilacUsluge
     {
         private readonly List<int> _kategorijaIds;
 
@@ -36,7 +36,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _kategorijaIds = kategorijaIds;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             return izvrsilac => izvrsilac.Kategorije
                 .Any(ik => _kategorijaIds.Contains(ik.KategorijaID));

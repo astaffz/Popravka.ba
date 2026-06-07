@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Popravka.ba.Data;
-using PopravkaBa.Domain.Models;
 using PopravkaBa.Domain.Interfaces;
+using PopravkaBa.Domain.Models;
+using PopravkaBa.Domain.Specifications.Interface;
+using PopravkaBa.Infrastructure.Wrappers;
 
 namespace PopravkaBa.Infrastructure.Repositories
 {
@@ -121,6 +123,30 @@ namespace PopravkaBa.Infrastructure.Repositories
             .Include(o => o.Ponude)
             .ToListAsync();
 
+        public async Task<StraniceniRezultat<OglasUsluge>> PronadjiAsync(
+        ISpecification<OglasUsluge> spec, int stranica, int stavkiPoStranici)
+        {
+            var query = _context.OglasiUsluga
+                .Include(o => o.VlasnikOglasa)
+                    .ThenInclude(v => v.Mjesta)
+                        .ThenInclude(km => km.Mjesto)
+                .Where(spec.ToExpression())
+                .AsNoTracking();
+
+            var ukupno = await query.CountAsync();
+
+            if (spec.OrderByDescending != null)
+                query = query.OrderByDescending(spec.OrderByDescending);
+            else if (spec.OrderBy != null)
+                query = query.OrderBy(spec.OrderBy);
+
+            var stavke = await query
+                .Skip((stranica - 1) * stavkiPoStranici)
+                .Take(stavkiPoStranici)
+                .ToListAsync();
+
+            return new StraniceniRezultat<OglasUsluge> { Stavke = stavke, Ukupno = ukupno };
+        }
         public async Task<IEnumerable<OglasUsluge>> DajNedavneAsync(int topN)
         => await _context.OglasiUsluga
                 .Include(o => o.VlasnikOglasa)
@@ -211,6 +237,30 @@ namespace PopravkaBa.Infrastructure.Repositories
                .Take(topN)
                .ToListAsync();
 
+        public async Task<StraniceniRezultat<OglasRadnoMjesto>> PronadjiAsync(
+            ISpecification<OglasRadnoMjesto> spec, int stranica, int stavkiPoStranici)
+        {
+            var query = _context.OglasiRadnogMjesta
+                .Include(o => o.VlasnikOglasa)
+                    .ThenInclude(v => v.Mjesta)
+                        .ThenInclude(km => km.Mjesto)
+                        .Where(spec.ToExpression())
+                        .AsNoTracking();
+
+            var ukupno = await query.CountAsync();
+
+            if (spec.OrderByDescending != null)
+                query = query.OrderByDescending(spec.OrderByDescending);
+            else if (spec.OrderBy != null)
+                query = query.OrderBy(spec.OrderBy);
+
+            var stavke = await query
+                .Skip((stranica - 1) * stavkiPoStranici)
+                .Take(stavkiPoStranici)
+                .ToListAsync();
+
+            return new StraniceniRezultat<OglasRadnoMjesto> { Stavke = stavke, Ukupno = ukupno };
+        }
         public async Task<IEnumerable<OglasRadnoMjesto>> DajSveAsync() =>
         await _context.OglasiRadnogMjesta
             .Include(orm => orm.VozackeDozvole)

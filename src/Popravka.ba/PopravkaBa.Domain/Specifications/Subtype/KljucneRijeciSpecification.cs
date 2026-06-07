@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class KljucneRijeciNaslovOglasaSpecification<T> : ISpecification<T> where T : Oglas
+    public class KljucneRijeciNaslovOglasaSpecification<T> : BaseSpecification<T> where T : Oglas
     {
         private readonly string _kljucnaRijec;
 
@@ -18,7 +18,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _kljucnaRijec = kljucnaRijec.ToLower();
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             return oglas => oglas.Naslov.ToLower().Contains(_kljucnaRijec);
             /*return oglas =>
@@ -27,7 +27,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
         }
     }
 
-    public class KljucneRijeciOpisOglasaSpecification<T> : ISpecification<T> where T : Oglas
+    public class KljucneRijeciOpisOglasaSpecification<T> : BaseSpecification<T> where T : Oglas
     {
         private readonly string _kljucnaRijec;
 
@@ -36,7 +36,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _kljucnaRijec = kljucnaRijec.ToLower();
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             return oglas => oglas.Opis.ToLower().Contains(_kljucnaRijec);
             /*return oglas =>
@@ -45,7 +45,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
         }
     }
 
-    public class KljucneRijeciOpisIzvrsiocaSpecification<T> : ISpecification<T> where T : IzvrsilacUsluge
+    public class KljucneRijeciOpisIzvrsiocaSpecification<T> : BaseSpecification<T> where T : IzvrsilacUsluge
     {
         private readonly string _kljucnaRijec;
 
@@ -54,7 +54,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _kljucnaRijec = kljucnaRijec.ToLower();
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
              return izvrsilac =>
                 izvrsilac.Opis != null &&

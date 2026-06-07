@@ -20,5 +20,11 @@ namespace PopravkaBa.Application.DTOs
         public int? GodineIskustva {  get; set; }
         public string? KljucneRijeci { get; set; }
 
+        public int Stranica { get; set; } = 1;
+        public int StavkiPoStranici { get; set; } = 20;
+
+        public SortiranjeIzvrsilacaUsluga? SortiranjeIzvrsilaca{ get; set; } = SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Desc;
+        public SortiranjeOglasaUsluge? SortiranjeUsluge { get; set; } = SortiranjeOglasaUsluge.MinBudzet_Desc;
+        public SortiranjeOglasaRadnoMjesto? SortiranjeRadnoMjesto { get; set; } = SortiranjeOglasaRadnoMjesto.MinPrihod_Desc;
     }
 }

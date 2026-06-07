@@ -10,6 +10,8 @@ namespace PopravkaBa.Domain.Specifications.Interface
     public interface ISpecification<T>
     {
         public Expression<Func<T, bool>> ToExpression();
+        Expression<Func<T, object>>? OrderBy { get; }
+        Expression<Func<T, object>>? OrderByDescending { get; }
     }
 
 }

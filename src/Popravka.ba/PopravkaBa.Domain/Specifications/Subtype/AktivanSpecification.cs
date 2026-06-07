@@ -1,4 +1,5 @@
-﻿using PopravkaBa.Domain.Models;
+﻿using PopravkaBa.Domain.Enums;
+using PopravkaBa.Domain.Models;
 using PopravkaBa.Domain.Specifications.Interface;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class AktivanSpecification : ISpecification<Oglas>
+    public class AktivanSpecification<T> : BaseSpecification<T> where T : Oglas
     {
-        public Expression<Func<Oglas, bool>> ToExpression()
-            => throw new NotImplementedException();
+        public override Expression<Func<T, bool>> ToExpression()
+            => o => o.StatusOglasa == Status.Aktivan;
     }
 }

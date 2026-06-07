@@ -26,16 +26,18 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> Index(FilterPretrageDto filteri)
         {
             var ulogaString = User.FindFirst(ClaimTypes.Role)?.Value;
-
             if (ulogaString == null)
                 return RedirectToAction("Login", "Account");
 
             var uloga = Enum.Parse<KorisnickeUloge>(ulogaString);
 
             var strategija = _pretragaStrategies.FirstOrDefault(s => s.DajUlogu() == uloga);
+            if (strategija == null)
+                return Forbid();
 
-            var result = await _pretragaService.PretraziAsync(filteri, uloga);
+            var result = await _pretragaService.PretraziAsync(filteri, strategija);
             return View(result);
+
         }
     }
        

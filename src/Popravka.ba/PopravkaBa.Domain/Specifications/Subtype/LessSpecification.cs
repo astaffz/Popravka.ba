@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class LessThanSpecification<T, TValue> : ISpecification<T>
+    public class LessThanSpecification<T, TValue> : BaseSpecification<T>
     where T : class
     where TValue : IComparable<TValue>
     {
@@ -21,7 +21,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _vrijednost = vrijednost;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             var param = Expression.Parameter(typeof(T), "x");
             var prop = Expression.Invoke(_property, param);
@@ -31,7 +31,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             return Expression.Lambda<Func<T, bool>>(body, param);
         }
     }
-    public class LessThanOrEqualSpecification<T, TValue> : ISpecification<T>
+    public class LessThanOrEqualSpecification<T, TValue> : BaseSpecification<T>
     where T : class
     where TValue : IComparable<TValue>
     {
@@ -44,7 +44,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _vrijednost = vrijednost;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             var param = Expression.Parameter(typeof(T), "x");
             var prop = Expression.Invoke(_property, param);
