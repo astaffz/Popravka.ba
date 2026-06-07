@@ -20,12 +20,12 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _filterDo = filterDo;
         }
 
-        public Expression<Func<OglasUsluge, bool>> ToExpression()
+        public override Expression<Func<OglasUsluge, bool>> ToExpression()
             => oglas => oglas.MinBudzet <= _filterDo &&
                         oglas.MaxBudzet >= _filterOd;
     }
 
-    public class PlataSpecification : ISpecification<OglasRadnoMjesto>
+    public class PlataSpecification : BaseSpecification<OglasRadnoMjesto>
     {
         private readonly int _filterOd;
         private readonly int _filterDo;
@@ -36,7 +36,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _filterDo = filterDo;
         }
 
-        public Expression<Func<OglasRadnoMjesto, bool>> ToExpression()
+        public override Expression<Func<OglasRadnoMjesto, bool>> ToExpression()
             => oglas => oglas.MinPrihod <= _filterDo &&
                         oglas.MaxPrihod >= _filterOd;
     }

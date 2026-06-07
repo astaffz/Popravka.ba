@@ -19,7 +19,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _desni = desni;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             var lijeviIzraz = _lijevi.ToExpression();
             var desniIzraz = _desni.ToExpression();

@@ -17,7 +17,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
         {
             _vrsta = vrsta;
         }
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
             => x => x.VrstaZaposlenja == _vrsta;
     }
 }

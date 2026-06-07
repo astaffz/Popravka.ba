@@ -26,7 +26,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _do = do_;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             var param = Expression.Parameter(typeof(T), "x");
             var prop = Expression.Invoke(_property, param);

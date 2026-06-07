@@ -18,7 +18,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _kategorijaIds = kategorijaIds;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             // Mora proći kroz veznu tabelu OglasKategorija
             // SQL: WHERE EXISTS (SELECT 1 FROM OglasKategorija WHERE OglasID = o.OglasID AND KategorijaID IN (1,2,3))
@@ -36,7 +36,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _kategorijaIds = kategorijaIds;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             return izvrsilac => izvrsilac.Kategorije
                 .Any(ik => _kategorijaIds.Contains(ik.KategorijaID));

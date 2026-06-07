@@ -10,6 +10,6 @@ namespace PopravkaBa.Domain.Specifications.Subtype
 {
     public class AllSpecification<T> : BaseSpecification<T>
     {
-        public Expression<Func<T, bool>> ToExpression() => x => true;
+        public override Expression<Func<T, bool>> ToExpression() => x => true;
     }
 }

@@ -17,7 +17,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _specification = specification;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             Expression<Func<T, bool>> expression =
                 _specification.ToExpression();

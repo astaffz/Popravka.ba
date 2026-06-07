@@ -18,7 +18,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _mjestoIds = mjestoIds;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             // Prevodi se u SQL: WHERE MjestoId IN (1, 3, 5)
             return oglas => _mjestoIds.Contains(oglas.MjestoID);
@@ -34,7 +34,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
             _mjestoIds = mjestoIds;
         }
 
-        public Expression<Func<T, bool>> ToExpression()
+        public override Expression<Func<T, bool>> ToExpression()
         {
             return izvrsilac => izvrsilac.Mjesta
                 .Any(km => _mjestoIds.Contains(km.MjestoID));
