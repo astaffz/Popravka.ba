@@ -19,10 +19,13 @@ namespace PopravkaBa.Domain.Models
         public DateTime DatumRegistracije { get; set; } = DateTime.UtcNow;
         public string? Slika { get; set; }
         public ICollection<Oglas>? Oglasi { get; set; }
-        //ovo dole sam dodao zbog KorisnikMjesto
         public ICollection<KorisnikMjesto>? Mjesta { get; set; } 
 
+        public ICollection<VerifikacijskiToken> Tokeni { get; set; }
+
         public Status StatusVerifikacije { get; private set; } = Status.NaCekanju;
+
+        
 
         // Funkcija za osvježavanje statusa aktivnosti naloga, koristi se nakon promjene email potvrde ili sl.
         public void OsvjeziStatusAktivnosti()

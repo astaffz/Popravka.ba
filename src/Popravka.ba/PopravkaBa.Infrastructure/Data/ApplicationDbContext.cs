@@ -112,7 +112,7 @@ namespace Popravka.ba.Data
                 .HasIndex(t => new { t.KorisnikID, t.Tip, t.VrijemeGenerisanja });
             builder.Entity<VerifikacijskiToken>()
                 .HasOne(t => t.Korisnik)
-                .WithMany()
+                .WithMany(t => t.Tokeni)
                 .HasForeignKey(t => t.KorisnikID)
                 .OnDelete(DeleteBehavior.Cascade);
                 

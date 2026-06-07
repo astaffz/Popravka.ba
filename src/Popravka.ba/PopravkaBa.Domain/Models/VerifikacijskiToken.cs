@@ -12,7 +12,7 @@ namespace PopravkaBa.Domain.Models
     public class VerifikacijskiToken
     {
         [Key]
-        public int ID;
+        public int ID { get; set; }
         [ForeignKey("ApplicationUser")]
         public string KorisnikID { get; set; } = default!;
         public ApplicationUser Korisnik { get; set; } = default!;

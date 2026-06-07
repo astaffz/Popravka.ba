@@ -9,8 +9,6 @@ using PopravkaBa.Application.Strategies.Interface;
 using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Interfaces.Repositories;
 using PopravkaBa.Domain.Models;
-using PopravkaBa.Domain.Specifications.Interface;
-using PopravkaBa.Domain.Specifications.Subtype;
 using PopravkaBa.Infrastructure.Adapters;
 using PopravkaBa.Infrastructure.Adapters.Options;
 using PopravkaBa.Infrastructure.Repositories;
@@ -101,6 +99,10 @@ builder.Services.AddScoped<IPretragaService, PretragaService>();
 
 builder.Services.AddScoped<IEmailSender, BrevoEmailAdapter>();
 builder.Services.Configure<BrevoEmailOptions>(builder.Configuration.GetSection("Brevo"));
+
+builder.Services.AddScoped<IVerifikacijaEmailaService, VerifikacijaEmailaService>();
+builder.Services.AddScoped<IVerifikacijskiTokenRepository, VerifikacijskiTokenRepository>();
+
 builder.Services.AddScoped<DbSeeder>();
 
 
