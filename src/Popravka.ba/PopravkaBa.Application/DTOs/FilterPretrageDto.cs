@@ -20,5 +20,8 @@ namespace PopravkaBa.Application.DTOs
         public int? GodineIskustva {  get; set; }
         public string? KljucneRijeci { get; set; }
 
+        public SortiranjeIzvrsilacaUsluga? SortiranjeIzvrsilaca{ get; set; } = SortiranjeIzvrsilaca.ProsjecnaOcjena_Desc;
+        public SortiranjeOglasaUsluge? SortiranjeUsluge { get; set; } = SortiranjeOglasaUsluge.MinBudzet_Desc;
+        public SortiranjeOglasaRadnoMjesto? SortiranjeRadnoMjesto { get; set; } = SortiranjeOglasaRadnoMjesto.MinPrihod_Desc;
     }
 }
