@@ -12,6 +12,7 @@ using PopravkaBa.Domain.Models;
 using PopravkaBa.Domain.Specifications.Interface;
 using PopravkaBa.Domain.Specifications.Subtype;
 using PopravkaBa.Infrastructure.Adapters;
+using PopravkaBa.Infrastructure.Adapters.Options;
 using PopravkaBa.Infrastructure.Repositories;
 using PopravkaBa.Infrastructure.Seeders;
 using System.Threading.RateLimiting;
@@ -98,8 +99,11 @@ builder.Services.AddScoped<IPretragaStrategy, AdministratorStrategy>();
 
 builder.Services.AddScoped<IPretragaService, PretragaService>();
 
-builder.Services.AddScoped<IEmailSender, SmtpEmailAdapter>();
+builder.Services.AddScoped<IEmailSender, BrevoEmailAdapter>();
+builder.Services.Configure<BrevoEmailOptions>(builder.Configuration.GetSection("Brevo"));
 builder.Services.AddScoped<DbSeeder>();
+
+
 
 var app = builder.Build();
 
