@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class BudzеtSpecification : ISpecification<OglasUsluge>
+    public class BudzеtSpecification : BaseSpecification<OglasUsluge>
     {
         private readonly int _filterOd;
         private readonly int _filterDo;

@@ -1,4 +1,5 @@
 ﻿using PopravkaBa.Application.DTOs;
+using PopravkaBa.Application.Strategies.Interface;
 using PopravkaBa.Domain.Enums;
 using PopravkaBa.Domain.Models;
 using System;
@@ -11,6 +12,6 @@ namespace PopravkaBa.Application.Services.Interface
 {
     public interface IPretragaService
     {
-        Task<IEnumerable<Oglas>> PretraziAsync(FilterPretrageDto filteri, KorisnickeUloge uloga);
+        Task<RezultatPretrageDto> PretraziAsync(FilterPretrageDto filteri, IPretragaStrategy strategija);
     }
 }

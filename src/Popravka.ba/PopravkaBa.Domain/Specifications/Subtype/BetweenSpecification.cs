@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class BetweenSpecification<T, TValue> : ISpecification<T>
+    public class BetweenSpecification<T, TValue> : BaseSpecification<T>
     where T : class
     where TValue : IComparable<TValue>
     {

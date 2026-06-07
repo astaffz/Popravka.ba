@@ -34,7 +34,7 @@ namespace PopravkaBa.Web.Controllers
 
             var strategija = _pretragaStrategies.FirstOrDefault(s => s.DajUlogu() == uloga);
 
-            var result = await _pretragaService.PretraziAsync(filteri, uloga);
+            var result = await _pretragaService.PretraziAsync(filteri, strategija);
             return View(result);
         }
     }

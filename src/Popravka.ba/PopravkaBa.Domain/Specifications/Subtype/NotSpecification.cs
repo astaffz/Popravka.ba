@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class NotSpecification<T> : ISpecification<T>
+    public class NotSpecification<T> : BaseSpecification<T>
     {
         private readonly ISpecification<T> _specification;
 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class OrSpecification<T> : ISpecification<T>
+    public class OrSpecification<T> : BaseSpecification<T>
     {
         private readonly ISpecification<T> _lijevi;
         private readonly ISpecification<T> _desni;

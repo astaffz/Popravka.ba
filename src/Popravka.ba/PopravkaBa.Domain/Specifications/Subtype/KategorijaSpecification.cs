@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class KategorijaOglasSpecification<T> : ISpecification<T> where T : Oglas
+    public class KategorijaOglasSpecification<T> : BaseSpecification<T> where T : Oglas
     {
         private readonly List<int> _kategorijaIds;
 
@@ -27,7 +27,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
         }
     }
 
-    public class KategorijaIzvrsilacSpecification<T> : ISpecification<T> where T : IzvrsilacUsluge
+    public class KategorijaIzvrsilacSpecification<T> : BaseSpecification<T> where T : IzvrsilacUsluge
     {
         private readonly List<int> _kategorijaIds;
 

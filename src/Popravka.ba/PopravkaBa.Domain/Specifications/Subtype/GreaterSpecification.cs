@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Specifications.Subtype
 {
-    public class GreaterThanSpecification<T, TValue> : ISpecification<T>
+    public class GreaterThanSpecification<T, TValue> : BaseSpecification<T>
     where T : class
     where TValue : IComparable<TValue>
     {
@@ -32,7 +32,7 @@ namespace PopravkaBa.Domain.Specifications.Subtype
         }
     }
 
-    public class GreaterThanOrEqualSpecification<T, TValue> : ISpecification<T>
+    public class GreaterThanOrEqualSpecification<T, TValue> : BaseSpecification<T>
     where T : class
     where TValue : IComparable<TValue>
     {

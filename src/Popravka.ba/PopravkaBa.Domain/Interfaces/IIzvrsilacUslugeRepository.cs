@@ -1,19 +1,18 @@
 ﻿using PopravkaBa.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PopravkaBa.Domain.Specifications.Interface;
+using PopravkaBa.Infrastructure.Wrappers;
 
 namespace PopravkaBa.Domain.Interfaces
 {
     public interface IIzvrsilacUslugeRepository
     {
-        Task<IEnumerable<OglasRadnoMjesto>> DajSveAsync();
-        Task<OglasRadnoMjesto?> DajPoIdAsync(int id);
-        Task DodajAsync(OglasRadnoMjesto oglas);
-        Task UrediAsync(OglasRadnoMjesto oglas);
+        Task<IEnumerable<IzvrsilacUsluge>> DajSveAsync();
+        Task<IzvrsilacUsluge?> DajPoIdAsync(int id);
+        Task<StraniceniRezultat<IzvrsilacUsluge>> PronadjiAsync(
+            ISpecification<IzvrsilacUsluge> spec, int stranica, int stavkiPoStranici);
+        Task DodajAsync(IzvrsilacUsluge oglas);
+        Task UrediAsync(IzvrsilacUsluge oglas);
         Task ObrisiAsync(int id);
-        Task<IEnumerable<OglasRadnoMjesto>> IzvrsiPretraguTekstaAsync(string pretraga);
+        Task<IEnumerable<IzvrsilacUsluge>> IzvrsiPretraguTekstaAsync(string pretraga);
     }
 }

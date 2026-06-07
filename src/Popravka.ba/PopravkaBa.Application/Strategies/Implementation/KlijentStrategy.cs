@@ -29,7 +29,8 @@ namespace PopravkaBa.Application.Strategies.Implementation
 
             if (filteri.KategorijaId.Any())
             {
-                spec = new KategorijaIzvrsilacSpecification<IzvrsilacUsluge>(filteri.KategorijaId);
+                spec = new AndSpecification<IzvrsilacUsluge>(spec,
+                     new KategorijaIzvrsilacSpecification<IzvrsilacUsluge>(filteri.KategorijaId));
             }
 
             if (filteri.Lokacija.Any())
@@ -94,7 +95,8 @@ namespace PopravkaBa.Application.Strategies.Implementation
 
             if (filteri.KategorijaId.Any())
             {
-                spec = new KategorijaOglasSpecification<OglasUsluge>(filteri.KategorijaId);
+                spec = new AndSpecification<OglasUsluge>(spec,
+                     new KategorijaOglasSpecification<OglasUsluge>(filteri.KategorijaId));
             }
 
             if (filteri.Lokacija.Any())
@@ -117,12 +119,12 @@ namespace PopravkaBa.Application.Strategies.Implementation
 
             if (filteri.MinBudzet.HasValue && !filteri.MaxBudzet.HasValue)
                 spec = new AndSpecification<OglasUsluge>(spec,
-                           new GreaterThanOrEqualSpecification<OglasUsluge, decimal>(
+                           new GreaterThanOrEqualSpecification<OglasUsluge, int>(
                                o => o.MaxBudzet, filteri.MinBudzet.Value));
 
             if (!filteri.MinBudzet.HasValue && filteri.MaxBudzet.HasValue)
                 spec = new AndSpecification<OglasUsluge>(spec,
-                           new LessThanOrEqualSpecification<OglasUsluge, decimal>(
+                           new LessThanOrEqualSpecification<OglasUsluge, int>(
                                o => o.MinBudzet, filteri.MaxBudzet.Value));
 
             if (filteri.MinBudzet.HasValue && filteri.MaxBudzet.HasValue)
