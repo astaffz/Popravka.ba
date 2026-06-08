@@ -323,7 +323,7 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> ResetLozinke(string? token)
         {
             if (string.IsNullOrEmpty(token))
-                return RedirectToAction("StatusCode", "Home", new { code = 403 });
+                return StatusCode(403);
 
             var (status, _, _) = await _verifikacijaService.ValidirajResetTokenAsync(token);
             if (status != Status.Aktivan)
