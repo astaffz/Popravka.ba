@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Domain.Enums;
+using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Models;
 using PopravkaBa.Web.Attributes;
 using PopravkaBa.Web.Models.Enums;
@@ -20,6 +21,8 @@ namespace PopravkaBa.Web.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IKategorijaService _kategorijaService;
         private readonly IMjestoService _mjestoService;
+        private readonly IVerifikacijaEmailaService _verifikacijaService;
+        private readonly IEmailSender _emailSender;
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<AccountController> _logger;
 
@@ -28,6 +31,8 @@ namespace PopravkaBa.Web.Controllers
             SignInManager<ApplicationUser> signInManager,
             IKategorijaService kategorijaService,
             IMjestoService mjestoService,
+            IVerifikacijaEmailaService verifikacijaService,
+            IEmailSender emailSender,
             IWebHostEnvironment env,
             ILogger<AccountController> logger)
         {
@@ -36,9 +41,13 @@ namespace PopravkaBa.Web.Controllers
             _signInManager = signInManager;
             _kategorijaService = kategorijaService;
             _mjestoService = mjestoService;
+            _verifikacijaService = verifikacijaService;
+            _emailSender = emailSender;
             _env = env;
             _logger = logger;
         }
+
+        // TODO: Implementirati returnURL logiku
 
         
         [AllowAnonymous]
@@ -251,8 +260,39 @@ namespace PopravkaBa.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // TODO: Implementirati reset lozinke
-        // public async Task<IActionResult> ZaboravljenaLozinka();
+        [AllowAnonymous]
+        [RedirectIfAuthenticated]
+        [HttpGet("/zaboravljena-lozinka")]
+        public async Task<IActionResult> ZaboravljenaLozinka() => View();
+
+        [HttpPost("/zaboravljena-lozinka")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ZaboravljenaLozinka(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var rawToken = await _verifikacijaService.GenerisiTokenAsync(user, TipTokena.ResetLozinke);
+                if (rawToken != null)
+                {
+                    // Napravi link koji vodi na ResetLozinke sa novim generisanim tokenom ubačenim
+                    var link = Url.Action(nameof(ResetLozinke), "Account",
+                        new { token = rawToken }, Request.Scheme);
+                    // Posalji ga na mail
+                    await _emailSender.PosaljiEmailAsync(user.Email!, "[POPRAVKA.BA] Zahtjev za reset lozinke",
+                        $"<h1>Zaprimili smo zahtjev za reset Vaše lozinke na Popravka.ba</h1><br>" +
+                        $"<p>Ukoliko ste zahtjev poslali Vi, lozinku možete resetirati klikom na ovaj link: <a href=\"{link}\">Postavi novu lozinku</a></p><br>" +
+                        $"<p>Ukoliko niste poslali ovaj zahtjev, možete zanemariti ovu poruku</p>" +
+                        $"<br>" +
+                        $"Ugodan dan želimo," +
+                        $"Vaša Popravka.ba");
+                }
+            }
+            return View("ZaboravljenaLozinkaPotvrda");
+        }
+
+        [HttpGet("racun/reset-lozinke")]
+        public IActionResult ResetLozinke(string token) => View(new ResetLozinkeViewModel { Token = token });
 
         private static readonly string[] DozvoljeniLogoFormati = { ".jpg", ".jpeg", ".png" };
         private const long MaxLogoVelicina = 5 * 1024 * 1024; // 5MB

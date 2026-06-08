@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Zaboravljena lozinka";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-1">Zaboravljena lozinka</h4>
+                <p class="text-muted small mb-4">
+                    Unesite email adresu vašeg naloga i poslat ćemo vam link za postavljanje nove lozinke.
+                </p>
+
+                @if (TempData["Greska"] is string greska)
+                {
+                    <div class="alert alert-danger py-2" role="alert">@greska</div>
+                }
+
+                <form asp-controller="Account" asp-action="ZaboravljenaLozinka" method="post">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email adresa</label>
+                        <input type="email" id="email" name="email" class="form-control"
+                               placeholder="vas@email.com" required autofocus />
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Pošalji link</button>
+                    </div>
+                </form>
+
+                <hr class="my-3" />
+                <div class="text-center">
+                    <a asp-controller="Account" asp-action="Login" class="small">Nazad na prijavu</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
