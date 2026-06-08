@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Provjerite email";
+    ViewData["Title"] = "Provjerite email - Popravka.ba";
 }
 
 <div class="row justify-content-center mt-5">
@@ -21,6 +21,14 @@
                         Nazad na prijavu
                     </a>
                 </div>
+                @if (TempData["ResetEmail"] is string resetEmail)
+                {
+                    <form method="post" asp-controller="Account" asp-action="ZaboravljenaLozinka" class="mt-3">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="email" value="@resetEmail" />
+                        <button type="submit" class="btn btn-link p-0">Niste dobili email? Pošalji ponovo</button>
+                    </form>
+                }
             </div>
         </div>
     </div>

@@ -77,5 +77,7 @@ namespace PopravkaBa.Application.Services.Implementation
             return (Status.Aktivan, token, user);
         }
         public async Task OznaciKoristenimAsync(VerifikacijskiToken token) => await _tokenRepo.OznaciKoristenimAsync(token);
+
+
     }
 }

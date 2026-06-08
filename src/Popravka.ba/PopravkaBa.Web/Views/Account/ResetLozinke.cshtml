@@ -1,6 +1,6 @@
 ﻿@model PopravkaBa.Web.Models.ViewModels.ResetLozinkeViewModel
 @{
-    ViewData["Title"] = "Popravka.ba - Postavi novu lozinku";
+    ViewData["Title"] = "Postavi novu lozinku - Popravka.ba";
 }
 
 <div class="row justify-content-center mt-5">
@@ -12,7 +12,7 @@
                     Unesite novu lozinku za vaš nalog.
                 </p>
 
-                <form asp-controller="Account" asp-action="ResetLozinke" method="post">
+                <form asp-controller="Account" asp-action="ResetLozinke" method="post" novalidate>
                     <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
                     <input type="hidden" asp-for="Token" />

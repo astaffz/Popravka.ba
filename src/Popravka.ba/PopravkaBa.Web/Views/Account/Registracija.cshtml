@@ -586,11 +586,12 @@
 
                             <div class="field">
                                 <label asp-for="MajstorDTO.KorisnickoIme" class="field-label">Korisničko ime</label>
-                                <input asp-for="MajstorDTO.KorisnickoIme" class="field-input field-input--plain" autocomplete="username" />
+                                <input asp-for="MajstorDTO.KorisnickoIme" class="field-input field-input--plain" autocomplete="username" oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()" />
                                 <span asp-validation-for="MajstorDTO.KorisnickoIme" class="field-error"></span>
                             </div>
                             <div class="two-col">
-                                <div class="field"><label asp-for="MajstorDTO.Ime" class="field-label">Ime</label><input asp-for="MajstorDTO.Ime" class="field-input field-input--plain" /><span asp-validation-for="MajstorDTO.Ime" class="field-error"></span></div>
+                                <div class="field"><label asp-for="MajstorDTO.Ime" class="field-label">Ime</label><input asp-for="MajstorDTO.Ime" class="field-input field-input--plain" /><span asp-validation-for="MajstorDTO.Ime" class="field-error" 
+                                oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()"></span></div>
                                 <div class="field"><label asp-for="MajstorDTO.Prezime" class="field-label">Prezime</label><input asp-for="MajstorDTO.Prezime" class="field-input field-input--plain" /><span asp-validation-for="MajstorDTO.Prezime" class="field-error"></span></div>
                             </div>
                             <div class="field"><label asp-for="MajstorDTO.Email" class="field-label">E-mail adresa</label><input asp-for="MajstorDTO.Email" class="field-input field-input--plain" /><span asp-validation-for="MajstorDTO.Email" class="field-error"></span></div>
@@ -1028,6 +1029,42 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js" integrity="" crossorigin="anonymous"></script>
+            <script>
+                // ===== Global trimming for all text inputs =====
+                (function () {
+                // Trim leading whitespace live as the user types (no trailing — they may be mid-word).
+                document.addEventListener('input', function (e) {
+                const el = e.target;
+                if (!el.matches('input[type="text"], input[type="email"], input:not([type])')) return;
+                if (el.classList.contains('combo-search')) return;  // search boxes handle their own
+                const start = el.selectionStart;
+                const trimmed = el.value.replace(/^\s+/, '');
+                if (trimmed !== el.value) {
+                const diff = el.value.length - trimmed.length;
+                el.value = trimmed;
+                el.setSelectionRange(Math.max(0, start - diff), Math.max(0, start - diff));
+                }
+                });
+
+                // Full trim (both ends) on blur and right before submit.
+                function fullTrim(el) { el.value = el.value.trim(); }
+
+                document.addEventListener('blur', function (e) {
+                const el = e.target;
+                if (el.matches('input[type="text"], input[type="email"], input:not([type])')
+                && !el.classList.contains('combo-search')) {
+                fullTrim(el);
+                }
+                }, true);  // capture phase — blur doesn't bubble
+
+                document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function () {
+                form.querySelectorAll('input[type="text"], input[type="email"], input:not([type])')
+                .forEach(el => { if (!el.classList.contains('combo-search')) fullTrim(el); });
+                });
+                });
+                })();
+            </script>
     }
 </body>
 </html>
