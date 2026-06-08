@@ -50,12 +50,13 @@ namespace PopravkaBa.Web.Controllers
 
         // TODO: Implementirati returnURL logiku
 
-        
+
+        [HttpGet("/login")]
         [AllowAnonymous]
         [RedirectIfAuthenticated]
-        [HttpGet("/login")]
-        public async Task<IActionResult> Login()
+        public async Task<IActionResult> Login(string? returnUrl = null)
         {
+          
             var vm =  new RegistracijaViewModel
             {
                 ActiveTab = AuthTab.Prijava,
@@ -64,6 +65,7 @@ namespace PopravkaBa.Web.Controllers
 
             };
             ViewData["Title"] = "Prijava – Popravka.ba";
+            ViewData["ReturnUrl"] = returnUrl;
             return View("Registracija",vm);
         }
         [AllowAnonymous]
@@ -71,8 +73,9 @@ namespace PopravkaBa.Web.Controllers
         [RedirectIfAuthenticated]
         [ValidateAntiForgeryToken]
         [HttpPost("/login")]
-        public async Task<IActionResult> Login(RegistracijaViewModel vm)
-        {
+      public async Task<IActionResult> Login(RegistracijaViewModel vm, string? returnUrl = null)
+{
+  
             if (!ModelState.IsValid)
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
 
@@ -98,8 +101,12 @@ namespace PopravkaBa.Web.Controllers
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
-
+            
+              
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
             return RedirectToAction("Index", "Home");
+                
         }
 
         [Authorize]
@@ -358,10 +365,11 @@ namespace PopravkaBa.Web.Controllers
                 return RedirectToAction("StatusCode", "Home", new { code = 403 });
             return View(new ResetLozinkeViewModel { Token = token });
         }
-
-
+        
 
         
+
+
         [HttpPost("profil/reset-lozinke")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetLozinke(ResetLozinkeViewModel vm)
