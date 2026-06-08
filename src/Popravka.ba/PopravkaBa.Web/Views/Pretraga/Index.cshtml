@@ -708,7 +708,7 @@
             }
             return map;
         }
-
+        
         // We render invisible click targets by overlaying the select. Since this is complex,
         // use the simpler approach: add a sibling button list above the select.
         function renderOptgroupButtons() {
@@ -759,7 +759,7 @@
 
         renderOptgroupButtons();
     })(kategorijaSelect, kategorijaChips, kategorijaHiddenInputs, 'KategorijaId', selectedKategorije);
-
+    
     // Same for lokacijaSelect (kanton groups)
     (function setupOptgroupClicks(selectEl, chipsContainer, hiddenContainer, inputName, selectedSet) {
         if (!selectEl) return;

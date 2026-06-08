@@ -74,9 +74,11 @@ namespace PopravkaBa.Domain.Specifications.Subtype
         public override Expression<Func<T, bool>> ToExpression()
         {
             return izvrsilac =>
-                (izvrsilac.Ime != null && izvrsilac.Ime.ToLower().Contains(_kljucnaRijec)) ||
-                (izvrsilac.Prezime != null && izvrsilac.Prezime.ToLower().Contains(_kljucnaRijec)) ||
-                (izvrsilac.DisplayName != null && izvrsilac.DisplayName.ToLower().Contains(_kljucnaRijec));
+            // Majstor — pretraži po Ime i Prezime
+            (izvrsilac.Ime != null && izvrsilac.Ime.ToLower().Contains(_kljucnaRijec)) ||
+            (izvrsilac.Prezime != null && izvrsilac.Prezime.ToLower().Contains(_kljucnaRijec)) ||
+            // Firma — pretraži po NazivFirme kroz cast
+            (izvrsilac is Firma && ((Firma)(object)izvrsilac).NazivFirme.ToLower().Contains(_kljucnaRijec));
         }
     }
 }

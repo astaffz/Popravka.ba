@@ -550,6 +550,78 @@ public class DbSeeder
             mjesta: new[] { "Sarajevo - Novi Grad" },
             minCijena: 22, ocjena: 4.3m, zavrsenih: 33);
 
+        await SeedMajstoraAsync(
+    email: "nedim.suljic@popravka.ba", username: "nedimsuljic",
+    ime: "Nedim", prezime: "Suljić",
+    opis: "Majstor za parkete, laminat i vinil podove. Precizna ugradnja i sanacija oštećenja.",
+    password: "Majstor#1234",
+    kategorije: new[] { "Parketarski radovi", "Postavljanje laminata" },
+    mjesta: new[] { "Sarajevo", "Hadžići", "Ilidža" },
+    minCijena: 28, ocjena: 4.7m, zavrsenih: 41);
+
+        await SeedMajstoraAsync(
+            email: "adem.beslic@popravka.ba", username: "adembeslic",
+            ime: "Adem", prezime: "Bešlić",
+            opis: "Brze i kvalitetne usluge montaže kuhinja, ormara i kancelarijskog namještaja.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Montaža namještaja" },
+            mjesta: new[] { "Bihać", "Cazin", "Velika Kladuša" },
+            minCijena: 18, ocjena: 4.4m, zavrsenih: 29);
+
+        await SeedMajstoraAsync(
+            email: "kenan.mesic@popravka.ba", username: "kenanmesic",
+            ime: "Kenan", prezime: "Mešić",
+            opis: "Iskusan zavarivač za metalne konstrukcije, ograde i nadstrešnice.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Zavarivački radovi", "Metalne konstrukcije" },
+            mjesta: new[] { "Tuzla", "Srebrenik", "Gradačac" },
+            minCijena: 35, ocjena: 4.8m, zavrsenih: 48);
+
+        await SeedMajstoraAsync(
+            email: "jasmin.kurtic@popravka.ba", username: "jasminkurtic",
+            ime: "Jasmin", prezime: "Kurtić",
+            opis: "Servis i održavanje računarske opreme, mreža i kancelarijske elektronike.",
+            password: "Majstor#1234",
+            kategorije: new[] { "IT podrška", "Servis računara" },
+            mjesta: new[] { "Zenica", "Travnik" },
+            minCijena: 20, ocjena: 4.5m, zavrsenih: 67);
+
+        await SeedMajstoraAsync(
+            email: "samir.zukic@popravka.ba", username: "samirzukic",
+            ime: "Samir", prezime: "Zukić",
+            opis: "Majstor za krovove, oluke i limarske radove svih vrsta.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Krovopokrivački radovi", "Limarski radovi" },
+            mjesta: new[] { "Mostar", "Čapljina", "Stolac" },
+            minCijena: 40, ocjena: 4.6m, zavrsenih: 58);
+
+        await SeedMajstoraAsync(
+            email: "amir.hasic@popravka.ba", username: "amirhasic",
+            ime: "Amir", prezime: "Hasić",
+            opis: "Profesionalno čišćenje dimnjaka, peći i ventilacionih sistema.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Dimnjačarske usluge" },
+            mjesta: new[] { "Bugojno", "Donji Vakuf", "Gornji Vakuf" },
+            minCijena: 17, ocjena: 4.2m, zavrsenih: 24);
+
+        await SeedMajstoraAsync(
+            email: "eldar.saric@popravka.ba", username: "eldarsaric",
+            ime: "Eldar", prezime: "Šarić",
+            opis: "Specijalista za ugradnju i servis automatskih kapija i rampi.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Automatske kapije", "Elektroinstalacije" },
+            mjesta: new[] { "Sarajevo", "Visoko" },
+            minCijena: 45, ocjena: 4.9m, zavrsenih: 73);
+
+        await SeedMajstoraAsync(
+            email: "alen.pasic@popravka.ba", username: "alenpasic",
+            ime: "Alen", prezime: "Pašić",
+            opis: "Moler, dekorater i stručnjak za dekorativne tehnike zidova.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Moleraj i farbanje", "Dekorativni zidovi" },
+            mjesta: new[] { "Brčko", "Bijeljina" },
+            minCijena: 21, ocjena: 4.3m, zavrsenih: 37);
+
         // ── Firme ─────────────────────────────────────────────────────────────
         await SeedFirmuAsync(
             email: "info@semagradnja.ba", username: "semagradnja",
@@ -574,6 +646,62 @@ public class DbSeeder
             kategorije: new[] { "Vodoinstalaterske usluge", "Centralno grijanje", "Plinske instalacije" },
             mjesta: new[] { "Tuzla", "Lukavac", "Živinice" },
             minCijena: 30, ocjena: 4.1m, zavrsenih: 56);
+
+        await SeedFirmuAsync(
+    email: "info@gradex.ba", username: "gradexdoo",
+    nazivFirme: "Gradex d.o.o.",
+    opis: "Građevinska kompanija za niskogradnju, betoniranje i zemljane radove.",
+    kategorije: new[] { "Zidanje i betoniranje", "Asfaltiranje" },
+    mjesta: new[] { "Tuzla", "Lukavac", "Živinice", "Banovići" },
+    minCijena: 60, ocjena: 4.5m, zavrsenih: 143);
+
+        await SeedFirmuAsync(
+            email: "kontakt@ecosolar.ba", username: "ecosolar",
+            nazivFirme: "EcoSolar Solutions",
+            opis: "Projektovanje i montaža solarnih elektrana za domaćinstva i firme.",
+            kategorije: new[] { "Solarni paneli", "Elektroinstalacije" },
+            mjesta: new[] { "Sarajevo", "Mostar", "Zenica" },
+            minCijena: 80, ocjena: 4.8m, zavrsenih: 91);
+
+        await SeedFirmuAsync(
+            email: "info@drvodizajn.ba", username: "drvodizajn",
+            nazivFirme: "Drvo Dizajn d.o.o.",
+            opis: "Izrada kuhinja, plakara i namještaja po mjeri za stambene i poslovne objekte.",
+            kategorije: new[] { "Izrada namještaja po mjeri", "Stolarski radovi" },
+            mjesta: new[] { "Mostar", "Široki Brijeg", "Grude" },
+            minCijena: 55, ocjena: 4.7m, zavrsenih: 84);
+
+        await SeedFirmuAsync(
+            email: "office@cistdom.ba", username: "cistdom",
+            nazivFirme: "Čist Dom",
+            opis: "Profesionalno čišćenje stanova, poslovnih prostora i građevinskih objekata.",
+            kategorije: new[] { "Čišćenje objekata" },
+            mjesta: new[] { "Sarajevo", "Ilidža", "Vogošća", "Hadžići" },
+            minCijena: 25, ocjena: 4.3m, zavrsenih: 132);
+
+        await SeedFirmuAsync(
+            email: "info@metalprojekt.ba", username: "metalprojekt",
+            nazivFirme: "Metal Projekt d.o.o.",
+            opis: "Proizvodnja i montaža metalnih konstrukcija, hala i ograda.",
+            kategorije: new[] { "Metalne konstrukcije", "Zavarivački radovi" },
+            mjesta: new[] { "Zenica", "Kakanj", "Visoko" },
+            minCijena: 70, ocjena: 4.6m, zavrsenih: 77);
+
+        await SeedFirmuAsync(
+            email: "info@klimaservis.ba", username: "klimaservisplus",
+            nazivFirme: "Klima Servis Plus",
+            opis: "Montaža, održavanje i servis klima uređaja i ventilacionih sistema.",
+            kategorije: new[] { "Servis klima uređaja", "Klimatizacija" },
+            mjesta: new[] { "Banja Luka", "Prijedor", "Gradiška" },
+            minCijena: 35, ocjena: 4.4m, zavrsenih: 95);
+
+        await SeedFirmuAsync(
+            email: "kontakt@sigurnostpro.ba", username: "sigurnostpro",
+            nazivFirme: "Sigurnost Pro d.o.o.",
+            opis: "Ugradnja alarmnih sistema, video-nadzora i kontrole pristupa.",
+            kategorije: new[] { "Alarmni i video-nadzor sistemi", "Elektroinstalacije" },
+            mjesta: new[] { "Sarajevo", "Tuzla", "Mostar", "Zenica" },
+            minCijena: 65, ocjena: 4.9m, zavrsenih: 164);
     }
 
     private async Task SeedMajstoraAsync(
