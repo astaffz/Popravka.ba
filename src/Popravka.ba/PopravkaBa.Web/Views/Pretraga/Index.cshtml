@@ -691,7 +691,7 @@
         hidden.value = val;
         hiddenContainer.appendChild(hidden);
     }
-
+            /*
     // --- OPTGROUP click: nadkategorija/kanton selects/deselects all sub-options ---
     // Render small buttons above each select, one per optgroup label.
     (function setupOptgroupClicks(selectEl, chipsContainer, hiddenContainer, inputName, selectedSet) {
@@ -773,7 +773,7 @@
                 }
             }
             return map;
-        }
+        }/*
         function renderOptgroupButtons() {
             var existingBar = selectEl.parentNode.querySelector('.optgroup-btn-bar');
             if (existingBar) existingBar.remove();
@@ -819,7 +819,7 @@
         }
         renderOptgroupButtons();
     })(lokacijaSelect, lokacijaChips, lokacijaHiddenInputs, 'Lokacija', selectedLokacije);
-
+    */
     function clearChips(type) {
         if (type === 'kategorija') {
             selectedKategorije.clear();

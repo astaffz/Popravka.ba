@@ -843,6 +843,8 @@ h1, h2, h3, h4, h5, h6 {
 .filter-group-label {
     font-size: 0.8rem;
     font-weight: 600;
+    /*dodao da probam*/
+    --text-secondary: royalblue;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.04em;
