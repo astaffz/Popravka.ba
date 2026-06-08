@@ -1,8 +1,25 @@
 ﻿@model HomeViewModel
+@using Microsoft.AspNetCore.Identity
+@using PopravkaBa.Domain.Models
+@using PopravkaBa.Domain.Enums
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Popravka.ba - Vaš online prostor za provjerene usluge";
 }
-
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var user = await UserManager.GetUserAsync(User);
+        if (user is not null && user.StatusVerifikacije != Status.Aktivan)
+        {
+            <div class="alert alert-warning d-flex justify-content-between align-items-center mb-0 rounded-0" role="alert">
+                <span>
+                    Vaš email nije potvrđen. Provjerite inbox ili
+                    <a asp-controller="Account" asp-action="PonoviVerifikaciju" class="alert-link">pošaljite link ponovo</a>.
+                </span>
+            </div>
+        }
+    }
 <section class="hero">
     <div class="hero-inner">
         <h1 class="hero-title">
