@@ -10,6 +10,7 @@ using PopravkaBa.Domain.Models;
 using PopravkaBa.Web.Attributes;
 using PopravkaBa.Web.Models.Enums;
 using PopravkaBa.Web.Models.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace PopravkaBa.Web.Controllers
 {
@@ -132,7 +133,15 @@ namespace PopravkaBa.Web.Controllers
                 DatumRegistracije = DateTime.UtcNow
             };
 
+
+            if (await _userManager.FindByNameAsync(dto.KorisnickoIme) != null)
+            {
+                ModelState.AddModelError("KlijentDTO.KorisnickoIme", "Korisničko ime je već zauzeto.");
+                return View("Registracija", await IzgradiRegistracijaVmAsync(klijent: dto));
+            }
+        
             var result = await _userManager.CreateAsync(user, dto.Lozinka);
+            
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
@@ -187,6 +196,11 @@ namespace PopravkaBa.Web.Controllers
                 DatumRegistracije = DateTime.UtcNow
             };
 
+            if (await _userManager.FindByNameAsync(dto.KorisnickoIme) != null)
+            {
+                ModelState.AddModelError("MajstorDTO.KorisnickoIme", "Korisničko ime je već zauzeto.");
+                return View("Registracija", await IzgradiRegistracijaVmAsync(majstor: dto));
+            }
             var result = await _userManager.CreateAsync(user, dto.Lozinka);
             if (!result.Succeeded)
             {
@@ -233,7 +247,11 @@ namespace PopravkaBa.Web.Controllers
                 WebStranica = dto.WebStranica,
                 DatumRegistracije = DateTime.UtcNow
             };
-
+            if (await _userManager.FindByNameAsync(dto.KorisnickoIme) != null)
+            {
+                ModelState.AddModelError("FirmaDTO.KorisnickoIme", "Korisničko ime je već zauzeto.");
+                return View("Registracija", await IzgradiRegistracijaVmAsync(firma: dto));
+            }
             var registerResult = await _userManager.CreateAsync(user, dto.Lozinka);
             if (!registerResult.Succeeded)
             {
@@ -266,9 +284,18 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> ZaboravljenaLozinka() => View();
 
         [HttpPost("/zaboravljena-lozinka")]
+        [EnableRateLimiting("auth")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ZaboravljenaLozinka(string email)
         {
+
+            if (string.IsNullOrWhiteSpace(email) || !new EmailAddressAttribute().IsValid(email))
+            {
+                ModelState.AddModelError("", "Unesite validnu email adresu.");
+                return View();
+            }
+            
+
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
@@ -314,7 +341,9 @@ namespace PopravkaBa.Web.Controllers
                     await _emailSender.PosaljiEmailAsync(user.Email!,
                         "[Popravka.ba] Zahtjev za reset lozinke", html);
                 }
+
             }
+            TempData["ResetEmail"] = email;
             return View("ZaboravljenaLozinkaPotvrda");
         }
 
@@ -330,6 +359,7 @@ namespace PopravkaBa.Web.Controllers
                 return RedirectToAction("StatusCode", "Home", new { code = 403 });
             return View(new ResetLozinkeViewModel { Token = token });
         }
+
 
 
         

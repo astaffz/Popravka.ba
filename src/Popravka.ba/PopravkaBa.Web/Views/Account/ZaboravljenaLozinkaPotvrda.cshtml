@@ -21,6 +21,14 @@
                         Nazad na prijavu
                     </a>
                 </div>
+                @if (TempData["ResetEmail"] is string resetEmail)
+                {
+                    <form method="post" asp-controller="Account" asp-action="ZaboravljenaLozinka" class="mt-3">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="email" value="@resetEmail" />
+                        <button type="submit" class="btn btn-link p-0">Niste dobili email? Pošalji ponovo</button>
+                    </form>
+                }
             </div>
         </div>
     </div>

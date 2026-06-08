@@ -15,12 +15,12 @@
                 {
                     <div class="alert alert-danger py-2" role="alert">@greska</div>
                 }
-
-                <form asp-controller="Account" asp-action="ZaboravljenaLozinka" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <form asp-controller="Account" asp-action="ZaboravljenaLozinka" method="post" novalidate>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email adresa</label>
                         <input type="email" id="email" name="email" class="form-control"
-                               placeholder="vas@email.com" required autofocus />
+                               placeholder="tarik@bugojno.ba" required autofocus />
                     </div>
 
                     <div class="d-grid">
