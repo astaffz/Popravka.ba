@@ -28,7 +28,7 @@
         </h1>
 
         <div class="hero-actions">
-            <a class="hero-btn" asp-controller="Oglas" asp-action="Pretraga">
+            <a class="hero-btn" asp-controller="Pretraga" asp-action="Index">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="7"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -46,13 +46,31 @@
 
         <p class="hero-stat">@Model.BrojRealiziranihUsluga+ uspješno realiziranih usluga.</p>
 
-        <form class="hero-search" asp-controller="Oglas" asp-action="Index" method="get">
+        @{
+            bool jeKlijent = User.IsInRole("Klijent");
+            // Klijenti vide 2 taba, ostali (Majstor/Firma/nelogovan) vide 3 taba
+            var homeTabovi = jeKlijent
+                ? new[] { "Izvrsioci usluga", "Oglasi za popravke" }
+                : new[] { "Izvrsioci usluga", "Oglasi za popravke", "Oglasi za posao" };
+        }
+        <div class="hero-search-container">
+            <div class="hero-search-tabs">
+                @foreach (var tab in homeTabovi)
+                {
+                    <button type="button" class="hero-tab-btn @(tab == homeTabovi[0] ? "active" : "")"
+                            data-tab="@tab">@tab</button>
+                }
+            </div>
+
+            <form class="hero-search" asp-controller="Pretraga" asp-action="Index" method="get">
+            <input type="hidden" name="AktivniTab" id="homeAktivniTab" value="@homeTabovi[0]" />
+
             <div class="hero-search-input">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="7"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <input type="text" name="pretragaTekst" placeholder="Treba mi... (Vodoinstalater, Naziv majstora/firme, ...)" 
+                <input type="text" name="KljucneRijeci" placeholder="Treba mi... (Vodoinstalater, Naziv majstora/firme, ...)"
                 oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()"
                 />
             </div>
@@ -110,21 +128,22 @@
                 Pretraži
             </button>
         </form>
+        </div><!-- /hero-search-container -->
     </div>
-   
+
 </section>
 <section class="kategorije-section">
     <div class="kategorije-inner">
         <div class="kategorije-header">
             <h2 style="display:block;text-align:center;margin:0;">Usluge na raspolaganju</h2>
 
-            <a asp-controller="Oglas" asp-action="Pretraga">Pogledaj sve →</a>
+            <a asp-controller="Pretraga" asp-action="Index">Pogledaj sve →</a>
         </div>
         <div class="kategorije-grid">
         @foreach (var kategorijaTuple in Model.TopKategorije)
          {
             // TODO: Usaglasit sa Tarikovim argumentima kada završi pretragu
-            <a asp-controller = "Oglas" asp-action = "Pretraga" asp-route-kategorijaID="@kategorijaTuple.ID" class="kategorija-card">
+            <a asp-controller = "Pretraga" asp-action = "Index" asp-route-kategorijaID="@kategorijaTuple.ID" class="kategorija-card">
                 <strong>@kategorijaTuple.Naziv</strong>
                 <span>Aktivni majstori: @kategorijaTuple.AktivniIzvrsilacCount</span>
             </a>
@@ -137,7 +156,7 @@
     <div class="oglasi-inner">
         <div class="oglasi-header">
             <h2>Nedavno objavljeni oglasi</h2>
-            <a asp-controller="Oglas" asp-action="Index">Pogledaj još →</a>
+            <a asp-controller="Pretraga" asp-action="Index" asp-route-AktivniTab="Oglasi za popravke">Pogledaj još →</a>
         </div>
         <div class="oglasi-grid">
             @foreach (var oglas in Model.NedavniOglasi)
@@ -184,6 +203,18 @@
 
 @section Scripts {
     <script>
+        (function () {
+            // --- Hero tab selector ---
+            var homeTabInput = document.getElementById('homeAktivniTab');
+            document.querySelectorAll('.hero-tab-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.hero-tab-btn').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    homeTabInput.value = btn.dataset.tab;
+                });
+            });
+        })();
+
         (function () {
             const display  = document.getElementById('lokacijaDisplay');
             const label    = document.getElementById('lokacijaLabel');

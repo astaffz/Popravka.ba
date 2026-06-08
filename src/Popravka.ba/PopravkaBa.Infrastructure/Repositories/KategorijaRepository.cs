@@ -79,13 +79,22 @@ namespace PopravkaBa.Infrastructure.Repositories
         }
 
         public async Task<IEnumerable<(Kategorija, int)>> DajTopKategorijePoMajstorimaAsync(int topN)
-            => await _context.IzvrsilacKategorija
-                .Where(ik => ik.Izvrsilac.StatusVerifikacije == Domain.Enums.Status.Aktivan)
-                .GroupBy(ik => ik.Kategorija)
-                .Select(grupa => new {Kategorija = grupa.Key, IzvrsilacCount = grupa.Count()})
-                .OrderByDescending(query => query.IzvrsilacCount)
+        {
+            var topData = await _context.IzvrsilacKategorija
+                .GroupBy(ik => ik.KategorijaID)
+                .Select(g => new { KategorijaID = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
                 .Take(topN)
-                .Select(query => ValueTuple.Create(query.Kategorija, query.IzvrsilacCount))
                 .ToListAsync();
+
+            var ids = topData.Select(x => x.KategorijaID).ToList();
+            var kategorijeMap = await _context.Kategorije
+                .Where(k => ids.Contains(k.ID))
+                .ToDictionaryAsync(k => k.ID);
+
+            return topData
+                .Where(x => kategorijeMap.ContainsKey(x.KategorijaID))
+                .Select(x => (kategorijeMap[x.KategorijaID], x.Count));
+        }
     }
 }

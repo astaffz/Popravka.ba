@@ -1,0 +1,874 @@
+@model PopravkaBa.Web.Models.ViewModels.PretragaViewModel
+@using PopravkaBa.Domain.Enums
+@using System.ComponentModel.DataAnnotations
+@using System.Globalization
+@{
+    ViewData["Title"] = "Pretraga - Popravka.ba";
+    var aktivniTab = Model.Rezultat.AktivniTab;
+    var filteri = Model.Filteri;
+    bool jePosaoTab = aktivniTab == "Oglasi za posao";
+    bool jeIzvrsiociTab = aktivniTab == "Izvrsioci usluga";
+    bool jePopravkeTab = aktivniTab == "Oglasi za popravke";
+
+    // Pre-compute enum int values to avoid cast expressions inside Razor attributes
+    int sortIzvDesc = (int)SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Desc;
+    int sortIzvAsc  = (int)SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Asc;
+    int sortIzvCijAsc  = (int)SortiranjeIzvrsilacaUsluga.MinCijena_Asc;
+    int sortIzvCijDesc = (int)SortiranjeIzvrsilacaUsluga.MinCijena_Desc;
+
+    int sortUslMinDesc = (int)SortiranjeOglasaUsluge.MinBudzet_Desc;
+    int sortUslMinAsc  = (int)SortiranjeOglasaUsluge.MinBudzet_Asc;
+    int sortUslMaxDesc = (int)SortiranjeOglasaUsluge.MaxBudzet_Desc;
+    int sortUslMaxAsc  = (int)SortiranjeOglasaUsluge.MaxBudzet_Asc;
+
+    int sortRmMinDesc = (int)SortiranjeOglasaRadnoMjesto.MinPrihod_Desc;
+    int sortRmMinAsc  = (int)SortiranjeOglasaRadnoMjesto.MinPrihod_Asc;
+    int sortRmMaxDesc = (int)SortiranjeOglasaRadnoMjesto.MaxPrihod_Desc;
+    int sortRmMaxAsc  = (int)SortiranjeOglasaRadnoMjesto.MaxPrihod_Asc;
+
+    // Pagination URL builder
+    Func<int, string> paginacijaUrl = (int stranica) =>
+    {
+        var q = new System.Collections.Specialized.NameValueCollection();
+        q["AktivniTab"] = aktivniTab ?? "";
+        if (!string.IsNullOrEmpty(filteri.KljucneRijeci)) q["KljucneRijeci"] = filteri.KljucneRijeci;
+        foreach (var k in filteri.KategorijaId) q.Add("KategorijaId", k.ToString());
+        foreach (var l in filteri.Lokacija) q.Add("Lokacija", l.ToString());
+        if (filteri.MinOcjena.HasValue) q["MinOcjena"] = filteri.MinOcjena.Value.ToString();
+        if (filteri.MaxOcjena.HasValue) q["MaxOcjena"] = filteri.MaxOcjena.Value.ToString();
+        if (filteri.MinBudzet.HasValue) q["MinBudzet"] = filteri.MinBudzet.Value.ToString();
+        if (filteri.MaxBudzet.HasValue) q["MaxBudzet"] = filteri.MaxBudzet.Value.ToString();
+        if (filteri.TipZaposlenja.HasValue) q["TipZaposlenja"] = ((int)filteri.TipZaposlenja.Value).ToString();
+        if (filteri.SortiranjeIzvrsilaca.HasValue) q["SortiranjeIzvrsilaca"] = ((int)filteri.SortiranjeIzvrsilaca.Value).ToString();
+        if (filteri.SortiranjeUsluge.HasValue) q["SortiranjeUsluge"] = ((int)filteri.SortiranjeUsluge.Value).ToString();
+        if (filteri.SortiranjeRadnoMjesto.HasValue) q["SortiranjeRadnoMjesto"] = ((int)filteri.SortiranjeRadnoMjesto.Value).ToString();
+        q["Stranica"] = stranica.ToString();
+        q["StavkiPoStranici"] = filteri.StavkiPoStranici.ToString();
+        var parts = new System.Collections.Generic.List<string>();
+        foreach (string key in q)
+        {
+            string val = q[key] ?? "";
+            parts.Add(Uri.EscapeDataString(key) + "=" + Uri.EscapeDataString(val));
+        }
+        return "/Pretraga?" + string.Join("&", parts);
+    };
+
+    Func<DateTime, string> relativnoVrijeme = (DateTime d) =>
+    {
+        var diff = DateTime.UtcNow - d.ToUniversalTime();
+        if (diff.TotalMinutes < 60) return $"Prije {(int)diff.TotalMinutes} min.";
+        if (diff.TotalHours < 24) return $"Prije {(int)diff.TotalHours}h.";
+        return $"Prije {(int)diff.TotalDays} dana";
+    };
+
+    Func<decimal, string> ocjenaStars = (decimal ocjena) =>
+    {
+        int pune = (int)Math.Round(ocjena);
+        var sb = new System.Text.StringBuilder();
+        for (int i = 1; i <= 5; i++) sb.Append(i <= pune ? "★" : "☆");
+        return sb.ToString();
+    };
+
+    Func<VrstaZaposlenja, string> displayVrstaZaposlenja = (VrstaZaposlenja v) => v switch
+    {
+        VrstaZaposlenja.PunoRadnoVrijeme  => "Puno radno vrijeme",
+        VrstaZaposlenja.PolaRadnogVrijema => "Pola radnog vremena",
+        VrstaZaposlenja.UgovorDjelo       => "Ugovor o djelu",
+        VrstaZaposlenja.Praksa            => "Praksa",
+        _ => v.ToString()
+    };
+
+    // Pagination window
+    int totalPages = Model.Rezultat.UkupnoStranica;
+    int currentPage = Model.Rezultat.TrenutnaStrana;
+    int windowSize = 5;
+    int pageStart = Math.Max(1, currentPage - windowSize / 2);
+    int pageEnd   = Math.Min(totalPages, pageStart + windowSize - 1);
+    if (pageEnd - pageStart < windowSize - 1) pageStart = Math.Max(1, pageEnd - windowSize + 1);
+}
+
+<div class="pretraga-page">
+    <div class="pretraga-header-section">
+        <h1 class="pretraga-naslov">Pretraga</h1>
+        <p class="pretraga-podnaslov">Ovdje možete pretraživati majstore i aktivne oglase na platformi.</p>
+    </div>
+
+    <!-- Tabovi -->
+    <div class="pretraga-tabs-row">
+        @foreach (var tab in Model.Rezultat.DostupniTabovi)
+        {
+            <button type="button"
+                    class="pretraga-tab-btn @(tab == aktivniTab ? "active" : "")"
+                    data-tab="@tab">
+                @tab
+            </button>
+        }
+    </div>
+
+    <!-- Forma -->
+    <form method="get" action="/Pretraga" id="pretragaForm">
+        <input type="hidden" name="AktivniTab" id="aktivniTabInput" value="@aktivniTab" />
+        <input type="hidden" name="StavkiPoStranici" value="@filteri.StavkiPoStranici" />
+
+        <!-- Search bar -->
+        <div class="pretraga-search-row">
+            <div class="pretraga-search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pretraga-search-icon">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" name="KljucneRijeci" id="kljucneRijeciInput"
+                       value="@filteri.KljucneRijeci"
+                       placeholder="Unesite ključne riječi"
+                       autocomplete="off"
+                       oninput="this.value = this.value.trimStart()"
+                       onchange="this.value = this.value.trim()" />
+            </div>
+            <button type="submit" class="pretraga-search-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Pretraži
+            </button>
+        </div>
+
+        <!-- Tijelo: sidebar + rezultati -->
+        <div class="pretraga-body">
+
+            <!-- Lijevi sidebar -->
+            <aside class="pretraga-sidebar">
+                <button type="button" class="filter-toggle-btn" id="filtrirajToggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="6" x2="20" y2="6"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                        <line x1="11" y1="18" x2="13" y2="18"></line>
+                    </svg>
+                    Filtriraj
+                </button>
+
+                <!-- Collapsible filter panel -->
+                <div class="filter-panel" id="filterPanel">
+                    <p class="filter-panel-naslov">Filteri</p>
+
+                    <!-- Zanimanja (Kategorija) -->
+                    <div class="filter-group">
+                        <label class="filter-group-label">Zanimanja</label>
+                        <select class="filter-select" id="kategorijaSelect">
+                            <option value="">-- Odaberi --</option>
+                            @{
+                                var nadkategorije = Model.Kategorije
+                                    .Where(k => k.NadkategorijaID == null)
+                                    .OrderBy(k => k.Naziv)
+                                    .ToList();
+                            }
+                            @foreach (var nadkat in nadkategorije)
+                            {
+                                var podkategorije = Model.Kategorije
+                                    .Where(k => k.NadkategorijaID == nadkat.ID)
+                                    .OrderBy(k => k.Naziv)
+                                    .ToList();
+                                if (podkategorije.Any())
+                                {
+                                    <optgroup label="@nadkat.Naziv">
+                                        @foreach (var podkat in podkategorije)
+                                        {
+                                            <option value="@podkat.ID" data-label="@podkat.Naziv">@podkat.Naziv</option>
+                                        }
+                                    </optgroup>
+                                }
+                                else
+                                {
+                                    <option value="@nadkat.ID" data-label="@nadkat.Naziv">@nadkat.Naziv</option>
+                                }
+                            }
+                        </select>
+                        <div class="chip-container" id="kategorijaChips"></div>
+                        <div id="kategorijaHiddenInputs"></div>
+                    </div>
+
+                    <!-- Lokacija -->
+                    <div class="filter-group">
+                        <label class="filter-group-label">Lokacija</label>
+                        <select class="filter-select" id="lokacijaSelect">
+                            <option value="">-- Odaberi --</option>
+                            @{
+                                var mjestaGrupe = Model.Mjesta.GroupBy(m => m.Kanton).OrderBy(g => (int)g.Key);
+                            }
+                            @foreach (var group in mjestaGrupe)
+                            {
+                                var kantonNaziv = group.Key.GetType()
+                                    .GetMember(group.Key.ToString())
+                                    .First()
+                                    .GetCustomAttributes(typeof(DisplayAttribute), false)
+                                    .Cast<DisplayAttribute>()
+                                    .FirstOrDefault()?.Name ?? group.Key.ToString();
+                                <optgroup label="@kantonNaziv">
+                                    @foreach (var m in group.OrderBy(x => x.Naziv))
+                                    {
+                                        <option value="@m.MjestoID" data-label="@m.Naziv">@m.Naziv</option>
+                                    }
+                                </optgroup>
+                            }
+                        </select>
+                        <div class="chip-container" id="lokacijaChips"></div>
+                        <div id="lokacijaHiddenInputs"></div>
+                    </div>
+
+                    @if (jeIzvrsiociTab)
+                    {
+                        <div class="filter-group">
+                            <label class="filter-group-label">Minimalna ocjena</label>
+                            <div class="filter-range-row">
+                                <input type="range" name="MinOcjena" id="minOcjenaRange"
+                                       min="0" max="5" step="0.1" default="2.0"
+                                       value="@(filteri.MinOcjena?.ToString("F1", CultureInfo.InvariantCulture) ?? "0")"
+                                       oninput="document.getElementById('minOcjenaVal').textContent=parseFloat(this.value).toFixed(1)" />
+                                <span class="filter-range-val" id="minOcjenaVal">@(filteri.MinOcjena?.ToString("F1", CultureInfo.InvariantCulture) ?? "0.0")</span>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-group-label">Maksimalna ocjena</label>
+                            <div class="filter-range-row">
+                                <input type="range" name="MaxOcjena" id="maxOcjenaRange"
+                                       min="0" max="5" step="0.1" default="5.0"
+                                       value="@(filteri.MaxOcjena?.ToString("F1", CultureInfo.InvariantCulture) ?? "5")"
+                                       oninput="document.getElementById('maxOcjenaVal').textContent=parseFloat(this.value).toFixed(1)" />
+                                <span class="filter-range-val" id="maxOcjenaVal">@(filteri.MaxOcjena?.ToString("F1", CultureInfo.InvariantCulture) ?? "5.0")</span>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-group-label">Cijena usluga</label>
+                            <div class="filter-minmax-row">
+                                <input type="number" name="MinBudzet" placeholder="min. KM"
+                                       class="filter-input-num" min="0"
+                                       value="@filteri.MinBudzet" />
+                                <span>–</span>
+                                <input type="number" name="MaxBudzet" placeholder="max. KM"
+                                       class="filter-input-num" min="0"
+                                       value="@filteri.MaxBudzet" />
+                            </div>
+                        </div>
+                    }
+                    else if (jePopravkeTab)
+                    {
+                        <div class="filter-group">
+                            <label class="filter-group-label">Budžet</label>
+                            <div class="filter-minmax-row">
+                                <input type="number" name="MinBudzet" placeholder="min. KM"
+                                       class="filter-input-num" min="0"
+                                       value="@filteri.MinBudzet" />
+                                <span>–</span>
+                                <input type="number" name="MaxBudzet" placeholder="max. KM"
+                                       class="filter-input-num" min="0"
+                                       value="@filteri.MaxBudzet" />
+                            </div>
+                        </div>
+                    }
+                    else if (jePosaoTab)
+                    {
+                        <div class="filter-group">
+                            <label class="filter-group-label">Tip zaposlenja</label>
+                            <select name="TipZaposlenja" class="filter-select">
+                                <option value="">-- Svi tipovi --</option>
+                                @foreach (VrstaZaposlenja vz in Enum.GetValues(typeof(VrstaZaposlenja)))
+                                {
+                                    var isVzSelected = filteri.TipZaposlenja == vz;
+                                    <option value="@((int)vz)" selected="@(isVzSelected ? "selected" : null)">
+                                        @displayVrstaZaposlenja(vz)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-group-label">Prihod (KM/mj.)</label>
+                            <div class="filter-minmax-row">
+                                <input type="number" name="MinBudzet" placeholder="min. KM"
+                                       class="filter-input-num" min="0"
+                                       value="@filteri.MinBudzet" />
+                                <span>–</span>
+                                <input type="number" name="MaxBudzet" placeholder="max. KM"
+                                       class="filter-input-num" min="0"
+                                       value="@filteri.MaxBudzet" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Uvijek vidljivo dugme za reset -->
+                <button type="button" class="filter-reset-btn" id="resetFilteriBtn">
+                    Resetiraj filtere
+                </button>
+            </aside>
+
+            <!-- Desna strana: rezultati -->
+            <div class="pretraga-results">
+
+                <!-- Zaglavlje: broj rezultata + sortiranje -->
+                <div class="results-meta">
+                    <span class="results-count">
+                        Pronađeno <strong>@Model.Rezultat.UkupnoStavki</strong> rezultata
+                    </span>
+                    <div class="results-sort-wrap">
+                        <label class="results-sort-label">Sortiraj po:</label>
+                        @if (jeIzvrsiociTab)
+                        {
+                            bool selIzvDesc   = filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Desc;
+                            bool selIzvAsc    = filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Asc;
+                            bool selIzvCijAsc = filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.MinCijena_Asc;
+                            bool selIzvCijDesc= filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.MinCijena_Desc;
+                            <select name="SortiranjeIzvrsilaca" class="results-sort-select"
+                                    onchange="document.getElementById('pretragaForm').submit()">
+                                <option value="@sortIzvDesc"    selected="@(selIzvDesc    ? "selected" : null)">Ocjena (opadajuće)</option>
+                                <option value="@sortIzvAsc"     selected="@(selIzvAsc     ? "selected" : null)">Ocjena (rastuće)</option>
+                                <option value="@sortIzvCijDesc" selected="@(selIzvCijDesc ? "selected" : null)">Cijena (opadajuće)</option>
+                                <option value="@sortIzvCijAsc"  selected="@(selIzvCijAsc  ? "selected" : null)">Cijena (rastuće)</option>
+                            </select>
+                        }
+                        else if (jePopravkeTab)
+                        {
+                            bool selUslMinDesc = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MinBudzet_Desc;
+                            bool selUslMinAsc  = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MinBudzet_Asc;
+                            bool selUslMaxDesc = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MaxBudzet_Desc;
+                            bool selUslMaxAsc  = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MaxBudzet_Asc;
+                            <select name="SortiranjeUsluge" class="results-sort-select"
+                                    onchange="document.getElementById('pretragaForm').submit()">
+                                <option value="@sortUslMinDesc" selected="@(selUslMinDesc ? "selected" : null)">Minimalnom budžetu (opadajuće)</option>
+                                <option value="@sortUslMinAsc" selected="@(selUslMinAsc ? "selected" : null)">Minimalnom budžetu (rastuće)</option>
+                                <option value="@sortUslMaxDesc" selected="@(selUslMaxDesc ? "selected" : null)">Maksimalnom budžetu (opadajuće)</option>
+                                <option value="@sortUslMaxAsc" selected="@(selUslMaxAsc ? "selected" : null)">Maksimalnom budžetu (rastuće)</option>
+                            </select>
+                        }
+                        else if (jePosaoTab)
+                        {
+                            bool selRmMinDesc = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MinPrihod_Desc;
+                            bool selRmMinAsc  = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MinPrihod_Asc;
+                            bool selRmMaxDesc = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MaxPrihod_Desc;
+                            bool selRmMaxAsc  = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MaxPrihod_Asc;
+                            <select name="SortiranjeRadnoMjesto" class="results-sort-select"
+                                    onchange="document.getElementById('pretragaForm').submit()">
+                                <option value="@sortRmMinDesc" selected="@(selRmMinDesc ? "selected" : null)">Minimalnom prihodu (opadajuće)</option>
+                                <option value="@sortRmMinAsc" selected="@(selRmMinAsc ? "selected" : null)">Minimalnom budžetu (rastuće)</option>
+                                <option value="@sortRmMaxDesc" selected="@(selRmMaxDesc ? "selected" : null)">Maksimalnom budžetu (opadajuće)</option>
+                                <option value="@sortRmMaxAsc" selected="@(selRmMaxAsc ? "selected" : null)">Maksimalnom budžetu (rastuće)</option>
+                            </select>
+                        }
+                    </div>
+                </div>
+
+                <!-- Lista rezultata -->
+                <div class="results-list">
+                    @if (jeIzvrsiociTab)
+                    {
+                        if (!Model.Rezultat.Izvrsioci.Any())
+                        {
+                            <div class="no-results">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <p>Nema pronađenih izvršilaca za zadane filtere.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            foreach (var izv in Model.Rezultat.Izvrsioci)
+                            {
+                                <a class="result-card result-card--izvrsilac" href="#">
+                                    <div class="result-card-main">
+                                        <div class="izv-avatar">
+                                            @if (!string.IsNullOrEmpty(izv.Slika))
+                                            {
+                                                <img src="@izv.Slika" alt="@izv.DisplayName" />
+                                            }
+                                            else
+                                            {
+                                                <i class="fa-solid fa-circle-user"></i>
+                                            }
+                                        </div>
+                                        <div class="izv-info">
+                                            <div class="izv-header">
+                                                <div class="izv-name-wrap">
+                                                    <span class="izv-name">@izv.DisplayName</span>
+                                                    <i class="fa-solid fa-circle-check izv-verified" title="Verificiran"></i>
+                                                    @if (!string.IsNullOrEmpty(izv.PrvaKategorija))
+                                                    {
+                                                        <span class="izv-kategorija">@izv.PrvaKategorija</span>
+                                                    }
+                                                </div>
+                                                @if (izv.MinCijenaUsluge.HasValue)
+                                                {
+                                                    <div class="izv-cijena">
+                                                        <span class="izv-cijena-label">Od:</span>
+                                                        <span class="izv-cijena-val">@izv.MinCijenaUsluge KM/h</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(izv.Opis))
+                                            {
+                                                <p class="izv-opis">@izv.Opis</p>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="result-card-footer">
+                                        <span class="result-lokacija">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            @(izv.Lokacija ?? "—")
+                                        </span>
+                                        <div class="izv-ocjena">
+                                            <span class="izv-stars">@ocjenaStars(izv.ProsjecnaOcjena)</span>
+                                            <span class="izv-ocjena-num">@izv.ProsjecnaOcjena.ToString("F1") (@izv.BrojRecenzija)</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            }
+                        }
+                    }
+                    else if (jePopravkeTab)
+                    {
+                        if (!Model.Rezultat.OglasiUsluga.Any())
+                        {
+                            <div class="no-results">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <p>Nema pronađenih oglasa za zadane filtere.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            foreach (var oglas in Model.Rezultat.OglasiUsluga)
+                            {
+                                <a class="result-card result-card--oglas" href="#">
+                                    <div class="oglas-card-header">
+                                        <div class="oglas-card-body">
+                                            <h3 class="oglas-naslov">@oglas.Naslov</h3>
+                                            @if (!string.IsNullOrEmpty(oglas.Opis))
+                                            {
+                                                <p class="oglas-opis">@oglas.Opis</p>
+                                            }
+                                        </div>
+                                        <div class="oglas-meta-right">
+                                            <span class="oglas-datum">@relativnoVrijeme(oglas.DatumObjave)</span>
+                                            <span class="oglas-ponude">Br. ponuda: @oglas.BrojPonuda</span>
+                                        </div>
+                                    </div>
+                                    <div class="oglas-budzet">
+                                        <strong>Budžet:</strong> @oglas.MinBudzet–@oglas.MaxBudzet KM
+                                    </div>
+                                    <div class="result-card-footer">
+                                        <span class="result-lokacija">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            @(oglas.Lokacija ?? "—")
+                                        </span>
+                                        <span class="oglas-vlasnik">
+                                            @oglas.VlasnikSkracenoIme
+                                            @if (!string.IsNullOrEmpty(oglas.VlasnikSlika))
+                                            {
+                                                <img src="@oglas.VlasnikSlika" class="oglas-vlasnik-avatar" alt="" />
+                                            }
+                                            else
+                                            {
+                                                <i class="fa-solid fa-circle-user"></i>
+                                            }
+                                        </span>
+                                    </div>
+                                </a>
+                            }
+                        }
+                    }
+                    else if (jePosaoTab)
+                    {
+                        if (!Model.Rezultat.OglasiRadnihMjesta.Any())
+                        {
+                            <div class="no-results">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <p>Nema pronađenih oglasa za zadane filtere.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            foreach (var oglas in Model.Rezultat.OglasiRadnihMjesta)
+                            {
+                                <a class="result-card result-card--oglas" href="#">
+                                    <div class="oglas-card-header">
+                                        <div class="oglas-card-body">
+                                            <h3 class="oglas-naslov">@oglas.Naslov</h3>
+                                            @if (!string.IsNullOrEmpty(oglas.Opis))
+                                            {
+                                                <p class="oglas-opis">@oglas.Opis</p>
+                                            }
+                                        </div>
+                                        <div class="oglas-meta-right">
+                                            <span class="oglas-datum">@relativnoVrijeme(oglas.DatumObjave)</span>
+                                            <span class="oglas-ponude">Br. izvršilaca: @oglas.BrojPrijava</span>
+                                        </div>
+                                    </div>
+                                    <div class="oglas-budzet">
+                                        <strong>Prihod:</strong> @oglas.MinPrihod–@oglas.MaxPrihod KM/mj.
+                                    </div>
+                                    <div class="result-card-footer">
+                                        <span class="result-lokacija">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            @(oglas.Lokacija ?? "—")
+                                        </span>
+                                        <span class="oglas-vlasnik">
+                                            @oglas.VlasnikDisplayName
+                                            @if (!string.IsNullOrEmpty(oglas.VlasnikSlika))
+                                            {
+                                                <img src="@oglas.VlasnikSlika" class="oglas-vlasnik-avatar" alt="" />
+                                            }
+                                            else
+                                            {
+                                                <i class="fa-solid fa-circle-user"></i>
+                                            }
+                                        </span>
+                                    </div>
+                                </a>
+                            }
+                        }
+                    }
+                </div>
+
+                <!-- Paginacija -->
+                @if (Model.Rezultat.UkupnoStranica > 1)
+                {
+                    <nav class="pagination-bar">
+                        @if (currentPage > 1)
+                        {
+                            <a href="@paginacijaUrl(currentPage - 1)" class="page-btn page-btn--arrow">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </a>
+                        }
+                        @if (pageStart > 1)
+                        {
+                            <a href="@paginacijaUrl(1)" class="page-btn">1</a>
+                            if (pageStart > 2) { <span class="page-ellipsis">…</span> }
+                        }
+                        @for (int i = pageStart; i <= pageEnd; i++)
+                        {
+                            <a href="@paginacijaUrl(i)" class="page-btn @(i == currentPage ? "active" : "")">@i</a>
+                        }
+                        @if (pageEnd < totalPages)
+                        {
+                            if (pageEnd < totalPages - 1) { <span class="page-ellipsis">…</span> }
+                            <a href="@paginacijaUrl(totalPages)" class="page-btn">@totalPages</a>
+                        }
+                        @if (currentPage < totalPages)
+                        {
+                            <a href="@paginacijaUrl(currentPage + 1)" class="page-btn page-btn--arrow">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        }
+                    </nav>
+                    <p class="pagination-info">
+                        Prikazujem @Model.Rezultat.PrikazOd–@Model.Rezultat.PrikazDo od @Model.Rezultat.UkupnoStavki
+                    </p>
+                }
+
+            </div><!-- /pretraga-results -->
+        </div><!-- /pretraga-body -->
+    </form>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    'use strict';
+
+    var form            = document.getElementById('pretragaForm');
+    var aktivniTabInput = document.getElementById('aktivniTabInput');
+    var filterPanel     = document.getElementById('filterPanel');
+    var filtrirajToggle = document.getElementById('filtrirajToggle');
+
+    // --- TAB switching ---
+    document.querySelectorAll('.pretraga-tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            aktivniTabInput.value = btn.dataset.tab;
+
+            var kljucni = document.getElementById('kljucneRijeciInput');
+            if (kljucni) kljucni.value = '';
+
+            filterPanel.querySelectorAll('input[type="number"], input[type="range"]').forEach(function (el) {
+                el.value = '';
+            });
+            filterPanel.querySelectorAll('select').forEach(function (el) {
+                el.selectedIndex = 0;
+            });
+
+            clearChips('kategorija');
+            clearChips('lokacija');
+
+            form.submit();
+        });
+    });
+
+    // --- FILTER TOGGLE ---
+    filtrirajToggle.addEventListener('click', function () {
+        var isOpen = filterPanel.classList.toggle('open');
+        filtrirajToggle.classList.toggle('active', isOpen);
+    });
+
+    // --- RESET FILTERA ---
+    document.getElementById('resetFilteriBtn').addEventListener('click', function () {
+        var kljucni = document.getElementById('kljucneRijeciInput');
+        if (kljucni) kljucni.value = '';
+
+        filterPanel.querySelectorAll('input[type="number"]').forEach(function (el) {
+            el.value = '';
+        });
+        filterPanel.querySelectorAll('input[type="range"]').forEach(function (el) {
+            var isMax = el.id && el.id.toLowerCase().includes('max');
+            el.value = isMax ? el.max : el.min;
+            var valEl = document.getElementById(el.id.replace('Range', 'Val'));
+            if (valEl) valEl.textContent = parseFloat(el.value).toFixed(1);
+        });
+        filterPanel.querySelectorAll('select').forEach(function (el) {
+            el.selectedIndex = 0;
+        });
+
+        clearChips('kategorija');
+        clearChips('lokacija');
+
+        form.submit();
+    });
+
+    // --- KATEGORIJA chips ---
+    var kategorijaSelect       = document.getElementById('kategorijaSelect');
+    var kategorijaChips        = document.getElementById('kategorijaChips');
+    var kategorijaHiddenInputs = document.getElementById('kategorijaHiddenInputs');
+    var selectedKategorije     = new Set();
+
+    if (kategorijaSelect) {
+        kategorijaSelect.addEventListener('change', function () {
+            var val   = this.value;
+            var label = this.options[this.selectedIndex].dataset.label;
+            if (val && !selectedKategorije.has(val)) {
+                selectedKategorije.add(val);
+                addChip(kategorijaChips, kategorijaHiddenInputs, 'KategorijaId', val, label, selectedKategorije);
+            }
+            this.selectedIndex = 0;
+        });
+    }
+
+    // --- LOKACIJA chips ---
+    var lokacijaSelect       = document.getElementById('lokacijaSelect');
+    var lokacijaChips        = document.getElementById('lokacijaChips');
+    var lokacijaHiddenInputs = document.getElementById('lokacijaHiddenInputs');
+    var selectedLokacije     = new Set();
+
+    if (lokacijaSelect) {
+        lokacijaSelect.addEventListener('change', function () {
+            var val   = this.value;
+            var label = this.options[this.selectedIndex].dataset.label;
+            if (val && !selectedLokacije.has(val)) {
+                selectedLokacije.add(val);
+                addChip(lokacijaChips, lokacijaHiddenInputs, 'Lokacija', val, label, selectedLokacije);
+            }
+            this.selectedIndex = 0;
+        });
+    }
+
+    function addChip(chipsContainer, hiddenContainer, inputName, val, label, selectedSet) {
+        var chip = document.createElement('span');
+        chip.className   = 'filter-chip';
+        chip.dataset.value = val;
+
+        var text = document.createTextNode(label + ' ');
+        chip.appendChild(text);
+
+        var btn = document.createElement('button');
+        btn.type      = 'button';
+        btn.textContent = '×';
+        btn.className = 'filter-chip-remove';
+        btn.addEventListener('click', function () {
+            selectedSet.delete(val);
+            chip.remove();
+            var h = hiddenContainer.querySelector('input[value="' + val + '"]');
+            if (h) h.remove();
+        });
+        chip.appendChild(btn);
+        chipsContainer.appendChild(chip);
+
+        var hidden = document.createElement('input');
+        hidden.type  = 'hidden';
+        hidden.name  = inputName;
+        hidden.value = val;
+        hiddenContainer.appendChild(hidden);
+    }
+
+    // --- OPTGROUP click: nadkategorija/kanton selects/deselects all sub-options ---
+    // Render small buttons above each select, one per optgroup label.
+    (function setupOptgroupClicks(selectEl, chipsContainer, hiddenContainer, inputName, selectedSet) {
+        if (!selectEl) return;
+        // Build a mapping: optgroup label -> array of option elements
+        function buildOptgroupMap() {
+            var map = [];
+            var children = selectEl.children;
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+                if (child.tagName === 'OPTGROUP') {
+                    map.push({ label: child.label, options: Array.from(child.querySelectorAll('option')) });
+                }
+            }
+            return map;
+        }
+
+        // We render invisible click targets by overlaying the select. Since this is complex,
+        // use the simpler approach: add a sibling button list above the select.
+        function renderOptgroupButtons() {
+            var existingBar = selectEl.parentNode.querySelector('.optgroup-btn-bar');
+            if (existingBar) existingBar.remove();
+
+            var bar = document.createElement('div');
+            bar.className = 'optgroup-btn-bar';
+            bar.style.cssText = 'display:flex;flex-wrap:wrap;gap:0.25rem;margin-bottom:0.25rem;';
+
+            var map = buildOptgroupMap();
+            map.forEach(function (group) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = group.label;
+                btn.title = 'Selektuj/deselektuj sve';
+                btn.className = 'optgroup-toggle-btn';
+                btn.style.cssText = 'font-size:0.72rem;padding:0.15rem 0.5rem;border:1px solid #cbd5e1;border-radius:2px;background:#f8fafc;cursor:pointer;color:#475569;';
+                btn.addEventListener('click', function () {
+                    var allSelected = group.options.every(function (o) { return selectedSet.has(o.value); });
+                    if (allSelected) {
+                        // Deselect all
+                        group.options.forEach(function (o) {
+                            if (selectedSet.has(o.value)) {
+                                selectedSet.delete(o.value);
+                                var chip = chipsContainer.querySelector('[data-value="' + o.value + '"]');
+                                if (chip) chip.remove();
+                                var h = hiddenContainer.querySelector('input[value="' + o.value + '"]');
+                                if (h) h.remove();
+                            }
+                        });
+                    } else {
+                        // Select missing
+                        group.options.forEach(function (o) {
+                            if (o.value && !selectedSet.has(o.value)) {
+                                selectedSet.add(o.value);
+                                addChip(chipsContainer, hiddenContainer, inputName, o.value, o.dataset.label || o.text, selectedSet);
+                            }
+                        });
+                    }
+                });
+                bar.appendChild(btn);
+            });
+
+            if (bar.children.length > 0)
+                selectEl.parentNode.insertBefore(bar, selectEl);
+        }
+
+        renderOptgroupButtons();
+    })(kategorijaSelect, kategorijaChips, kategorijaHiddenInputs, 'KategorijaId', selectedKategorije);
+
+    // Same for lokacijaSelect (kanton groups)
+    (function setupOptgroupClicks(selectEl, chipsContainer, hiddenContainer, inputName, selectedSet) {
+        if (!selectEl) return;
+        function buildOptgroupMap() {
+            var map = [];
+            var children = selectEl.children;
+            for (var i = 0; i < children.length; i++) {
+                var child = children[i];
+                if (child.tagName === 'OPTGROUP') {
+                    map.push({ label: child.label, options: Array.from(child.querySelectorAll('option')) });
+                }
+            }
+            return map;
+        }
+        function renderOptgroupButtons() {
+            var existingBar = selectEl.parentNode.querySelector('.optgroup-btn-bar');
+            if (existingBar) existingBar.remove();
+
+            var bar = document.createElement('div');
+            bar.className = 'optgroup-btn-bar';
+            bar.style.cssText = 'display:flex;flex-wrap:wrap;gap:0.25rem;margin-bottom:0.25rem;';
+
+            var map = buildOptgroupMap();
+            map.forEach(function (group) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = group.label;
+                btn.title = 'Selektuj/deselektuj sve';
+                btn.className = 'optgroup-toggle-btn';
+                btn.style.cssText = 'font-size:0.72rem;padding:0.15rem 0.5rem;border:1px solid #cbd5e1;border-radius:2px;background:#f8fafc;cursor:pointer;color:#475569;';
+                btn.addEventListener('click', function () {
+                    var allSelected = group.options.every(function (o) { return selectedSet.has(o.value); });
+                    if (allSelected) {
+                        group.options.forEach(function (o) {
+                            if (selectedSet.has(o.value)) {
+                                selectedSet.delete(o.value);
+                                var chip = chipsContainer.querySelector('[data-value="' + o.value + '"]');
+                                if (chip) chip.remove();
+                                var h = hiddenContainer.querySelector('input[value="' + o.value + '"]');
+                                if (h) h.remove();
+                            }
+                        });
+                    } else {
+                        group.options.forEach(function (o) {
+                            if (o.value && !selectedSet.has(o.value)) {
+                                selectedSet.add(o.value);
+                                addChip(chipsContainer, hiddenContainer, inputName, o.value, o.dataset.label || o.text, selectedSet);
+                            }
+                        });
+                    }
+                });
+                bar.appendChild(btn);
+            });
+
+            if (bar.children.length > 0)
+                selectEl.parentNode.insertBefore(bar, selectEl);
+        }
+        renderOptgroupButtons();
+    })(lokacijaSelect, lokacijaChips, lokacijaHiddenInputs, 'Lokacija', selectedLokacije);
+
+    function clearChips(type) {
+        if (type === 'kategorija') {
+            selectedKategorije.clear();
+            if (kategorijaChips)        kategorijaChips.innerHTML = '';
+            if (kategorijaHiddenInputs) kategorijaHiddenInputs.innerHTML = '';
+        } else {
+            selectedLokacije.clear();
+            if (lokacijaChips)        lokacijaChips.innerHTML = '';
+            if (lokacijaHiddenInputs) lokacijaHiddenInputs.innerHTML = '';
+        }
+    }
+
+    // --- Pre-populate chips from current URL ---
+    (function prePopulate() {
+        var params = new URLSearchParams(window.location.search);
+        var hasFilters = false;
+
+        params.getAll('KategorijaId').forEach(function (id) {
+            if (!kategorijaSelect) return;
+            var opt = kategorijaSelect.querySelector('option[value="' + id + '"]');
+            if (opt && !selectedKategorije.has(id)) {
+                selectedKategorije.add(id);
+                addChip(kategorijaChips, kategorijaHiddenInputs, 'KategorijaId', id, opt.dataset.label || id, selectedKategorije);
+                hasFilters = true;
+            }
+        });
+
+        params.getAll('Lokacija').forEach(function (id) {
+            if (!lokacijaSelect) return;
+            var opt = lokacijaSelect.querySelector('option[value="' + id + '"]');
+            if (opt && !selectedLokacije.has(id)) {
+                selectedLokacije.add(id);
+                addChip(lokacijaChips, lokacijaHiddenInputs, 'Lokacija', id, opt.dataset.label || id, selectedLokacije);
+                hasFilters = true;
+            }
+        });
+
+        if (!hasFilters) {
+            hasFilters = !!(params.get('MinBudzet') || params.get('MaxBudzet') ||
+                            params.get('MinOcjena')  || params.get('MaxOcjena')  ||
+                            params.get('TipZaposlenja'));
+        }
+
+        if (hasFilters) {
+            filterPanel.classList.add('open');
+            filtrirajToggle.classList.add('active');
+        }
+    })();
+
+})();
+</script>
+}

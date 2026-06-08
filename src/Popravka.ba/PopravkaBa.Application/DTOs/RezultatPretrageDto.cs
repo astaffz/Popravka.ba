@@ -37,7 +37,8 @@ namespace PopravkaBa.Application.DTOs
         public int? MinCijenaUsluge { get; set; }
         public int BrojZavrsenihPoslova { get; set; }
         public int BrojRecenzija { get; set; }
-        public string? Lokacija { get; set; }  // naziv prvog mjesta
+        public string? Lokacija { get; set; }
+        public string? PrvaKategorija { get; set; }
     }
     public class OglasUslugeListDto
     {

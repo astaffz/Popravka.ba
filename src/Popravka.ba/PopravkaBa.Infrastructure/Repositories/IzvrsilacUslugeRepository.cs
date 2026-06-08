@@ -35,9 +35,10 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .OfType<IzvrsilacUsluge>()
                 .Include(m => m.Mjesta)
                     .ThenInclude(km => km.Mjesto)
-                    .Include(m => m.Kategorije)
-                    .Where(spec.ToExpression())
-                    .AsNoTracking();
+                .Include(m => m.Kategorije)
+                    .ThenInclude(ik => ik.Kategorija)
+                .Where(spec.ToExpression())
+                .AsNoTracking();
 
             var ukupno = await query.CountAsync();
 
