@@ -8,5 +8,10 @@ namespace PopravkaBa.Application.Services.Interface
         Task<string?> GenerisiTokenAsync(ApplicationUser korisnik, TipTokena tip);
 
         Task<Status> PotvrdiAsync(string rawToken, TipTokena tip);
+
+        Task<(Status status, VerifikacijskiToken? token, ApplicationUser? user)> ValidirajResetTokenAsync(string rawToken);
+        Task OznaciKoristenimAsync(VerifikacijskiToken token);
+
+
     }
 }

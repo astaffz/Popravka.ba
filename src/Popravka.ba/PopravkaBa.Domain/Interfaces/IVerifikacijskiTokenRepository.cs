@@ -15,5 +15,6 @@ namespace PopravkaBa.Domain.Interfaces
         Task<List<VerifikacijskiToken>> PonistiNeiskoristeneAsync(string userId, TipTokena tip);
         Task KreirajAsync(VerifikacijskiToken token);
         Task PotvrdiAsync(VerifikacijskiToken token, ApplicationUser user);
+        Task OznaciKoristenimAsync(VerifikacijskiToken token);
     }
 }

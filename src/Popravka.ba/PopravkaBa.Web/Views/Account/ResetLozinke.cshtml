@@ -1,0 +1,43 @@
+﻿@model PopravkaBa.Web.Models.ViewModels.ResetLozinkeViewModel
+@{
+    ViewData["Title"] = "Popravka.ba - Postavi novu lozinku";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="card-title mb-1">Nova lozinka</h4>
+                <p class="text-muted small mb-4">
+                    Unesite novu lozinku za vaš nalog.
+                </p>
+
+                <form asp-controller="Account" asp-action="ResetLozinke" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                    <input type="hidden" asp-for="Token" />
+
+                    <div class="mb-3">
+                        <label asp-for="NovaLozinka" class="form-label">Nova lozinka</label>
+                        <input asp-for="NovaLozinka" class="form-control" autofocus />
+                        <span asp-validation-for="NovaLozinka" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PotvrdaLozinke" class="form-label">Potvrdite lozinku</label>
+                        <input asp-for="PotvrdaLozinke" class="form-control" />
+                        <span asp-validation-for="PotvrdaLozinke" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Postavi lozinku</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

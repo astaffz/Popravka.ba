@@ -1,0 +1,33 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Access Denied - Popravka.ba";
+   
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    <i class="bi bi-shield-lock" style="font-size: 2.5rem; color: var(--bs-danger);"></i>
+                </div>
+
+                <h1 class="display-5 fw-bold mb-0">403</h1>
+                <h4 class="card-title mb-2">Pristup odbijen</h4>
+                <p class="text-muted mb-4">
+                    Nemate dozvolu za pristup ovoj stranici. Ukoliko mislite da je
+                    došlo do greške, prijavite se sa odgovarajućim nalogom.
+                </p>
+
+                <div class="d-grid gap-2">
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                        Prijavite se
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                        Nazad na početnu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

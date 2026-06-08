@@ -278,21 +278,84 @@ namespace PopravkaBa.Web.Controllers
                     // Napravi link koji vodi na ResetLozinke sa novim generisanim tokenom ubačenim
                     var link = Url.Action(nameof(ResetLozinke), "Account",
                         new { token = rawToken }, Request.Scheme);
-                    // Posalji ga na mail
-                    await _emailSender.PosaljiEmailAsync(user.Email!, "[POPRAVKA.BA] Zahtjev za reset lozinke",
-                        $"<h1>Zaprimili smo zahtjev za reset Vaše lozinke na Popravka.ba</h1><br>" +
-                        $"<p>Ukoliko ste zahtjev poslali Vi, lozinku možete resetirati klikom na ovaj link: <a href=\"{link}\">Postavi novu lozinku</a></p><br>" +
-                        $"<p>Ukoliko niste poslali ovaj zahtjev, možete zanemariti ovu poruku</p>" +
-                        $"<br>" +
-                        $"Ugodan dan želimo," +
-                        $"Vaša Popravka.ba");
+                    var html = $$"""
+                        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #333;">
+                          <h2 style="color: #1a1a1a; font-size: 20px;">Reset lozinke</h2>
+
+                          <p style="font-size: 15px; line-height: 1.5;">
+                            Zaprimili smo zahtjev za postavljanje nove lozinke na Vašem
+                            Popravka.ba nalogu. Kliknite na dugme ispod da nastavite.
+                          </p>
+
+                          <p style="text-align: center; margin: 28px 0;">
+                            <a href="{{link}}" style="background-color: #0d6efd; color: #ffffff;
+                               text-decoration: none; padding: 12px 28px; border-radius: 6px;
+                               font-size: 15px; display: inline-block;">
+                              Postavi novu lozinku
+                            </a>
+                          </p>
+
+                          <p style="font-size: 13px; color: #666; line-height: 1.5;">
+                            Link vrijedi 15 minuta. Ako dugme ne radi, kopirajte ovaj link u browser:<br>
+                            <a href="{{link}}" style="color: #0d6efd; word-break: break-all;">{{link}}</a>
+                          </p>
+
+                          <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+
+                          <p style="font-size: 13px; color: #666; line-height: 1.5;">
+                            Ako niste Vi poslali ovaj zahtjev, slobodno zanemarite ovu poruku —
+                            Vaša lozinka ostaje nepromijenjena.
+                          </p>
+
+                          <p style="font-size: 13px; color: #999;">Vaša Popravka.ba</p>
+                        </div>
+                        """;
+
+                    await _emailSender.PosaljiEmailAsync(user.Email!,
+                        "[Popravka.ba] Zahtjev za reset lozinke", html);
                 }
             }
             return View("ZaboravljenaLozinkaPotvrda");
         }
 
-        [HttpGet("racun/reset-lozinke")]
-        public IActionResult ResetLozinke(string token) => View(new ResetLozinkeViewModel { Token = token });
+        [AllowAnonymous]
+        [HttpGet("profil/reset-lozinke")]
+        public async Task<IActionResult> ResetLozinke(string? token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("StatusCode", "Home", new { code = 403 });
+
+            var (status, _, _) = await _verifikacijaService.ValidirajResetTokenAsync(token);
+            if (status != Status.Aktivan)
+                return RedirectToAction("StatusCode", "Home", new { code = 403 });
+            return View(new ResetLozinkeViewModel { Token = token });
+        }
+
+
+        
+        [HttpPost("profil/reset-lozinke")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetLozinke(ResetLozinkeViewModel vm)
+        {
+            if (!ModelState.IsValid) return View(vm);
+
+            var (status, token, user) = await _verifikacijaService.ValidirajResetTokenAsync(vm.Token);
+            if (status != Status.Aktivan)
+                return View("Error");  
+
+            var identityToken = await _userManager.GeneratePasswordResetTokenAsync(user!);
+            var result = await _userManager.ResetPasswordAsync(user!, identityToken, vm.NovaLozinka);
+
+            if (!result.Succeeded)
+            {
+                foreach (var e in result.Errors)
+                    ModelState.AddModelError(string.Empty, e.Description);
+                return View(vm);   
+            }
+
+            await _verifikacijaService.OznaciKoristenimAsync(token!);   
+            return View("ResetLozinkePotvrda");
+        }
 
         private static readonly string[] DozvoljeniLogoFormati = { ".jpg", ".jpeg", ".png" };
         private const long MaxLogoVelicina = 5 * 1024 * 1024; // 5MB

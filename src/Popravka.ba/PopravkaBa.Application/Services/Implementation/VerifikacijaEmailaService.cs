@@ -62,5 +62,20 @@ namespace PopravkaBa.Application.Services.Implementation
             await _tokenRepo.PotvrdiAsync(token, user);
             return Status.Aktivan;
         }
+        public async Task<(Status status, VerifikacijskiToken? token, ApplicationUser? user)> ValidirajResetTokenAsync(string rawToken)
+        {
+            var hash = Hash(rawToken);
+            var token = await _tokenRepo.DajTokenPoHashuAsync(hash, TipTokena.ResetLozinke);
+
+            if (token is null) return (Status.Odbijeno, null, null);
+            if (token.VrijemeKoristenja != null) return (Status.VecIskoristen, null, null);
+            if (token.VrijemeIsteka < DateTime.UtcNow) return (Status.Neaktivan, null, null);
+
+            var user = await _userManager.FindByIdAsync(token.KorisnikID);
+            if (user is null) return (Status.Odbijeno, null, null);
+
+            return (Status.Aktivan, token, user);
+        }
+        public async Task OznaciKoristenimAsync(VerifikacijskiToken token) => await _tokenRepo.OznaciKoristenimAsync(token);
     }
 }

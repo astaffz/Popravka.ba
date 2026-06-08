@@ -87,9 +87,9 @@ namespace PopravkaBa.Web.Controllers
             return code switch
             {
                 404 => View("NotFound"),
-               // 403 => View("BadRequest?"), TODO: Napraviti View za 403
-               429 => View("TooManyRequests"), // TODO: Napraviti View za 429
-              500 => View("InternalServerError"), // TODO: Napraviti View za 500
+               403 => View("AccessDenied"), 
+               429 => View("TooManyRequests"), 
+              500 => View("InternalServerError"),
               _ =>View("Error")
             };
         }
