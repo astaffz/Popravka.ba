@@ -10,6 +10,7 @@ using PopravkaBa.Domain.Models;
 using PopravkaBa.Web.Attributes;
 using PopravkaBa.Web.Models.Enums;
 using PopravkaBa.Web.Models.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace PopravkaBa.Web.Controllers
 {
@@ -68,36 +69,36 @@ namespace PopravkaBa.Web.Controllers
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
         [RedirectIfAuthenticated]
-        [HttpPost("/login")]
         [ValidateAntiForgeryToken]
+        [HttpPost("/login")]
         public async Task<IActionResult> Login(RegistracijaViewModel vm)
         {
-            var dto = vm.Login;
-            if (!ModelState.IsValid) return View("Registracija",vm);
+            if (!ModelState.IsValid)
+                return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
 
-            var user = await _userManager.FindByEmailAsync(dto.EmailUsername) ?? await _userManager.FindByNameAsync(dto.EmailUsername);
-            if (user == null) {
-            
-                // Dummy provjera lozinke, ne odati da profil ne postoji vraćajući brži request od profila da postoji čekajući na PasswordSignInAsync
-                _userManager.PasswordHasher.VerifyHashedPassword(new ApplicationUser(), "AQAAAAEAACcQAAAAE...", dto.Lozinka);
+            var login = vm.Login;
 
-                ModelState.AddModelError("", "Pogrešni pristupni podaci.");
-                return View("Registracija",vm);
-            }
+            var user = login.EmailUsername.Contains('@')
+                ? await _userManager.FindByEmailAsync(login.EmailUsername)
+                : await _userManager.FindByNameAsync(login.EmailUsername);
 
-            var signInResult = await _signInManager.PasswordSignInAsync(
-                user,
-                dto.Lozinka,
-                false, 
-                lockoutOnFailure: true);
-
-            if (!signInResult.Succeeded)
+            if (user is null)
             {
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
-                return View("Registracija",vm);
+                return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
 
-            // vrati na početnu stranicu
+            var result = await _signInManager.PasswordSignInAsync(
+                user.UserName!, login.Lozinka,
+                isPersistent: login.ZapamtiMe,
+                lockoutOnFailure: true);
+
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Pogrešni pristupni podaci");
+                return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
+            }
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -132,7 +133,10 @@ namespace PopravkaBa.Web.Controllers
                 DatumRegistracije = DateTime.UtcNow
             };
 
+
+
             var result = await _userManager.CreateAsync(user, dto.Lozinka);
+            
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
@@ -144,8 +148,12 @@ namespace PopravkaBa.Web.Controllers
             await _userManager.AddToRoleAsync(user, KorisnickeUloge.Klijent.ToString());
             await _mjestoService.DodajMjestaKorisniku(user.Id, dto.MjestaID);
             await _signInManager.SignInAsync(user, isPersistent: false);
-            TempData["Success"] = "Registracija uspješna.";
-            return RedirectToAction("Index", "Home");
+
+            var rawToken = await _verifikacijaService.GenerisiTokenAsync(user, TipTokena.PotvrdaEmaila);
+            if (rawToken is not null)
+                await PosaljiVerifikacijskiEmailAsync(user, rawToken);
+
+            return RedirectToAction(nameof(VerifikacijaPoslana));
         }
 
 
@@ -187,6 +195,7 @@ namespace PopravkaBa.Web.Controllers
                 DatumRegistracije = DateTime.UtcNow
             };
 
+
             var result = await _userManager.CreateAsync(user, dto.Lozinka);
             if (!result.Succeeded)
             {
@@ -204,8 +213,12 @@ namespace PopravkaBa.Web.Controllers
             await _mjestoService.DodajMjestaKorisniku(user.Id, dto.MjestaID);
 
             await _signInManager.SignInAsync(user, isPersistent: false);
-            TempData["Success"] = "Registracija uspješna.";
-            return RedirectToAction("Index", "Home");
+
+            var rawToken = await _verifikacijaService.GenerisiTokenAsync(user, TipTokena.PotvrdaEmaila);
+            if (rawToken is not null)
+                await PosaljiVerifikacijskiEmailAsync(user, rawToken);
+
+            return RedirectToAction(nameof(VerifikacijaPoslana));
         }
 
        
@@ -233,7 +246,7 @@ namespace PopravkaBa.Web.Controllers
                 WebStranica = dto.WebStranica,
                 DatumRegistracije = DateTime.UtcNow
             };
-
+          
             var registerResult = await _userManager.CreateAsync(user, dto.Lozinka);
             if (!registerResult.Succeeded)
             {
@@ -255,9 +268,13 @@ namespace PopravkaBa.Web.Controllers
             await _kategorijaService.DodajKategorijeIzvrsiocu(user.Id, dto.KategorijeID);
             await _mjestoService.DodajMjestaKorisniku(user.Id, dto.MjestaID);
 
-            await _signInManager.SignInAsync(user, isPersistent: true);
-            TempData["Success"] = "Registracija uspješna.";
-            return RedirectToAction("Index", "Home");
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
+            var rawToken = await _verifikacijaService.GenerisiTokenAsync(user, TipTokena.PotvrdaEmaila);
+            if (rawToken is not null)
+                await PosaljiVerifikacijskiEmailAsync(user, rawToken);
+
+            return RedirectToAction(nameof(VerifikacijaPoslana));
         }
 
         [AllowAnonymous]
@@ -266,9 +283,18 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> ZaboravljenaLozinka() => View();
 
         [HttpPost("/zaboravljena-lozinka")]
+        [EnableRateLimiting("auth")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ZaboravljenaLozinka(string email)
         {
+
+            if (string.IsNullOrWhiteSpace(email) || !new EmailAddressAttribute().IsValid(email))
+            {
+                ModelState.AddModelError("", "Unesite validnu email adresu.");
+                return View();
+            }
+            
+
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
@@ -314,7 +340,9 @@ namespace PopravkaBa.Web.Controllers
                     await _emailSender.PosaljiEmailAsync(user.Email!,
                         "[Popravka.ba] Zahtjev za reset lozinke", html);
                 }
+
             }
+            TempData["ResetEmail"] = email;
             return View("ZaboravljenaLozinkaPotvrda");
         }
 
@@ -323,13 +351,14 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> ResetLozinke(string? token)
         {
             if (string.IsNullOrEmpty(token))
-                return RedirectToAction("StatusCode", "Home", new { code = 403 });
+                return StatusCode(403);
 
             var (status, _, _) = await _verifikacijaService.ValidirajResetTokenAsync(token);
             if (status != Status.Aktivan)
                 return RedirectToAction("StatusCode", "Home", new { code = 403 });
             return View(new ResetLozinkeViewModel { Token = token });
         }
+
 
 
         
@@ -408,5 +437,81 @@ namespace PopravkaBa.Web.Controllers
                 FirmaDTO = firma
             };
         }
+        [AllowAnonymous]
+        [HttpGet("/potvrda-email")]
+        public async Task<IActionResult> PotvrdiEmail(string? token)
+        {
+            var status = string.IsNullOrEmpty(token)
+                ? Status.Odbijeno
+                : await _verifikacijaService.PotvrdiAsync(token, TipTokena.PotvrdaEmaila);
+
+            return View(status);
+        }
+        [Authorize]
+        [HttpGet("/verifikacija-email")]
+        public async Task<IActionResult> VerifikacijaPoslana()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null) return RedirectToAction(nameof(Login));
+
+            if (user.StatusVerifikacije == Status.Aktivan)
+                return RedirectToAction("Index", "Home");
+
+            ViewData["Email"] = user.Email;
+            return View();
+        }
+        [Authorize]
+        [EnableRateLimiting("auth")]
+        [HttpPost("/verifikacija-email")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PosaljiVerifikaciju()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null) return RedirectToAction(nameof(Login));
+
+            if (user.StatusVerifikacije == Status.Aktivan)
+            {
+                TempData["Success"] = "Vaš email je već potvrđen.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var rawToken = await _verifikacijaService.GenerisiTokenAsync(user, TipTokena.PotvrdaEmaila);
+            if (rawToken is null)
+                TempData["Greska"] = "Pričekajte par minuta prije slanja novog zahtjeva.";
+            else
+            {
+                await PosaljiVerifikacijskiEmailAsync(user, rawToken);
+                TempData["Success"] = "Novi link za verifikaciju je upravo poslat na Vaš email.";
+            }
+
+            return RedirectToAction(nameof(VerifikacijaPoslana));
+        }
+
+        private async Task PosaljiVerifikacijskiEmailAsync(ApplicationUser user, string rawToken)
+        {
+            var link = Url.Action(nameof(PotvrdiEmail), "Account",
+                new { token = rawToken }, Request.Scheme);
+
+            var html = $$"""
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #333;">
+          <h2 style="color: #1a1a1a; font-size: 20px;">Dobrodošli na Popravka.ba</h2>
+          <p style="font-size: 15px; line-height: 1.5;">
+            Dobrodošli na Popravka.ba! Potvrdite Vašu email adresu klikom na dugme ispod.
+          </p>
+          <p style="text-align: center; margin: 28px 0;">
+            <a href="{{link}}" style="background-color: #0d6efd; color: #ffffff;
+               text-decoration: none; padding: 12px 28px; border-radius: 6px;
+               font-size: 15px; display: inline-block;">Potvrdi email</a>
+          </p>
+          <p style="font-size: 13px; color: #666; line-height: 1.5;">
+            Link vrijedi 15 minuta. Ako dugme ne radi, kopirajte ovaj link u browser:<br>
+            <a href="{{link}}" style="color: #0d6efd; word-break: break-all;">{{link}}</a>
+          </p>
+        </div>
+        """;
+
+            await _emailSender.PosaljiEmailAsync(user.Email!, "Potvrdite email — Popravka.ba", html);
+        }
     }
+
 }

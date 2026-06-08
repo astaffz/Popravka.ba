@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Popravka.ba.Data;
 using PopravkaBa.Application.Services;
 using PopravkaBa.Application.Services.Implementation;
@@ -9,6 +10,7 @@ using PopravkaBa.Application.Strategies.Interface;
 using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Interfaces.Repositories;
 using PopravkaBa.Domain.Models;
+using PopravkaBa.Domain.Shared;
 using PopravkaBa.Infrastructure.Adapters;
 using PopravkaBa.Infrastructure.Adapters.Options;
 using PopravkaBa.Infrastructure.Repositories;
@@ -34,10 +36,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
     options.Password.RequiredUniqueChars = 0;
 
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
+.AddErrorDescriber<BosanskiIdentityErrorDescriber>()
+.AddPasswordValidator<CaseInsensitivePasswordValidator<ApplicationUser>>()
 .AddDefaultTokenProviders();
 builder.Services.AddControllersWithViews();
 

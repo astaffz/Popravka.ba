@@ -15,19 +15,22 @@ namespace PopravkaBa.Web.Controllers
         private readonly IOglasService _oglasService;
         private readonly IOglasUslugeService _oglasUslugeService;
         private readonly IKategorijaService _kategorijaService;
+        private readonly IHostEnvironment _env;
 
         public HomeController(
             ILogger<HomeController> logger, 
             IMjestoService mjestoService, 
             IOglasService oglasService,
             IOglasUslugeService oglasUslugeService,
-            IKategorijaService kategorijaService)
+            IKategorijaService kategorijaService,
+            IHostEnvironment env)
         {
             _logger = logger;
             _mjestoService = mjestoService;
             _oglasService = oglasService;
             _oglasUslugeService = oglasUslugeService;
             _kategorijaService = kategorijaService;
+            _env = env;
         }
 
         public async Task<IActionResult> Index()
@@ -70,15 +73,16 @@ namespace PopravkaBa.Web.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
+            Response.StatusCode = 500;
             var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
             return View(new ErrorViewModel
-            {
+            {     
+                 ExceptionMessage = _env.IsDevelopment() ? exceptionFeature?.Error.Message : null,
+                StackTrace = _env.IsDevelopment() ? exceptionFeature?.Error.StackTrace : null,
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
-                ExceptionMessage = exceptionFeature?.Error.Message,
-                StackTrace = exceptionFeature?.Error.StackTrace
             });
+     
         }
-
         [Route("/greska/{code:int}")]
         public IActionResult StatusCode(int code)
         {
@@ -89,8 +93,8 @@ namespace PopravkaBa.Web.Controllers
                 404 => View("NotFound"),
                403 => View("AccessDenied"), 
                429 => View("TooManyRequests"), 
-              500 => View("InternalServerError"),
-              _ =>View("Error")
+             500 => View("InternalServerError"),
+              _ => View("Error")
             };
         }
     }

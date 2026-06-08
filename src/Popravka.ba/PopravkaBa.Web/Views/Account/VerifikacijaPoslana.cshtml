@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Provjerite email - Popravka.ba";
+    var email = ViewData["Email"] as string;
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    <i class="bi bi-envelope-check" style="font-size: 2.5rem; color: var(--bs-primary);"></i>
+                </div>
+
+                <h4 class="card-title mb-2">Provjerite vaš email</h4>
+                <p class="text-muted mb-1">
+                    Poslali smo verifikacijski link na
+                </p>
+                <p class="fw-semibold mb-4">@email</p>
+                <p class="text-muted small mb-4">
+                    Kliknite na link u poruci da potvrdite nalog. Provjerite i
+                    spam folder. Možete nastaviti koristiti stranicu i bez potvrde.
+                </p>
+
+                @if (TempData["Success"] is string ok)
+                {
+                    <div class="alert alert-success py-2 small">@ok</div>
+                }
+                @if (TempData["Greska"] is string err)
+                {
+                    <div class="alert alert-warning py-2 small">@err</div>
+                }
+
+                <div class="d-grid gap-2">
+                    <form asp-action="PosaljiVerifikaciju" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            Pošalji link ponovo
+                        </button>
+                    </form>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-link">
+                        Nastavi na početnu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

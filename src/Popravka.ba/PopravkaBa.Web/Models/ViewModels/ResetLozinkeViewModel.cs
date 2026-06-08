@@ -6,7 +6,8 @@ namespace PopravkaBa.Web.Models.ViewModels
     {
         [Required] public string Token { get; set; } = default!;
 
-        [Required, DataType(DataType.Password)]
+        [Required]
+        [DataType(DataType.Password)]
         public string NovaLozinka { get; set; } = default!;
 
         [DataType(DataType.Password)]

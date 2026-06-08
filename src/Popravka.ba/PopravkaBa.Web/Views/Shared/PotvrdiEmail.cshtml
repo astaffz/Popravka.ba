@@ -1,0 +1,61 @@
+﻿@model PopravkaBa.Domain.Enums.Status
+@{
+    ViewData["Title"] = "Potvrda emaila - Popravka.ba";
+    var uspjeh = Model == PopravkaBa.Domain.Enums.Status.Aktivan;
+
+    var (ikona, boja, naslov, poruka) = Model switch
+    {
+        PopravkaBa.Domain.Enums.Status.Aktivan => ("bi-check-circle", "var(--bs-success)",
+            "Email potvrđen",
+            "Vaša email adresa je uspješno potvrđena. Uživajte!"),
+
+        PopravkaBa.Domain.Enums.Status.VecIskoristen => ("bi-info-circle", "var(--bs-secondary)",
+            "Verifikacijski link je već iskorišten",
+            "Verifikacijski link je već upotrijebljen. Ako je Vaš email potvrđen, možete se prijaviti."),
+
+        PopravkaBa.Domain.Enums.Status.Neaktivan => ("bi-clock-history", "var(--bs-warning)",
+            "Verifikacijski link je istekao",
+            "Verifikacijski link više ne vrijedi. Zatražite novi link i pokušajte ponovo."),
+
+        _ => ("bi-x-circle", "var(--bs-danger)",
+            "Nevažeći link",
+            "Provjerite da ste otvorili cijeli link iz poruke.")
+    };
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    <i class="bi @ikona" style="font-size: 2.5rem; color: @boja;"></i>
+                </div>
+
+                <h4 class="card-title mb-2">@naslov</h4>
+                <p class="text-muted mb-4">@poruka</p>
+
+                <div class="d-grid gap-2">
+                    @if (uspjeh)
+                    {
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                            Nastavi na početnu
+                        </a>
+                    }
+                    else if (Model == PopravkaBa.Domain.Enums.Status.Neaktivan)
+                    {
+                        <form asp-controller="Account" asp-action="PosaljiVerifikaciju" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-primary w-100">Pošalji novi link</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                            Nazad na prijavu
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
