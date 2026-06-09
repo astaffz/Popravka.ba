@@ -141,12 +141,12 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
-    app.UseDeveloperExceptionPage();
+    app.UseExceptionHandler("/Home/Error");
     app.UseStatusCodePagesWithReExecute("/greska/{0}"); // Ne bi trebalo biti ovdje kad bi se puštao u production
 }
 else
 {
-    app.UseDeveloperExceptionPage();
+    app.UseExceptionHandler("/Home/Error");
     app.UseStatusCodePagesWithReExecute("/greska/{0}");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
