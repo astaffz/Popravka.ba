@@ -12,12 +12,23 @@
         var user = await UserManager.GetUserAsync(User);
         if (user is not null && user.StatusVerifikacije != Status.Aktivan)
         {
+            if (!user.EmailConfirmed) {
             <div class="alert alert-wadrning d-flex justify-content-between align-items-center mb-0 rounded-0" role="alert">
                 <span>
                     Vaš email nije potvrđen. Provjerite inbox ili
                     <a asp-controller="Account" asp-action="PosaljiVerifikaciju" class="alert-link">pošaljite link ponovo</a>.
                 </span>
             </div>
+            }
+            else
+            {
+                <div class="alert alert-wadrning d-flex justify-content-between align-items-center mb-0 rounded-0" role="alert">
+                    <span>
+                        Vaš email je uspješno potvrđen, no da biste imali potpun pristup platformi potrebno je proći i
+                        <a asp-controller="Profil" asp-action="Index" class="alert-link">dodatni korak verifikacije</a>.
+                    </span>
+                </div>
+            }
         }
     }
 <section class="hero">
