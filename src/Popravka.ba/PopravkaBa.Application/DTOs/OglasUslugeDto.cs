@@ -1,8 +1,27 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using PopravkaBa.Domain.Enums;
+using PopravkaBa.Domain.Models;
 
 namespace PopravkaBa.Application.DTOs
 {
     // TODO Odrediti biznis pravilo dužina stringa u DTO
+    public class OglasUslugeDto
+    {
+        public int Id { get; set; }
+        public string Naslov { get; set; }
+        public string? Opis { get; set; }
+        public DateTime DatumObjave { get; set; }
+        public Status StatusOglasa { get; set; }
+        public string? Lokacija { get; set; }
+
+        public string VlasnikId { get; set; }
+        public string VlasnikIme { get; set; }
+
+        public int BrojPonuda { get; set; }
+        public List<string> Kategorije { get; set; } = new();
+        public int MinBudzet { get; set; }
+        public int MaxBudzet { get; set; }
+    }
     public class ObjaviOglasUslugeDto
     {
         [Required(ErrorMessage = "Naslov je obavezan.")]

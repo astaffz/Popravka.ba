@@ -32,10 +32,14 @@ namespace PopravkaBa.Application.Strategies.Helper
                     => ApplySortiranje(spec, m => m.ProsjecnaOcjena, false),
                 SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Desc
                     => ApplySortiranje(spec, m => m.ProsjecnaOcjena, true),
+
+                // COALESCE ensures izvršioci without a price are always sorted to the END,
+                // regardless of direction. PostgreSQL's default (NULLS FIRST on DESC) would
+                // otherwise place them at the top of a descending price sort.
                 SortiranjeIzvrsilacaUsluga.MinCijena_Asc
-                    => ApplySortiranje(spec, m => m.MinCijenaUsluge, false),
+                    => ApplySortiranje(spec, m => (object)(m.MinCijenaUsluge ?? int.MaxValue), false),
                 SortiranjeIzvrsilacaUsluga.MinCijena_Desc
-                    => ApplySortiranje(spec, m => m.MinCijenaUsluge, true),
+                    => ApplySortiranje(spec, m => (object)(m.MinCijenaUsluge ?? -1), true),
                 _ => spec
             };
         }

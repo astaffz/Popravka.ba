@@ -126,11 +126,12 @@ namespace PopravkaBa.Infrastructure.Repositories
         public async Task<StraniceniRezultat<OglasUsluge>> PronadjiAsync(
         ISpecification<OglasUsluge> spec, int stranica, int stavkiPoStranici)
         {
+            // Include Ponude so that BrojPrijava (= Ponude.Count) is correctly populated.
+            // VlasnikOglasa→Mjesta is NOT needed here (PretragaService only reads SkracenoIme/Slika).
             var query = _context.OglasiUsluga
                 .Include(o => o.VlasnikOglasa)
-                    .ThenInclude(v => v.Mjesta)
-                        .ThenInclude(km => km.Mjesto)
                 .Include(o => o.Mjesto)
+                .Include(o => o.Ponude)
                 .Where(spec.ToExpression())
                 .AsNoTracking();
 
@@ -241,10 +242,9 @@ namespace PopravkaBa.Infrastructure.Repositories
         public async Task<StraniceniRezultat<OglasRadnoMjesto>> PronadjiAsync(
             ISpecification<OglasRadnoMjesto> spec, int stranica, int stavkiPoStranici)
         {
+            // PretragaService only reads VlasnikOglasa.DisplayName and .Slika — no need for Mjesta.
             var query = _context.OglasiRadnogMjesta
                 .Include(o => o.VlasnikOglasa)
-                    .ThenInclude(v => v.Mjesta)
-                        .ThenInclude(km => km.Mjesto)
                 .Include(o => o.Mjesto)
                 .Where(spec.ToExpression())
                 .AsNoTracking();

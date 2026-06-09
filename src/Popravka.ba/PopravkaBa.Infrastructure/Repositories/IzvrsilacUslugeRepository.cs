@@ -33,6 +33,7 @@ namespace PopravkaBa.Infrastructure.Repositories
         {
             var query = _context.ApplicationUsers
                 .OfType<IzvrsilacUsluge>()
+                .AsSplitQuery()
                 .Include(m => m.Mjesta)
                     .ThenInclude(km => km.Mjesto)
                 .Include(m => m.Kategorije)
