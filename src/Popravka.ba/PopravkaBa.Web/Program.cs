@@ -13,6 +13,7 @@ using PopravkaBa.Domain.Models;
 using PopravkaBa.Domain.Shared;
 using PopravkaBa.Infrastructure.Adapters;
 using PopravkaBa.Infrastructure.Adapters.Options;
+using PopravkaBa.Infrastructure.BackgroundServices;
 using PopravkaBa.Infrastructure.Repositories;
 using PopravkaBa.Infrastructure.Seeders;
 using System.Threading.RateLimiting;
@@ -114,7 +115,14 @@ builder.Services.Configure<BrevoEmailOptions>(builder.Configuration.GetSection("
 builder.Services.AddScoped<IVerifikacijaEmailaService, VerifikacijaEmailaService>();
 builder.Services.AddScoped<IVerifikacijskiTokenRepository, VerifikacijskiTokenRepository>();
 
+builder.Services.AddHostedService<VerifikacijskiTokenCleanupService>();
 builder.Services.AddScoped<DbSeeder>();
+
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    // Ostavljeno za određivanje trajanja sesije, ako je korisnik otišao/korisniku obrisan nalog
+    options.ValidationInterval = TimeSpan.FromMinutes(15);
+});
 
 
 
@@ -144,6 +152,7 @@ else
     app.UseHsts();
 
 }
+
 
 app.UseHttpsRedirection();
 

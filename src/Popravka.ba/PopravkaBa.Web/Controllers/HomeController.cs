@@ -73,7 +73,7 @@ namespace PopravkaBa.Web.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            Response.StatusCode = 500;
+       
             var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
             return View(new ErrorViewModel
             {     

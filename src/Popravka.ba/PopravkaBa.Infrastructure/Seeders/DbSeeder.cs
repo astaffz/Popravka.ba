@@ -27,9 +27,19 @@ public class DbSeeder
         _roleManager = roleManager;
         _appConfig = appConfig;
     }
+    string? HasoId() => _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba").Result?.Id;
+    string? RijadId() => _userManager.FindByEmailAsync("rijad.kasapovic@popravka.ba").Result?.Id;
+    string? ErmedinId() => _userManager.FindByEmailAsync("ermedin.demic@popravka.ba").Result?.Id;
+    string? MirzaId() => _userManager.FindByEmailAsync("mirza.kovacevic@popravka.ba").Result?.Id;
+    string? FarukId() => _userManager.FindByEmailAsync("faruk.hadzic@popravka.ba").Result?.Id;
+    string? SeadId() => _userManager.FindByEmailAsync("sead.mujic@popravka.ba").Result?.Id;
+    string? SemaId() => _userManager.FindByEmailAsync("info@semagradnja.ba").Result?.Id;
+    string? ZukanId() => _userManager.FindByEmailAsync("info@zukanvolt.ba").Result?.Id;
+    string? HVId() => _userManager.FindByEmailAsync("hvojvodic@hvobrt.ba").Result?.Id;
 
     public async Task SeedAsync()
     {
+        await _context.SaveChangesAsync();
         await SeedRolesAsync();
         await SeedKategorijeAsync();
         await SeedMjestaAsync();
@@ -78,51 +88,7 @@ public class DbSeeder
         await _context.SaveChangesAsync();
 
       
-        var haso = await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba");
-        if (haso is not null)
-        {
-            var esmirUser = await _userManager.FindByEmailAsync("esmir.b@amerika.ba");
-            var edinUser = await _userManager.FindByEmailAsync("edin.dz@amerika.ba");
-
-            var ponudeToAdd = new List<PonudaUsluge>();
-
-            if (esmirUser is not null)
-            {
-                var esmirOglasi = await _context.OglasiUsluga.Where(o => o.VlasnikOglasaID == esmirUser.Id).ToListAsync();
-                foreach (var og in esmirOglasi)
-                {
-                    ponudeToAdd.Add(new PonudaUsluge
-                    {
-                        IzvrsilacID = haso.Id,
-                        OglasUslugeID = og.OglasID,
-                        DatumSlanja = DateTime.UtcNow,
-                        StatusPonude = Status.NaCekanju
-                    });
-                }
-            }
-
-            if (edinUser is not null)
-            {
-                var edinOglasi = await _context.OglasiUsluga.Where(o => o.VlasnikOglasaID == edinUser.Id).ToListAsync();
-                foreach (var og in edinOglasi)
-                {
-                    ponudeToAdd.Add(new PonudaUsluge
-                    {
-                        IzvrsilacID = haso.Id,
-                        OglasUslugeID = og.OglasID,
-                        DatumSlanja = DateTime.UtcNow,
-                        StatusPonude = Status.NaCekanju
-                    });
-                }
-            }
-
-            if (ponudeToAdd.Any())
-            {
-                await _context.PonudeUsluge.AddRangeAsync(ponudeToAdd);
-                await _context.SaveChangesAsync();
-            }
-        }
-
+     
         var potkategorije = new List<Kategorija>
         {
             // Građevinski radovi
@@ -492,7 +458,7 @@ public class DbSeeder
             ime: "Hairudin", prezime: "Mustafić",
             opis: "Aidov babo.",
             password: "Mojbabo#1234",
-            kategorije: new[] { "Grill majstor", "Asfaltiranje" },
+            kategorije: new[] { "Grill majstor", "Fizičko osiguranje objekata" },
             mjesta: new[] { "Mostar" },
             minCijena: 15, ocjena: 4.9m, zavrsenih: 12);
 
@@ -724,7 +690,7 @@ public class DbSeeder
             ProsjecnaOcjena = ocjena,
             BrojZavrsenihPoslova = zavrsenih,
         };
-        majstor.Aktivan();
+        majstor.OsvjeziStatusAktivnosti();
         var res = await _userManager.CreateAsync(majstor, password);
         if (!res.Succeeded) return;
 
@@ -757,7 +723,7 @@ public class DbSeeder
             BrojZavrsenihPoslova = zavrsenih,
             AdminVerificirao = true,
         };
-        firma.Aktivan();
+        firma.OsvjeziStatusAktivnosti();
         var res = await _userManager.CreateAsync(firma, "Firma#1234");
         if (!res.Succeeded) return;
 
@@ -807,7 +773,7 @@ public class DbSeeder
             var existing = await _userManager.FindByEmailAsync(email);
             if (existing != null) { klijentIds[email] = existing.Id; continue; }
             var k = new Klijent { UserName = un, Email = email, EmailConfirmed = true, Ime = ime, Prezime = prez };
-            k.Aktivan();
+            k.OsvjeziStatusAktivnosti();
             var r = await _userManager.CreateAsync(k, "Klijent#1234");
             if (r.Succeeded)
             {
@@ -839,15 +805,6 @@ public class DbSeeder
         await _context.SaveChangesAsync();
 
         // ── IzvrsiociID lookup ────────────────────────────────────────────────
-        string? HasoId()   => _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba").Result?.Id;
-        string? RijadId()  => _userManager.FindByEmailAsync("rijad.kasapovic@popravka.ba").Result?.Id;
-        string? ErmedinId()=> _userManager.FindByEmailAsync("ermedin.demic@popravka.ba").Result?.Id;
-        string? MirzaId()  => _userManager.FindByEmailAsync("mirza.kovacevic@popravka.ba").Result?.Id;
-        string? FarukId()  => _userManager.FindByEmailAsync("faruk.hadzic@popravka.ba").Result?.Id;
-        string? SeadId()   => _userManager.FindByEmailAsync("sead.mujic@popravka.ba").Result?.Id;
-        string? SemaId()   => _userManager.FindByEmailAsync("info@semagradnja.ba").Result?.Id;
-        string? ZukanId()  => _userManager.FindByEmailAsync("info@zukanvolt.ba").Result?.Id;
-        string? HVId()     => _userManager.FindByEmailAsync("hvojvodic@hvobrt.ba").Result?.Id;
 
         string Klijent(string email) => klijentIds.TryGetValue(email, out var id) ? id : "";
 

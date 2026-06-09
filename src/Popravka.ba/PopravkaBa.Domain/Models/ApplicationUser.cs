@@ -49,7 +49,7 @@ namespace PopravkaBa.Domain.Models
 
         // Za firme mora dodatno provjeriti da li je Admin verificirao,
         // to se vrši overrideom ove funkcije
-        public virtual Status Aktivan() =>
+        public virtual Status   Aktivan() =>
           EmailConfirmed ? Status.Aktivan : Status.NaCekanju; 
     }
 }
