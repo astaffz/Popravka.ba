@@ -64,8 +64,8 @@ namespace PopravkaBa.Web.Controllers
                 Kategorije = await _kategorijaService.DajSveKategorije(),
 
             };
-            if (!string.IsNullOrEmpty(returnUrl))
-                TempData["ReturnUrl"] = returnUrl;
+            
+            ViewData["ReturnUrl"] = returnUrl;
             ViewData["Title"] = "Prijava – Popravka.ba";
            
             return View("Registracija",vm);
@@ -77,10 +77,14 @@ namespace PopravkaBa.Web.Controllers
         [HttpPost("/login")]
       public async Task<IActionResult> Login(RegistracijaViewModel vm, string? returnUrl = null)
 {
-  
-            if (!ModelState.IsValid)
-                return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
 
+            returnUrl ??= Request.Form["returnUrl"].FirstOrDefault();
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["ReturnUrl"] = returnUrl;
+                return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
+            }
             var login = vm.Login;
 
             var user = login.EmailUsername.Contains('@')
@@ -90,6 +94,7 @@ namespace PopravkaBa.Web.Controllers
             if (user is null)
             {
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
+                ViewData["ReturnUrl"] = returnUrl;
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
 
@@ -101,12 +106,13 @@ namespace PopravkaBa.Web.Controllers
             if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
+                ViewData["ReturnUrl"] = returnUrl;
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
 
-            var ret = TempData.Peek("ReturnUrl") as string;
-            if (!string.IsNullOrEmpty(ret) && Url.IsLocalUrl(ret))
-                return Redirect(ret);
+        
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
             return RedirectToAction("Index", "Home");
                 
         }
