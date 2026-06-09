@@ -48,7 +48,7 @@ namespace PopravkaBa.Web.Controllers
             _logger = logger;
         }
 
-        // TODO: Implementirati returnURL logiku
+
 
 
         [HttpGet("/login")]
@@ -64,8 +64,10 @@ namespace PopravkaBa.Web.Controllers
                 Kategorije = await _kategorijaService.DajSveKategorije(),
 
             };
+            if (!string.IsNullOrEmpty(returnUrl))
+                TempData["ReturnUrl"] = returnUrl;
             ViewData["Title"] = "Prijava – Popravka.ba";
-            ViewData["ReturnUrl"] = returnUrl;
+           
             return View("Registracija",vm);
         }
         [AllowAnonymous]
@@ -101,10 +103,10 @@ namespace PopravkaBa.Web.Controllers
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
-            
-              
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
+
+            var ret = TempData.Peek("ReturnUrl") as string;
+            if (!string.IsNullOrEmpty(ret) && Url.IsLocalUrl(ret))
+                return Redirect(ret);
             return RedirectToAction("Index", "Home");
                 
         }
