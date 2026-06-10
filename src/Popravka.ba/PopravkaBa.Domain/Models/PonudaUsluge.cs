@@ -18,9 +18,11 @@ namespace PopravkaBa.Domain.Models
         [ForeignKey("OglasUsluge")]
         public int OglasUslugeID { get; set; }
         public OglasUsluge OglasUsluge { get; set; }
-        public DateTime DatumSlanja { get; set; } = DateTime.Now;
+        public DateTime DatumSlanja { get; set; } = DateTime.UtcNow;
         public DateTime DatumPocetkaUsluge { get; set; }
         public DateTime? DatumOcekivanogZavrsetka { get; set; }
+
+        public DateTime? DatumIzvrsavanjaUsluge { get; set; }
         public Status StatusPonude { get; set; } = Status.NaCekanju;
 
     }

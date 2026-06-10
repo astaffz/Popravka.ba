@@ -27,9 +27,19 @@ public class DbSeeder
         _roleManager = roleManager;
         _appConfig = appConfig;
     }
+    string? HasoId() => _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba").Result?.Id;
+    string? RijadId() => _userManager.FindByEmailAsync("rijad.kasapovic@popravka.ba").Result?.Id;
+    string? ErmedinId() => _userManager.FindByEmailAsync("ermedin.demic@popravka.ba").Result?.Id;
+    string? MirzaId() => _userManager.FindByEmailAsync("mirza.kovacevic@popravka.ba").Result?.Id;
+    string? FarukId() => _userManager.FindByEmailAsync("faruk.hadzic@popravka.ba").Result?.Id;
+    string? SeadId() => _userManager.FindByEmailAsync("sead.mujic@popravka.ba").Result?.Id;
+    string? SemaId() => _userManager.FindByEmailAsync("info@semagradnja.ba").Result?.Id;
+    string? ZukanId() => _userManager.FindByEmailAsync("info@zukanvolt.ba").Result?.Id;
+    string? HVId() => _userManager.FindByEmailAsync("hvojvodic@hvobrt.ba").Result?.Id;
 
     public async Task SeedAsync()
     {
+        await _context.SaveChangesAsync();
         await SeedRolesAsync();
         await SeedKategorijeAsync();
         await SeedMjestaAsync();
@@ -78,51 +88,7 @@ public class DbSeeder
         await _context.SaveChangesAsync();
 
       
-        var haso = await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba");
-        if (haso is not null)
-        {
-            var esmirUser = await _userManager.FindByEmailAsync("esmir.b@amerika.ba");
-            var edinUser = await _userManager.FindByEmailAsync("edin.dz@amerika.ba");
-
-            var ponudeToAdd = new List<PonudaUsluge>();
-
-            if (esmirUser is not null)
-            {
-                var esmirOglasi = await _context.OglasiUsluga.Where(o => o.VlasnikOglasaID == esmirUser.Id).ToListAsync();
-                foreach (var og in esmirOglasi)
-                {
-                    ponudeToAdd.Add(new PonudaUsluge
-                    {
-                        IzvrsilacID = haso.Id,
-                        OglasUslugeID = og.OglasID,
-                        DatumSlanja = DateTime.UtcNow,
-                        StatusPonude = Status.NaCekanju
-                    });
-                }
-            }
-
-            if (edinUser is not null)
-            {
-                var edinOglasi = await _context.OglasiUsluga.Where(o => o.VlasnikOglasaID == edinUser.Id).ToListAsync();
-                foreach (var og in edinOglasi)
-                {
-                    ponudeToAdd.Add(new PonudaUsluge
-                    {
-                        IzvrsilacID = haso.Id,
-                        OglasUslugeID = og.OglasID,
-                        DatumSlanja = DateTime.UtcNow,
-                        StatusPonude = Status.NaCekanju
-                    });
-                }
-            }
-
-            if (ponudeToAdd.Any())
-            {
-                await _context.PonudeUsluge.AddRangeAsync(ponudeToAdd);
-                await _context.SaveChangesAsync();
-            }
-        }
-
+     
         var potkategorije = new List<Kategorija>
         {
             // Građevinski radovi
@@ -281,11 +247,7 @@ public class DbSeeder
     }
     private async Task SeedMjestaAsync()
     {
-        if (await _context.Mjesta.AnyAsync())
-        {
-            _context.Mjesta.RemoveRange(_context.Mjesta);
-            await _context.SaveChangesAsync();
-        }
+        if (await _context.Mjesta.AnyAsync()) return;
 
         var mjesta = new List<Mjesto>
     {
@@ -471,13 +433,11 @@ public class DbSeeder
     private async Task SeedUserAsync()
     {
         string adminEmail = _appConfig["SeedData:AdminEmail"];
-        string adminUser = _appConfig["SeedData:AdminUsername"];
+        string adminUser  = _appConfig["SeedData:AdminUsername"];
 
         if (await _userManager.FindByEmailAsync(adminEmail) == null)
         {
-
             var admin = new Administrator
-            // U bazi je migriran kao ApplicationUser umjesto Administrator, ne znam da li je greška, zbog rolemanagera
             {
                 UserName = adminUser,
                 Email = adminEmail,
@@ -485,210 +445,631 @@ public class DbSeeder
                 Ime = "Tarik",
                 Prezime = "Redžić"
             };
-
             var result = await _userManager.CreateAsync(admin, _appConfig["SeedData:AdminPassword"]);
             if (result.Succeeded)
                 await _userManager.AddToRoleAsync(admin, KorisnickeUloge.Administrator.ToString());
             else
                 throw new Exception($"Admin seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
-        
-        if (await _userManager.FindByEmailAsync("kontakt@hajro.ba") == null)
+
+        // ── Majstori ──────────────────────────────────────────────────────────
+        await SeedMajstoraAsync(
+            email: "kontakt@hajro.ba", username: "hajromustafic",
+            ime: "Hairudin", prezime: "Mustafić",
+            opis: "Aidov babo.",
+            password: "Mojbabo#1234",
+            kategorije: new[] { "Grill majstor", "Fizičko osiguranje objekata" },
+            mjesta: new[] { "Mostar" },
+            minCijena: 15, ocjena: 4.9m, zavrsenih: 12);
+
+        await SeedMajstoraAsync(
+            email: "kontakt@hasoinstalacije.ba", username: "hasoinstalacije",
+            ime: "Hasan", prezime: "Ibrahimović",
+            opis: "Iskusni vodoinstalater za hitne popravke i ugradnju vodovodne opreme.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Vodoinstalaterske usluge", "Servis bojlera" },
+            mjesta: new[] { "Sarajevo", "Ilidža", "Vogošća" },
+            minCijena: 25, ocjena: 3.8m, zavrsenih: 38);
+
+        await SeedMajstoraAsync(
+            email: "rijad.kasapovic@popravka.ba", username: "rijadkasapovic",
+            ime: "Rijad", prezime: "Kasapović",
+            opis: "Certificirani elektroinstalater s više od 10 godina iskustva u stambenoj i industrijskoj elektroinstalaciji.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Elektroinstalacije", "Alarmni i video-nadzor sistemi" },
+            mjesta: new[] { "Tuzla", "Lukavac" },
+            minCijena: 30, ocjena: 4.5m, zavrsenih: 52);
+
+        await SeedMajstoraAsync(
+            email: "ermedin.demic@popravka.ba", username: "ermedindemic",
+            ime: "Ermedin", prezime: "Demirović",
+            opis: "Fasader i gipsarski majstor sa specijalizacijom za suhu gradnju i toplinsku izolaciju.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Fasaderski radovi", "Gipsarski radovi", "Suha gradnja" },
+            mjesta: new[] { "Zenica", "Visoko", "Kakanj" },
+            minCijena: 20, ocjena: 4.2m, zavrsenih: 27);
+
+        await SeedMajstoraAsync(
+            email: "mirza.kovacevic@popravka.ba", username: "mirzakovacevic",
+            ime: "Mirza", prezime: "Kovačević",
+            opis: "Stolar i tapetar specijaliziran za izradu namještaja po mjeri i renoviranje starih komada.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Stolarski radovi", "Izrada namještaja po mjeri", "Tapetarski radovi" },
+            mjesta: new[] { "Mostar", "Konjic", "Jablanica" },
+            minCijena: 35, ocjena: 4.8m, zavrsenih: 61);
+
+        await SeedMajstoraAsync(
+            email: "faruk.hadzic@popravka.ba", username: "farukhadzic",
+            ime: "Faruk", prezime: "Hadžić",
+            opis: "Ovlašteni serviser klima uređaja i rashladne tehnike svih vodećih brendova.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Servis klima uređaja", "Klimatizacija" },
+            mjesta: new[] { "Ilidža", "Sarajevo", "Sarajevo - Centar" },
+            minCijena: 40, ocjena: 4.6m, zavrsenih: 44);
+
+        await SeedMajstoraAsync(
+            email: "sead.mujic@popravka.ba", username: "seadmujic",
+            ime: "Sead", prezime: "Mujić",
+            opis: "Keramičar i moleraj majstor, brz i uredan. Radim renovacije kupaonica i kuhinja.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Keramičke usluge", "Moleraj i farbanje" },
+            mjesta: new[] { "Sarajevo - Novi Grad" },
+            minCijena: 22, ocjena: 4.3m, zavrsenih: 33);
+
+        await SeedMajstoraAsync(
+    email: "nedim.suljic@popravka.ba", username: "nedimsuljic",
+    ime: "Nedim", prezime: "Suljić",
+    opis: "Majstor za parkete, laminat i vinil podove. Precizna ugradnja i sanacija oštećenja.",
+    password: "Majstor#1234",
+    kategorije: new[] { "Parketarski radovi", "Postavljanje laminata" },
+    mjesta: new[] { "Sarajevo", "Hadžići", "Ilidža" },
+    minCijena: 28, ocjena: 4.7m, zavrsenih: 41);
+
+        await SeedMajstoraAsync(
+            email: "adem.beslic@popravka.ba", username: "adembeslic",
+            ime: "Adem", prezime: "Bešlić",
+            opis: "Brze i kvalitetne usluge montaže kuhinja, ormara i kancelarijskog namještaja.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Montaža namještaja" },
+            mjesta: new[] { "Bihać", "Cazin", "Velika Kladuša" },
+            minCijena: 18, ocjena: 4.4m, zavrsenih: 29);
+
+        await SeedMajstoraAsync(
+            email: "kenan.mesic@popravka.ba", username: "kenanmesic",
+            ime: "Kenan", prezime: "Mešić",
+            opis: "Iskusan zavarivač za metalne konstrukcije, ograde i nadstrešnice.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Zavarivački radovi", "Metalne konstrukcije" },
+            mjesta: new[] { "Tuzla", "Srebrenik", "Gradačac" },
+            minCijena: 35, ocjena: 4.8m, zavrsenih: 48);
+
+        await SeedMajstoraAsync(
+            email: "jasmin.kurtic@popravka.ba", username: "jasminkurtic",
+            ime: "Jasmin", prezime: "Kurtić",
+            opis: "Servis i održavanje računarske opreme, mreža i kancelarijske elektronike.",
+            password: "Majstor#1234",
+            kategorije: new[] { "IT podrška", "Servis računara" },
+            mjesta: new[] { "Zenica", "Travnik" },
+            minCijena: 20, ocjena: 4.5m, zavrsenih: 67);
+
+        await SeedMajstoraAsync(
+            email: "samir.zukic@popravka.ba", username: "samirzukic",
+            ime: "Samir", prezime: "Zukić",
+            opis: "Majstor za krovove, oluke i limarske radove svih vrsta.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Krovopokrivački radovi", "Limarski radovi" },
+            mjesta: new[] { "Mostar", "Čapljina", "Stolac" },
+            minCijena: 40, ocjena: 4.6m, zavrsenih: 58);
+
+        await SeedMajstoraAsync(
+            email: "amir.hasic@popravka.ba", username: "amirhasic",
+            ime: "Amir", prezime: "Hasić",
+            opis: "Profesionalno čišćenje dimnjaka, peći i ventilacionih sistema.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Dimnjačarske usluge" },
+            mjesta: new[] { "Bugojno", "Donji Vakuf", "Gornji Vakuf" },
+            minCijena: 17, ocjena: 4.2m, zavrsenih: 24);
+
+        await SeedMajstoraAsync(
+            email: "eldar.saric@popravka.ba", username: "eldarsaric",
+            ime: "Eldar", prezime: "Šarić",
+            opis: "Specijalista za ugradnju i servis automatskih kapija i rampi.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Automatske kapije", "Elektroinstalacije" },
+            mjesta: new[] { "Sarajevo", "Visoko" },
+            minCijena: 45, ocjena: 4.9m, zavrsenih: 73);
+
+        await SeedMajstoraAsync(
+            email: "alen.pasic@popravka.ba", username: "alenpasic",
+            ime: "Alen", prezime: "Pašić",
+            opis: "Moler, dekorater i stručnjak za dekorativne tehnike zidova.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Moleraj i farbanje", "Dekorativni zidovi" },
+            mjesta: new[] { "Brčko", "Bijeljina" },
+            minCijena: 21, ocjena: 4.3m, zavrsenih: 37);
+
+        // ── Firme ─────────────────────────────────────────────────────────────
+        await SeedFirmuAsync(
+            email: "info@semagradnja.ba", username: "semagradnja",
+            nazivFirme: "ŠEMAGRADNJA d.o.o.",
+            opis: "Građevinska firma specijalizirana za kompletna renoviranja stanova i poslovnih prostora.",
+            kategorije: new[] { "Zidanje i betoniranje", "Keramičke usluge", "Moleraj i farbanje", "Gipsarski radovi" },
+            mjesta: new[] { "Zenica", "Visoko", "Kakanj", "Maglaj", "Zavidovići" },
+            minCijena: 50, ocjena: 4.4m, zavrsenih: 89);
+
+        await SeedFirmuAsync(
+            email: "info@zukanvolt.ba", username: "zukanvoltdoo",
+            nazivFirme: "ZukanVolt d.o.o.",
+            opis: "Elektroinstalaterska firma ovlaštena za ugradnju instalacija, solarnih panela i video-nadzora.",
+            kategorije: new[] { "Elektroinstalacije", "Solarni paneli", "Alarmni i video-nadzor sistemi" },
+            mjesta: new[] { "Sarajevo", "Ilidža", "Vogošća", "Sarajevo - Novo Sarajevo", "Ilijaš" },
+            minCijena: 45, ocjena: 4.6m, zavrsenih: 120);
+
+        await SeedFirmuAsync(
+            email: "hvojvodic@hvobrt.ba", username: "hvobrt",
+            nazivFirme: "HV Obrt",
+            opis: "Obrt za vodoinstalaterske usluge i grijanje. Brzi izlasci na teren 0-24.",
+            kategorije: new[] { "Vodoinstalaterske usluge", "Centralno grijanje", "Plinske instalacije" },
+            mjesta: new[] { "Tuzla", "Lukavac", "Živinice" },
+            minCijena: 30, ocjena: 4.1m, zavrsenih: 56);
+
+        await SeedFirmuAsync(
+    email: "info@gradex.ba", username: "gradexdoo",
+    nazivFirme: "Gradex d.o.o.",
+    opis: "Građevinska kompanija za niskogradnju, betoniranje i zemljane radove.",
+    kategorije: new[] { "Zidanje i betoniranje", "Asfaltiranje" },
+    mjesta: new[] { "Tuzla", "Lukavac", "Živinice", "Banovići" },
+    minCijena: 60, ocjena: 4.5m, zavrsenih: 143);
+
+        await SeedFirmuAsync(
+            email: "kontakt@ecosolar.ba", username: "ecosolar",
+            nazivFirme: "EcoSolar Solutions",
+            opis: "Projektovanje i montaža solarnih elektrana za domaćinstva i firme.",
+            kategorije: new[] { "Solarni paneli", "Elektroinstalacije" },
+            mjesta: new[] { "Sarajevo", "Mostar", "Zenica" },
+            minCijena: 80, ocjena: 4.8m, zavrsenih: 91);
+
+        await SeedFirmuAsync(
+            email: "info@drvodizajn.ba", username: "drvodizajn",
+            nazivFirme: "Drvo Dizajn d.o.o.",
+            opis: "Izrada kuhinja, plakara i namještaja po mjeri za stambene i poslovne objekte.",
+            kategorije: new[] { "Izrada namještaja po mjeri", "Stolarski radovi" },
+            mjesta: new[] { "Mostar", "Široki Brijeg", "Grude" },
+            minCijena: 55, ocjena: 4.7m, zavrsenih: 84);
+
+        await SeedFirmuAsync(
+            email: "office@cistdom.ba", username: "cistdom",
+            nazivFirme: "Čist Dom",
+            opis: "Profesionalno čišćenje stanova, poslovnih prostora i građevinskih objekata.",
+            kategorije: new[] { "Čišćenje objekata" },
+            mjesta: new[] { "Sarajevo", "Ilidža", "Vogošća", "Hadžići" },
+            minCijena: 25, ocjena: 4.3m, zavrsenih: 132);
+
+        await SeedFirmuAsync(
+            email: "info@metalprojekt.ba", username: "metalprojekt",
+            nazivFirme: "Metal Projekt d.o.o.",
+            opis: "Proizvodnja i montaža metalnih konstrukcija, hala i ograda.",
+            kategorije: new[] { "Metalne konstrukcije", "Zavarivački radovi" },
+            mjesta: new[] { "Zenica", "Kakanj", "Visoko" },
+            minCijena: 70, ocjena: 4.6m, zavrsenih: 77);
+
+        await SeedFirmuAsync(
+            email: "info@klimaservis.ba", username: "klimaservisplus",
+            nazivFirme: "Klima Servis Plus",
+            opis: "Montaža, održavanje i servis klima uređaja i ventilacionih sistema.",
+            kategorije: new[] { "Servis klima uređaja", "Klimatizacija" },
+            mjesta: new[] { "Banja Luka", "Prijedor", "Gradiška" },
+            minCijena: 35, ocjena: 4.4m, zavrsenih: 95);
+
+        await SeedFirmuAsync(
+            email: "kontakt@sigurnostpro.ba", username: "sigurnostpro",
+            nazivFirme: "Sigurnost Pro d.o.o.",
+            opis: "Ugradnja alarmnih sistema, video-nadzora i kontrole pristupa.",
+            kategorije: new[] { "Alarmni i video-nadzor sistemi", "Elektroinstalacije" },
+            mjesta: new[] { "Sarajevo", "Tuzla", "Mostar", "Zenica" },
+            minCijena: 65, ocjena: 4.9m, zavrsenih: 164);
+    }
+
+    private async Task SeedMajstoraAsync(
+        string email, string username, string ime, string prezime, string opis, string password,
+        string[] kategorije, string[] mjesta,
+        int minCijena = 0, decimal ocjena = 0m, int zavrsenih = 0)
+    {
+        if (await _userManager.FindByEmailAsync(email) != null) return;
+
+        var majstor = new Majstor
         {
-            var phonyMajstor = new Majstor
-            {
-                UserName = "hajromustafic",
-                Email = "kontakt@hajro.ba",
-                EmailConfirmed = true,
-                Ime = "Hairudin",
-                Prezime = "Mustafić",
-                Opis = "Aidov babo.",
-            };
-            var result = await _userManager.CreateAsync(phonyMajstor, "Mojbabo#1234");
+            UserName = username,
+            Email = email,
+            EmailConfirmed = true,
+            Ime = ime,
+            Prezime = prezime,
+            Opis = opis,
+            Adresa = "",
+            MinCijenaUsluge = minCijena,
+            ProsjecnaOcjena = ocjena,
+            BrojZavrsenihPoslova = zavrsenih,
+        };
+        majstor.OsvjeziStatusAktivnosti();
+        var res = await _userManager.CreateAsync(majstor, password);
+        if (!res.Succeeded) return;
 
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(phonyMajstor, KorisnickeUloge.Majstor.ToString());
+        await _userManager.AddToRoleAsync(majstor, KorisnickeUloge.Majstor.ToString());
 
-                var kategorije = await _context.Kategorije
-                    .Where(k => k.Naziv == "Grill majstor" || k.Naziv == "Asfaltiranje")
-                    .ToListAsync();
+        var kats = await _context.Kategorije.Where(k => kategorije.Contains(k.Naziv)).ToListAsync();
+        await _context.IzvrsilacKategorija.AddRangeAsync(kats.Select(k => new IzvrsilacKategorija
+            { IzvrsilacID = majstor.Id, KategorijaID = k.ID }));
 
-                var newIzvrsilacKategorijeRows = kategorije.Select(k => new IzvrsilacKategorija
-                {
-                    IzvrsilacID = phonyMajstor.Id,
-                    KategorijaID = k.ID
-                });
+        var mjestaNaDBu = await _context.Mjesta.Where(m => mjesta.Contains(m.Naziv)).ToListAsync();
+        await _context.KorisnikMjesto.AddRangeAsync(mjestaNaDBu.Select(m =>
+            new KorisnikMjesto { KorisnikID = majstor.Id, MjestoID = m.MjestoID }));
 
-                await _context.IzvrsilacKategorija.AddRangeAsync(newIzvrsilacKategorijeRows);
-                await _context.SaveChangesAsync();
-            }
-            else
-                throw new Exception($"Majstor seeding failed: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-        }
+        await _context.SaveChangesAsync();
+    }
 
-        // Seed a phony plumber (majstor) for testing
-        if (await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba") == null)
+    private async Task SeedFirmuAsync(
+        string email, string username, string nazivFirme, string opis, string[] kategorije,
+        string[] mjesta, int minCijena = 0, decimal ocjena = 0m, int zavrsenih = 0)
+    {
+        if (await _userManager.FindByEmailAsync(email) != null) return;
+
+        var firma = new Firma
         {
-            var plumber = new Majstor
-            {
-                UserName = "hasoinstalacije",
-                Email = "kontakt@hasoinstalacije.ba",
-                EmailConfirmed = true,
-                Ime = "Hasan",
-                Prezime = "Ibrahimović",
-                Opis = "Iskusni vodoinstalater za hitne popravke i ugradnju vodovodne opreme."
-            };
+            UserName = username, Email = email, EmailConfirmed = true,
+            NazivFirme = nazivFirme, Opis = opis,
+            Adresa = "",
+            MinCijenaUsluge = minCijena,
+            ProsjecnaOcjena = ocjena,
+            BrojZavrsenihPoslova = zavrsenih,
+            AdminVerificirao = true,
+        };
+        firma.OsvjeziStatusAktivnosti();
+        var res = await _userManager.CreateAsync(firma, "Firma#1234");
+        if (!res.Succeeded) return;
 
-            var res = await _userManager.CreateAsync(plumber, "Majstor#1234");
-            if (res.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(plumber, KorisnickeUloge.Majstor.ToString());
+        await _userManager.AddToRoleAsync(firma, KorisnickeUloge.Firma.ToString());
 
-                var vodoinstalaterske = await _context.Kategorije
-                    .Where(k => k.Naziv == "Vodoinstalaterske usluge")
-                    .ToListAsync();
+        var kats = await _context.Kategorije.Where(k => kategorije.Contains(k.Naziv)).ToListAsync();
+        await _context.IzvrsilacKategorija.AddRangeAsync(kats.Select(k => new IzvrsilacKategorija
+            { IzvrsilacID = firma.Id, KategorijaID = k.ID }));
 
-                var rows = vodoinstalaterske.Select(k => new IzvrsilacKategorija
-                {
-                    IzvrsilacID = plumber.Id,
-                    KategorijaID = k.ID
-                });
+        var mjestaNaDBu = await _context.Mjesta.Where(m => mjesta.Contains(m.Naziv)).ToListAsync();
+        await _context.KorisnikMjesto.AddRangeAsync(mjestaNaDBu.Select(m =>
+            new KorisnikMjesto { KorisnikID = firma.Id, MjestoID = m.MjestoID }));
 
-                await _context.IzvrsilacKategorija.AddRangeAsync(rows);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                throw new Exception($"Plumber seeding failed: {string.Join(", ", res.Errors.Select(e => e.Description))}");
-            }
-        }
-       
+        await _context.SaveChangesAsync();
     }
 
     private async Task SeedOglasAsync()
     {
-        
-        if (await _context.OglasiUsluga.AnyAsync() || await _context.OglasiMajstora.AnyAsync() || await _context.OglasiRadnogMjesta.AnyAsync())
+        if (await _context.OglasiUsluga.AnyAsync() ||
+            await _context.OglasiMajstora.AnyAsync() ||
+            await _context.OglasiRadnogMjesta.AnyAsync())
             return;
 
-        var mjesto = await _context.Mjesta.SingleOrDefaultAsync(m => m.Naziv == "Sarajevo");
-        if (mjesto is null) return;
+        // ── Mjesta lookup ─────────────────────────────────────────────────────
+        var mjesta = await _context.Mjesta.ToListAsync();
+        Mjesto M(string naziv) => mjesta.First(m => m.Naziv == naziv);
 
-        
-        var existingMajstor = await _userManager.FindByEmailAsync("kontakt@hasoinstalacije.ba");
+        // ── Kategorije lookup ─────────────────────────────────────────────────
+        var svekategorije = await _context.Kategorije.ToListAsync();
+        int KatId(string naziv) => svekategorije.First(k => k.Naziv == naziv).ID;
 
-        
-        var clients = new[]
+        // ── Seed klijente ─────────────────────────────────────────────────────
+        var klijentPodaci = new[]
         {
-            new { Email = "esmir.b@amerika.ba", UserName = "esmirb", Ime = "Esmir", Prezime = "Barjaktarević" , Naziv = "Montaža novog bojlera", Opis = "Potrebna montaža novog bojlera od 100L. Postoji priprema. Hitno za sutra.", Ponude = 1 },
-            new { Email = "kerim.a@amerika.ba", UserName = "kerima", Ime = "Kerim", Prezime = "Alajbegović", Naziv = "Renoviranje kuhinje - stolarski radovi", Opis = "Potrebna je izrada kuhinjskih elemenata po mjeri. Dimenzije prostorije su 3x4m.", Ponude = 0 },
-            new { Email = "edin.dz@amerika.ba", UserName = "edindz", Ime = "Edin", Prezime = "Džeko", Naziv = "Popravka curenja vode u kupatilu", Opis = "Potrebno je zamijeniti spojni ventil i provjeriti cijelu instalaciju ispod sudopere. Preferiram majstora koji može izaći u roku od 24 sata.", Ponude = 1 }
+            (Email:"esmir.b@amerika.ba",   UN:"esmirb",    Ime:"Esmir",   Prez:"Barjaktarević"),
+            (Email:"kerim.a@amerika.ba",   UN:"kerima",    Ime:"Kerim",   Prez:"Alajbegović"),
+            (Email:"edin.dz@amerika.ba",   UN:"edindz",    Ime:"Edin",    Prez:"Džeko"),
+            (Email:"amra.softic@gmail.com",UN:"amrasoftic",Ime:"Amra",    Prez:"Softić"),
+            (Email:"tarik.mehmic@gmail.com",UN:"tarikmehmic",Ime:"Tarik", Prez:"Mehmić"),
+            (Email:"selma.begovic@email.ba",UN:"selmabegovic",Ime:"Selma",Prez:"Begović"),
+            (Email:"nermin.alih@email.ba", UN:"nerminalih",Ime:"Nermin",  Prez:"Alihodžić"),
         };
 
-        var createdClientIds = new List<string>();
-        foreach (var c in clients)
+        var klijentIds = new Dictionary<string, string>();
+        foreach (var (email, un, ime, prez) in klijentPodaci)
         {
-            var user = await _userManager.FindByEmailAsync(c.Email);
-            if (user == null)
+            var existing = await _userManager.FindByEmailAsync(email);
+            if (existing != null) { klijentIds[email] = existing.Id; continue; }
+            var k = new Klijent { UserName = un, Email = email, EmailConfirmed = true, Ime = ime, Prezime = prez };
+            k.OsvjeziStatusAktivnosti();
+            var r = await _userManager.CreateAsync(k, "Klijent#1234");
+            if (r.Succeeded)
             {
-                var klijent = new Klijent
-                {
-                    UserName = c.UserName,
-                    Email = c.Email,
-                    EmailConfirmed = true,
-                    Ime = c.Ime,
-                    Prezime = c.Prezime,
-                };
-
-                var result = await _userManager.CreateAsync(klijent, "Klijent#1234");
-                if (!result.Succeeded)
-                {
-                 
-                    continue;
-                }
-                await _userManager.AddToRoleAsync(klijent, KorisnickeUloge.Klijent.ToString());
-                createdClientIds.Add(klijent.Id);
-            }
-            else
-            {
-                createdClientIds.Add(user.Id);
+                await _userManager.AddToRoleAsync(k, KorisnickeUloge.Klijent.ToString());
+                klijentIds[email] = k.Id;
             }
         }
 
-    
-        var majstorId = existingMajstor?.Id;
-
-        for (int i = 0; i < clients.Length && i < createdClientIds.Count; i++)
+        // Lokacija klijenata
+        var klijentMjesta = new[]
         {
-            var c = clients[i];
-            var oglas = new OglasUsluge
-            {
-                Naslov = c.Naziv,
-                Opis = c.Opis,
-                MjestoID = mjesto.MjestoID,
-                MinBudzet = 0,
-                MaxBudzet = 0,
-                DatumObjave = DateTime.UtcNow,
-                VlasnikOglasaID = createdClientIds[i]
-            };
-
-            await _context.OglasiUsluga.AddAsync(oglas);
+            ("esmir.b@amerika.ba",    "Sarajevo"),
+            ("kerim.a@amerika.ba",    "Sarajevo - Centar"),
+            ("edin.dz@amerika.ba",    "Sarajevo"),
+            ("amra.softic@gmail.com", "Tuzla"),
+            ("tarik.mehmic@gmail.com","Zenica"),
+            ("selma.begovic@email.ba","Mostar"),
+            ("nermin.alih@email.ba",  "Bihać"),
+        };
+        foreach (var (email, mjNaziv) in klijentMjesta)
+        {
+            if (!klijentIds.TryGetValue(email, out var kid)) continue;
+            var mj = mjesta.FirstOrDefault(m => m.Naziv == mjNaziv);
+            if (mj == null) continue;
+            var vecPostoji = await _context.KorisnikMjesto.AnyAsync(km => km.KorisnikID == kid && km.MjestoID == mj.MjestoID);
+            if (!vecPostoji)
+                await _context.KorisnikMjesto.AddAsync(new KorisnikMjesto { KorisnikID = kid, MjestoID = mj.MjestoID });
         }
-
         await _context.SaveChangesAsync();
 
-        // After ads are saved, create explicit PonudaUsluge rows so FKs are correct
-        if (majstorId is not null)
+        // ── IzvrsiociID lookup ────────────────────────────────────────────────
+
+        string Klijent(string email) => klijentIds.TryGetValue(email, out var id) ? id : "";
+
+        // ── OglasiUsluga (oglasi klijenata za popravke) ───────────────────────
+        var oglasiUsluga = new List<OglasUsluge>
         {
-            var hasoId = majstorId;
-            var ponudeToAdd = new List<PonudaUsluge>();
+            new() {
+                Naslov = "Montaža novog bojlera 100L",
+                Opis = "Potrebna montaža novog bojlera od 100L. Postoji priprema. Hitno za sutra.",
+                MjestoID = M("Sarajevo").MjestoID, MinBudzet = 80, MaxBudzet = 150,
+                DatumObjave = DateTime.UtcNow.AddDays(-3), VlasnikOglasaID = Klijent("esmir.b@amerika.ba"),
+            },
+            new() {
+                Naslov = "Renoviranje kuhinje — stolarski radovi",
+                Opis = "Potrebna je izrada kuhinjskih elemenata po mjeri. Dimenzije prostorije 3×4 m. Materijal dobavljam sam.",
+                MjestoID = M("Sarajevo - Centar").MjestoID, MinBudzet = 600, MaxBudzet = 1200,
+                DatumObjave = DateTime.UtcNow.AddDays(-7), VlasnikOglasaID = Klijent("kerim.a@amerika.ba"),
+            },
+            new() {
+                Naslov = "Popravka curenja vode u kupatilu",
+                Opis = "Potrebno zamijeniti spojni ventil i provjeriti instalaciju ispod sudopere. Preferiram majstora koji može u roku od 24h.",
+                MjestoID = M("Sarajevo").MjestoID, MinBudzet = 50, MaxBudzet = 120,
+                DatumObjave = DateTime.UtcNow.AddDays(-1), VlasnikOglasaID = Klijent("edin.dz@amerika.ba"),
+            },
+            new() {
+                Naslov = "Ugradnja klima uređaja — 2 jedinice",
+                Opis = "Potrebna ugradnja dva klima uređaja u spavaćoj sobi i dnevnom boravku. Stan je na 3. spratu.",
+                MjestoID = M("Tuzla").MjestoID, MinBudzet = 300, MaxBudzet = 500,
+                DatumObjave = DateTime.UtcNow.AddDays(-5), VlasnikOglasaID = Klijent("amra.softic@gmail.com"),
+            },
+            new() {
+                Naslov = "Krečenje stana — 3 sobe",
+                Opis = "Potrebno okrečiti 3 sobe, hodnik i kupaonicu. Ukupno oko 80m². Preferiramo bijelu boju.",
+                MjestoID = M("Zenica").MjestoID, MinBudzet = 200, MaxBudzet = 400,
+                DatumObjave = DateTime.UtcNow.AddDays(-2), VlasnikOglasaID = Klijent("tarik.mehmic@gmail.com"),
+            },
+            new() {
+                Naslov = "Postavljanje keramičkih pločica u kupaoni",
+                Opis = "Kupaonice 5m², potrebno ukloniti stare pločice i postaviti nove. Pločice su već kupljene.",
+                MjestoID = M("Mostar").MjestoID, MinBudzet = 150, MaxBudzet = 350,
+                DatumObjave = DateTime.UtcNow.AddDays(-4), VlasnikOglasaID = Klijent("selma.begovic@email.ba"),
+            },
+            new() {
+                Naslov = "Elektroinstalacije — adaptacija stana",
+                Opis = "Kompletna nova elektroinstalacija stana od 60m². Treba uključiti razvodni ormar i 12 utičnica.",
+                MjestoID = M("Bihać").MjestoID, MinBudzet = 800, MaxBudzet = 1500,
+                DatumObjave = DateTime.UtcNow.AddDays(-10), VlasnikOglasaID = Klijent("nermin.alih@email.ba"),
+            },
+            new() {
+                Naslov = "Servis bojlera — gubi tlak",
+                Opis = "Bojler od 80L gubi tlak. Potreban pregled i zamjena manometra ili ekspanzione posude.",
+                MjestoID = M("Sarajevo - Novi Grad").MjestoID, MinBudzet = 60, MaxBudzet = 180,
+                DatumObjave = DateTime.UtcNow.AddDays(-6), VlasnikOglasaID = Klijent("esmir.b@amerika.ba"),
+            },
+            new() {
+                Naslov = "Gipsani zidovi — izravnanje prije farbanja",
+                Opis = "Potrebno izravnati gipsane zidove u dnevnom boravku (30m²) i pripremiti površinu za farbanje.",
+                MjestoID = M("Zenica").MjestoID, MinBudzet = 250, MaxBudzet = 500,
+                DatumObjave = DateTime.UtcNow.AddDays(-8), VlasnikOglasaID = Klijent("tarik.mehmic@gmail.com"),
+            },
+            new() {
+                Naslov = "Izrada kreveta po mjeri — hrast masiv",
+                Opis = "Tražim stolara za izradu bračnog kreveta 160×200 cm od hrastovog masiva s ladicom ispod.",
+                MjestoID = M("Mostar").MjestoID, MinBudzet = 700, MaxBudzet = 1400,
+                DatumObjave = DateTime.UtcNow.AddDays(-14), VlasnikOglasaID = Klijent("selma.begovic@email.ba"),
+            },
+        };
 
-            // Esmir
-            var esmirUser = await _userManager.FindByEmailAsync("esmir.b@amerika.ba");
-            if (esmirUser is not null)
+        await _context.OglasiUsluga.AddRangeAsync(oglasiUsluga);
+        await _context.SaveChangesAsync();
+
+        // Kategorije za oglase usluga
+        var ogKat = new List<OglasKategorija>
+        {
+            new() { OglasID = oglasiUsluga[0].OglasID, KategorijaID = KatId("Servis bojlera") },
+            new() { OglasID = oglasiUsluga[0].OglasID, KategorijaID = KatId("Vodoinstalaterske usluge") },
+            new() { OglasID = oglasiUsluga[1].OglasID, KategorijaID = KatId("Stolarski radovi") },
+            new() { OglasID = oglasiUsluga[1].OglasID, KategorijaID = KatId("Ugradnja kuhinja i ormara") },
+            new() { OglasID = oglasiUsluga[2].OglasID, KategorijaID = KatId("Vodoinstalaterske usluge") },
+            new() { OglasID = oglasiUsluga[3].OglasID, KategorijaID = KatId("Servis klima uređaja") },
+            new() { OglasID = oglasiUsluga[3].OglasID, KategorijaID = KatId("Klimatizacija") },
+            new() { OglasID = oglasiUsluga[4].OglasID, KategorijaID = KatId("Moleraj i farbanje") },
+            new() { OglasID = oglasiUsluga[5].OglasID, KategorijaID = KatId("Keramičke usluge") },
+            new() { OglasID = oglasiUsluga[6].OglasID, KategorijaID = KatId("Elektroinstalacije") },
+            new() { OglasID = oglasiUsluga[7].OglasID, KategorijaID = KatId("Servis bojlera") },
+            new() { OglasID = oglasiUsluga[8].OglasID, KategorijaID = KatId("Gipsarski radovi") },
+            new() { OglasID = oglasiUsluga[9].OglasID, KategorijaID = KatId("Stolarski radovi") },
+            new() { OglasID = oglasiUsluga[9].OglasID, KategorijaID = KatId("Izrada namještaja po mjeri") },
+        };
+        await _context.OglasKategorije.AddRangeAsync(ogKat);
+        await _context.SaveChangesAsync();
+
+        // Ponude na oglas usluga (Haso na 0,2,7 — Rijad na 6)
+        var ponudeUsluge = new List<PonudaUsluge>();
+        var hasoId = HasoId(); var rijadId = RijadId();
+        if (hasoId != null)
+        {
+            ponudeUsluge.Add(new() { IzvrsilacID = hasoId, OglasUslugeID = oglasiUsluga[0].OglasID, DatumSlanja = DateTime.UtcNow, StatusPonude = Status.NaCekanju });
+            ponudeUsluge.Add(new() { IzvrsilacID = hasoId, OglasUslugeID = oglasiUsluga[2].OglasID, DatumSlanja = DateTime.UtcNow, StatusPonude = Status.NaCekanju });
+            ponudeUsluge.Add(new() { IzvrsilacID = hasoId, OglasUslugeID = oglasiUsluga[7].OglasID, DatumSlanja = DateTime.UtcNow, StatusPonude = Status.NaCekanju });
+        }
+        if (rijadId != null)
+            ponudeUsluge.Add(new() { IzvrsilacID = rijadId, OglasUslugeID = oglasiUsluga[6].OglasID, DatumSlanja = DateTime.UtcNow, StatusPonude = Status.NaCekanju });
+
+        if (ponudeUsluge.Any())
+        {
+            await _context.PonudeUsluge.AddRangeAsync(ponudeUsluge);
+            await _context.SaveChangesAsync();
+        }
+
+        // ── OglasiMajstora (majstori nude usluge) ────────────────────────────
+        var oglasiMajstora = new List<OglasMajstora>();
+        if (hasoId != null)
+            oglasiMajstora.Add(new() {
+                Naslov = "Vodoinstalater — hitni izlasci 0-24",
+                Opis = "Nudim hitne vodoinstalaterske popravke u Sarajevu i okolici. Dostupan 0-24, uključujući vikende i praznike. Zamjena ventila, popravka curenja, ugradnja bojlera.",
+                MjestoID = M("Sarajevo").MjestoID, MinCijena = 25, TipIsplate = TipIsplate.PoSatu,
+                DatumObjave = DateTime.UtcNow.AddDays(-20), VlasnikOglasaID = hasoId,
+            });
+        if (rijadId != null)
+            oglasiMajstora.Add(new() {
+                Naslov = "Elektroinstalacije — stambene i poslovne",
+                Opis = "Izvodim kompletne elektroinstalacije za stanove, kuće i poslovne prostore. Ugradnja razvodnih ormara, utičnica, prekidača i rasvjete po evropskim standardima.",
+                MjestoID = M("Tuzla").MjestoID, MinCijena = 30, TipIsplate = TipIsplate.PoSatu,
+                DatumObjave = DateTime.UtcNow.AddDays(-15), VlasnikOglasaID = rijadId,
+            });
+        if (ErmedinId() is string ermedinId)
+            oglasiMajstora.Add(new() {
+                Naslov = "Fasaderski radovi i suha gradnja",
+                Opis = "Specijaliziran za toplinsku fasadu (stiropor i mineralna vuna), gipsane ploče, spuštene plafone i Rigips pregrađivanje prostora.",
+                MjestoID = M("Zenica").MjestoID, MinCijena = 20, TipIsplate = TipIsplate.PoSatu,
+                DatumObjave = DateTime.UtcNow.AddDays(-12), VlasnikOglasaID = ermedinId,
+            });
+        if (MirzaId() is string mirzaId)
+            oglasiMajstora.Add(new() {
+                Naslov = "Stolarski radovi — namještaj po mjeri",
+                Opis = "Izrađujem kuhinje, garderobe, krevete i police po mjeri od masivnog drveta i iverice. Dolazim s mjerama, nudim 3D vizualizaciju.",
+                MjestoID = M("Mostar").MjestoID, MinCijena = 35, TipIsplate = TipIsplate.Jednokratno,
+                DatumObjave = DateTime.UtcNow.AddDays(-9), VlasnikOglasaID = mirzaId,
+            });
+        if (FarukId() is string farukId)
+            oglasiMajstora.Add(new() {
+                Naslov = "Servis klima uređaja — sve marke",
+                Opis = "Ovlašteni serviser za Daikin, Mitsubishi, Gree, Samsung i ostale marke. Punjenje gasa, čišćenje, provjera instalacije i ugradnja novih jedinica.",
+                MjestoID = M("Ilidža").MjestoID, MinCijena = 40, TipIsplate = TipIsplate.Jednokratno,
+                DatumObjave = DateTime.UtcNow.AddDays(-6), VlasnikOglasaID = farukId,
+            });
+        if (SeadId() is string seadId)
+            oglasiMajstora.Add(new() {
+                Naslov = "Keramičar i moleraj — brz i uredan",
+                Opis = "Postavljam keramiku, gres pločice i mozaik. Nudim i moleraj sa kompletnom pripremom površine (špakiranje, gletovanje). Ref. slike na zahtjev.",
+                MjestoID = M("Sarajevo - Novi Grad").MjestoID, MinCijena = 22, TipIsplate = TipIsplate.PoSatu,
+                DatumObjave = DateTime.UtcNow.AddDays(-4), VlasnikOglasaID = seadId,
+            });
+
+        if (oglasiMajstora.Any())
+        {
+            await _context.OglasiMajstora.AddRangeAsync(oglasiMajstora);
+            await _context.SaveChangesAsync();
+        }
+
+        // ── OglasiRadnogMjesta (firme traže radnike) ─────────────────────────
+        var semaId = SemaId(); var zukanId = ZukanId(); var hvId = HVId();
+        var oglasiRM = new List<OglasRadnoMjesto>();
+
+        if (semaId != null)
+        {
+            oglasiRM.Add(new() {
+                Naslov = "Tražimo iskusnog keramičara / moleraja",
+                Opis = "Firma ŠEMAGRADNJA d.o.o. traži keramičara/moleraja za rad na projektima renovacije stanova i poslovnih prostora u Zenici i okolici. Tražimo pouzdanu osobu s iskustvom min. 3 godine.",
+                MjestoID = M("Zenica").MjestoID, VrstaZaposlenja = VrstaZaposlenja.PunoRadnoVrijeme,
+                MinPrihod = 1200, MaxPrihod = 1600, TipIsplate = TipIsplate.Mjesecno,
+                BrojIzvrsilaca = 2, MinIskustvo = 3,
+                DatumObjave = DateTime.UtcNow.AddDays(-5), VlasnikOglasaID = semaId,
+            });
+            oglasiRM.Add(new() {
+                Naslov = "Fasader — projektni angažman",
+                Opis = "Potreban fasader za projekt toplinske izolacije stambenog objekta (6 spratova) u Zenici. Angažman na tri mjeseca, plaća po ugovoru.",
+                MjestoID = M("Zenica").MjestoID, VrstaZaposlenja = VrstaZaposlenja.UgovorDjelo,
+                MinPrihod = 1500, MaxPrihod = 2200, TipIsplate = TipIsplate.Mjesecno,
+                BrojIzvrsilaca = 3, MinIskustvo = 2,
+                DatumObjave = DateTime.UtcNow.AddDays(-8), VlasnikOglasaID = semaId,
+            });
+        }
+        if (zukanId != null)
+        {
+            oglasiRM.Add(new() {
+                Naslov = "Elektroinstalater — puno radno vrijeme",
+                Opis = "ZukanVolt d.o.o. traži elektroinstalatera za stalni radni odnos. Rad na stambenim i komercijalnim projektima u Kantonu Sarajevo. Poznavanje dokumentacije prednost.",
+                MjestoID = M("Sarajevo").MjestoID, VrstaZaposlenja = VrstaZaposlenja.PunoRadnoVrijeme,
+                MinPrihod = 1400, MaxPrihod = 1900, TipIsplate = TipIsplate.Mjesecno,
+                BrojIzvrsilaca = 1, MinIskustvo = 2,
+                DatumObjave = DateTime.UtcNow.AddDays(-3), VlasnikOglasaID = zukanId,
+            });
+            oglasiRM.Add(new() {
+                Naslov = "Solarni tehničar — praksa / junior",
+                Opis = "Tražimo osobu za uvođenje u posao instalacije i održavanja solarnih panela. Nije potrebno iskustvo, obezbjeđujemo obuku. Odlične prilike za napredak.",
+                MjestoID = M("Sarajevo").MjestoID, VrstaZaposlenja = VrstaZaposlenja.Praksa,
+                MinPrihod = 700, MaxPrihod = 900, TipIsplate = TipIsplate.Mjesecno,
+                BrojIzvrsilaca = 2, MinIskustvo = 0,
+                DatumObjave = DateTime.UtcNow.AddDays(-11), VlasnikOglasaID = zukanId,
+            });
+        }
+        if (hvId != null)
+        {
+            oglasiRM.Add(new() {
+                Naslov = "Vodoinstalater — honorarni angažman",
+                Opis = "HV Obrt traži vodoinstalatera za honorarne izlaske na terenu u Tuzli. Prikladno za majstore koji već imaju posao ali žele dodatni prihod vikendom.",
+                MjestoID = M("Tuzla").MjestoID, VrstaZaposlenja = VrstaZaposlenja.PolaRadnogVrijema,
+                MinPrihod = 600, MaxPrihod = 1000, TipIsplate = TipIsplate.Sedmicno,
+                BrojIzvrsilaca = 1, MinIskustvo = 1,
+                DatumObjave = DateTime.UtcNow.AddDays(-6), VlasnikOglasaID = hvId,
+            });
+        }
+
+        if (oglasiRM.Any())
+        {
+            await _context.OglasiRadnogMjesta.AddRangeAsync(oglasiRM);
+            await _context.SaveChangesAsync();
+        }
+
+        // ── Recenzije ─────────────────────────────────────────────────────────
+        var recenzije = new List<Recenzija>();
+        var k1 = Klijent("esmir.b@amerika.ba");
+        var k2 = Klijent("kerim.a@amerika.ba");
+        var k3 = Klijent("edin.dz@amerika.ba");
+        var k4 = Klijent("amra.softic@gmail.com");
+        var k5 = Klijent("selma.begovic@email.ba");
+
+        if (hasoId != null && !string.IsNullOrEmpty(k1))
+            recenzije.Add(new() { KlijentID = k1, IzvrsilacID = hasoId, Ocjena = 5, Komentar = "Odličan majstor, brz i uredan. Preporučujem svima!", DatumRecenzije = DateTime.UtcNow.AddDays(-2) });
+        if (hasoId != null && !string.IsNullOrEmpty(k3))
+            recenzije.Add(new() { KlijentID = k3, IzvrsilacID = hasoId, Ocjena = 4, Komentar = "Dobar posao, malo je zakasni ali posao završen kvalitetno.", DatumRecenzije = DateTime.UtcNow.AddDays(-5) });
+        if (rijadId != null && !string.IsNullOrEmpty(k1))
+            recenzije.Add(new() { KlijentID = k1, IzvrsilacID = rijadId, Ocjena = 5, Komentar = "Profesionalac! Instalacija urađena besprijekorno i na vrijeme.", DatumRecenzije = DateTime.UtcNow.AddDays(-7) });
+        if (rijadId != null && !string.IsNullOrEmpty(k4))
+            recenzije.Add(new() { KlijentID = k4, IzvrsilacID = rijadId, Ocjena = 4, Komentar = "Zadovoljna uslugom, cijena je pravedna za kvalitet rada.", DatumRecenzije = DateTime.UtcNow.AddDays(-10) });
+        if (MirzaId() is string mId && !string.IsNullOrEmpty(k5))
+            recenzije.Add(new() { KlijentID = k5, IzvrsilacID = mId, Ocjena = 5, Komentar = "Krevet je prekrasan, tačno onako kako sam zamišljala. Hvala Mirza!", DatumRecenzije = DateTime.UtcNow.AddDays(-3) });
+        if (MirzaId() is string mId2 && !string.IsNullOrEmpty(k2))
+            recenzije.Add(new() { KlijentID = k2, IzvrsilacID = mId2, Ocjena = 5, Komentar = "Izradio nam kuhinjske elemente — sve mjereno na milimetar. Sjajno!", DatumRecenzije = DateTime.UtcNow.AddDays(-8) });
+        if (ErmedinId() is string eId && !string.IsNullOrEmpty(k2))
+            recenzije.Add(new() { KlijentID = k2, IzvrsilacID = eId, Ocjena = 4, Komentar = "Dobra fasada, radove završio u roku. Malo više prašine nego što sam očekivao.", DatumRecenzije = DateTime.UtcNow.AddDays(-12) });
+        if (FarukId() is string fId && !string.IsNullOrEmpty(k4))
+            recenzije.Add(new() { KlijentID = k4, IzvrsilacID = fId, Ocjena = 5, Komentar = "Super serviser, objasnio sve detalje i dao savjete za održavanje. Hvala!", DatumRecenzije = DateTime.UtcNow.AddDays(-4) });
+        if (SeadId() is string sId && !string.IsNullOrEmpty(k5))
+            recenzije.Add(new() { KlijentID = k5, IzvrsilacID = sId, Ocjena = 4, Komentar = "Solidno postavljena keramika, malo dužinja od dogovorenog roka.", DatumRecenzije = DateTime.UtcNow.AddDays(-6) });
+        if (SemaId() is string semaRec && !string.IsNullOrEmpty(k3))
+            recenzije.Add(new() { KlijentID = k3, IzvrsilacID = semaRec, Ocjena = 5, Komentar = "Firma odradila kompletno renoviranje — rezultat je fantastičan!", DatumRecenzije = DateTime.UtcNow.AddDays(-15) });
+
+        if (recenzije.Any())
+        {
+            await _context.Recenzije.AddRangeAsync(recenzije);
+            await _context.SaveChangesAsync();
+
+            // Ažuriraj BrojRecenzija na izvršiocima
+            var izvrsiociIds = recenzije.Select(r => r.IzvrsilacID).Distinct().ToList();
+            foreach (var iid in izvrsiociIds)
             {
-                var esmirOglasi = await _context.OglasiUsluga
-                    .Where(o => o.VlasnikOglasaID == esmirUser.Id)
-                    .ToListAsync();
-
-                foreach (var og in esmirOglasi)
-                {
-                    ponudeToAdd.Add(new PonudaUsluge
-                    {
-                        IzvrsilacID = hasoId,
-                        OglasUslugeID = og.OglasID,
-                        DatumSlanja = DateTime.UtcNow,
-                        StatusPonude = Status.NaCekanju
-                    });
-                }
+                var izv = await _context.Users.OfType<IzvrsilacUsluge>().FirstOrDefaultAsync(u => u.Id == iid);
+                if (izv == null) continue;
+                izv.BrojRecenzija = recenzije.Count(r => r.IzvrsilacID == iid);
+                izv.ProsjecnaOcjena = (decimal)recenzije.Where(r => r.IzvrsilacID == iid).Average(r => r.Ocjena);
             }
-
-            // Edin
-            var edinUser = await _userManager.FindByEmailAsync("edin.dz@amerika.ba");
-            if (edinUser is not null)
-            {
-                var edinOglasi = await _context.OglasiUsluga
-                    .Where(o => o.VlasnikOglasaID == edinUser.Id)
-                    .ToListAsync();
-
-                foreach (var og in edinOglasi)
-                {
-                    ponudeToAdd.Add(new PonudaUsluge
-                    {
-                        IzvrsilacID = hasoId,
-                        OglasUslugeID = og.OglasID,
-                        DatumSlanja = DateTime.UtcNow,
-                        StatusPonude = Status.NaCekanju
-                    });
-                }
-            }
-
-            if (ponudeToAdd.Any())
-            {
-                await _context.PonudeUsluge.AddRangeAsync(ponudeToAdd);
-                await _context.SaveChangesAsync();
-            }
+            await _context.SaveChangesAsync();
         }
     }
 }

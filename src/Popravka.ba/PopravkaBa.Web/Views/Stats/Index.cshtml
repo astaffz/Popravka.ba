@@ -1,0 +1,460 @@
+﻿@model PopravkaBa.Web.Models.ViewModels.StatistikaViewModel
+@using PopravkaBa.Domain.Enums
+@using PopravkaBa.Domain.Shared
+@using System.Globalization
+@{
+
+    ViewData["Title"] = "Statistika - Popravka.ba";
+    var r = Model.Rezultat;
+    var bs = CultureInfo.GetCultureInfo("bs-Latn-BA");
+    string mjesecNaziv = NameFormatter.NormalizeName(bs.DateTimeFormat.GetMonthName(r.Filter.Mjesec ?? DateTime.UtcNow.Month));
+
+    string aktivnaKolona = r.Filter.AktivnaKolona switch
+    {
+        KoloneStatistike.Majstor => "majstor",
+        KoloneStatistike.Kategorija => "kategorija",
+        KoloneStatistike.Lokacija => "lokacija",
+        KoloneStatistike.Poslovi => "poslovi",
+        _ => "ocjena"
+    };
+    string aktivniSmjer = r.Filter.Smjer == Sortiranje.Ascending ? "asc" : "desc";
+    int? katF = r.Filter.KategorijaId;
+    int? mjF = r.Filter.MjestoId;
+
+    // Graditelj URL-a koji čuva cijelo stanje (filteri + sort).
+    Func<string, string, int?, int?, string> url = (sort, smjer, kat, mj) =>
+    {
+        var p = new List<string>();
+        if (kat.HasValue) p.Add("kategorijaId=" + kat.Value);
+        if (mj.HasValue) p.Add("mjestoId=" + mj.Value);
+        if (!string.IsNullOrEmpty(sort)) p.Add("sort=" + sort);
+        if (!string.IsNullOrEmpty(smjer)) p.Add("smjer=" + smjer);
+        return "/stats" + (p.Count > 0 ? "?" + string.Join("&", p) : "");
+    };
+
+    // Klik na zaglavlje: ako je već aktivna kolona -> obrni smjer; inače postavi
+    // smisleni default (desc za brojčane, asc za tekstualne).
+    Func<string, string> sortUrl = (kolona) =>
+    {
+        string noviSmjer;
+        if (aktivnaKolona == kolona)
+            noviSmjer = aktivniSmjer == "asc" ? "desc" : "asc";
+        else
+            noviSmjer = (kolona == "ocjena" || kolona == "poslovi") ? "desc" : "asc";
+        return url(kolona, noviSmjer, katF, mjF);
+    };
+
+    Func<string, string> sortIkona = (kolona) =>
+        aktivnaKolona == kolona
+            ? (aktivniSmjer == "asc" ? "fa-sort-up" : "fa-sort-down")
+            : "fa-sort";
+    Func<string, string> sortKlasa = (kolona) => aktivnaKolona == kolona ? "stat-sort-active" : "";
+
+    Func<DateTime, string> relativno = (DateTime d) =>
+    {
+        var diff = DateTime.UtcNow - d.ToUniversalTime();
+        if (diff.TotalMinutes < 1) return "upravo sada";
+        if (diff.TotalMinutes < 60) return $"Prije {(int)diff.TotalMinutes} min.";
+        if (diff.TotalHours < 24) return $"Prije {(int)diff.TotalHours}h.";
+        return $"Prije {(int)diff.TotalDays} dana";
+    };
+
+    // Deterministička boja avatara iz imena (kad nema slike).
+    string[] paleta = { "#3b82f6", "#f97316", "#eab308", "#64748b", "#10b981", "#a855f7", "#ec4899", "#ef4444", "#22c55e", "#6366f1" };
+    Func<string, string> bojaAvatara = (ime) =>
+    {
+        int h = 0;
+        foreach (var c in ime ?? "") h = (h * 31 + c) & 0x7fffffff;
+        return paleta[h % paleta.Length];
+    };
+
+    Func<int, string> medalja = (rang) => rang switch
+    {
+        1 => "stat-rank-1",
+        2 => "stat-rank-2",
+        3 => "stat-rank-3",
+        _ => ""
+    };
+}
+
+<div class="stat-page">
+    <div class="stat-header">
+        <h1 class="stat-naslov">Rang lista za mjesec: @mjesecNaziv</h1>
+        <p class="stat-podnaslov">
+            Najbolje ocijenjeni izvršioci usluga na platformi.
+            @if (r.MetaPodaci.ZadnjeAzuriranje.HasValue)
+            {
+                <span class="stat-azurirano">Ažurirano: @relativno(r.MetaPodaci.ZadnjeAzuriranje.Value)</span>
+            }
+        </p>
+    </div>
+
+    <div class="stat-card">
+        <!-- Filter: Kategorija -->
+        <div class="stat-filter-row">
+            <span class="stat-filter-label">KATEGORIJA</span>
+            <div class="stat-pills">
+                <a href="@url(aktivnaKolona, aktivniSmjer, null, mjF)"
+                   class="stat-pill @(katF == null ? "active" : "")">Sve</a>
+                @foreach (var k in r.MetaPodaci.Kategorije)
+                {
+                    <a href="@url(aktivnaKolona, aktivniSmjer, k.Id, mjF)"
+                       class="stat-pill @(katF == k.Id ? "active" : "")">@k.Naziv</a>
+                }
+            </div>
+        </div>
+
+        <!-- Filter: Lokacija -->
+        <div class="stat-filter-row">
+            <span class="stat-filter-label">LOKACIJA</span>
+            <div class="stat-pills">
+                <a href="@url(aktivnaKolona, aktivniSmjer, katF, null)"
+                   class="stat-pill @(mjF == null ? "active" : "")">Sve</a>
+                @foreach (var l in r.MetaPodaci.Lokacije)
+                {
+                    <a href="@url(aktivnaKolona, aktivniSmjer, katF, l.Id)"
+                       class="stat-pill @(mjF == l.Id ? "active" : "")">@l.Naziv</a>
+                }
+            </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="stat-table-wrap">
+            <table class="stat-table">
+                <thead>
+                    <tr>
+                        <th class="stat-col-rang">#</th>
+                        <th><a href="@sortUrl("majstor")" class="stat-sort @sortKlasa("majstor")">MAJSTOR <i class="fa-solid @sortIkona("majstor")"></i></a></th>
+                        <th><a href="@sortUrl("kategorija")" class="stat-sort @sortKlasa("kategorija")">KATEGORIJA <i class="fa-solid @sortIkona("kategorija")"></i></a></th>
+                        <th><a href="@sortUrl("lokacija")" class="stat-sort @sortKlasa("lokacija")">LOKACIJA <i class="fa-solid @sortIkona("lokacija")"></i></a></th>
+                        <th><a href="@sortUrl("ocjena")" class="stat-sort @sortKlasa("ocjena")">OCJENA <i class="fa-solid @sortIkona("ocjena")"></i></a></th>
+                        <th><a href="@sortUrl("poslovi")" class="stat-sort @sortKlasa("poslovi")">POSLOVI <i class="fa-solid @sortIkona("poslovi")"></i></a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (r.Redovi.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="stat-empty">
+                                <i class="fa-solid fa-chart-simple"></i>
+                                <p>Nema podataka za zadane filtere ovog mjeseca.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var red in r.Redovi)
+                        {
+                            <tr>
+                                <td class="stat-col-rang">
+                                    <span class="stat-rank-badge @medalja(red.Rang)">@red.Rang</span>
+                                </td>
+                                <td>
+                                    <div class="stat-majstor">
+                                        @if (!string.IsNullOrEmpty(red.Slika))
+                                        {
+                                            <img src="@red.Slika" alt="@red.DisplayName" class="stat-avatar" />
+                                        }
+                                        else
+                                        {
+                                            <span class="stat-avatar stat-avatar-fallback" style="background:@bojaAvatara(red.DisplayName)">
+                                                <i class="fa-solid fa-user"></i>
+                                            </span>
+                                        }
+                                        <a asp-controller="Profil" asp-action="Index"
+                                           asp-route-usertype="@red.TipKorisnika.ToString()"
+                                           asp-route-username="@red.Username"
+                                           class="stat-majstor-ime">@red.DisplayName</a>
+                                    </div>
+                                </td>
+                                <td class="stat-muted">@(red.KategorijaNaziv ?? "—")</td>
+                                <td class="stat-muted">@(red.MjestoNaziv ?? "—")</td>
+                                <td>
+                                    <span class="stat-ocjena">
+                                        <i class="fa-solid fa-star"></i>
+                                        @red.ProsjecnaOcjena.ToString("F1")
+                                    </span>
+                                </td>
+                                <td class="stat-muted">@red.BrojPoslova</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 3rem;
+    }
+
+    .stat-header {
+        margin-bottom: 1.25rem;
+    }
+
+    .stat-naslov {
+        color: #1a6fd4;
+        font-weight: 800;
+        font-size: 2rem;
+        margin: 0;
+    }
+
+    .stat-podnaslov {
+        color: #6b7280;
+        font-size: .95rem;
+        margin: .35rem 0 0;
+    }
+
+    .stat-azurirano {
+        margin-left: .5rem;
+        color: #9ca3af;
+    }
+
+    .stat-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem 1.5rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,.04);
+    }
+
+    /* ===== Filteri (pills) ===== */
+    .stat-filter-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: .65rem 0;
+    }
+
+    .stat-filter-label {
+        flex-shrink: 0;
+        width: 86px;
+        padding-top: .4rem;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .04em;
+        color: #6b7280;
+    }
+
+    .stat-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .stat-pill {
+        padding: .4rem .9rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: .88rem;
+        font-weight: 600;
+        color: #475569;
+        text-decoration: none;
+        background: #fff;
+        transition: background .12s ease, border-color .12s ease;
+    }
+
+        .stat-pill:hover {
+            background: #f6f9ff;
+            border-color: #bfdbfe;
+        }
+
+        .stat-pill.active {
+            background: #1a6fd4;
+            border-color: #1a6fd4;
+            color: #fff;
+        }
+
+    /* ===== Tabela ===== */
+    .stat-table-wrap {
+        margin-top: .85rem;
+        border: 1px solid #eef0f2;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .stat-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .stat-table thead th {
+            text-align: left;
+            padding: .9rem 1.1rem;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            color: #94a3b8;
+            background: #fafbfc;
+            border-bottom: 1px solid #eef0f2;
+        }
+
+        .stat-table tbody td {
+            padding: .85rem 1.1rem;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: .95rem;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .stat-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .stat-table tbody tr:hover {
+            background: #f9fbff;
+        }
+
+    .stat-muted {
+        color: #64748b;
+    }
+
+    .stat-sort {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        color: #94a3b8;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+        .stat-sort i {
+            font-size: .7rem;
+            opacity: .55;
+        }
+
+        .stat-sort:hover {
+            color: #475569;
+        }
+
+        .stat-sort.stat-sort-active {
+            color: #1a6fd4;
+        }
+
+            .stat-sort.stat-sort-active i {
+                opacity: 1;
+                color: #1a6fd4;
+            }
+
+    /* ===== Rang badge / medalje ===== */
+    .stat-col-rang {
+        width: 64px;
+        text-align: center;
+    }
+
+    .stat-rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #64748b;
+        font-weight: 700;
+        font-size: .9rem;
+        border: 2px solid transparent;
+    }
+
+    .stat-rank-1 {
+        background: #fef9c3;
+        color: #a16207;
+        border-color: #f5c518;
+    }
+
+    .stat-rank-2 {
+        background: #f1f5f9;
+        color: #475569;
+        border-color: #cbd5e1;
+    }
+
+    .stat-rank-3 {
+        background: #ffedd5;
+        color: #c2410c;
+        border-color: #fb923c;
+    }
+
+    /* ===== Majstor ćelija ===== */
+    .stat-majstor {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+    }
+
+    .stat-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .stat-avatar-fallback {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.05rem;
+    }
+
+    .stat-majstor-ime {
+        font-weight: 700;
+        color: #1a6fd4;
+    }
+
+    /* ===== Ocjena ===== */
+    .stat-ocjena {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+        .stat-ocjena i {
+            color: #f5b50a;
+            font-size: .9rem;
+        }
+
+    /* ===== Empty ===== */
+    .stat-empty {
+        text-align: center;
+        padding: 3rem 1rem !important;
+        color: #94a3b8;
+    }
+
+        .stat-empty i {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: .6rem;
+            opacity: .6;
+        }
+
+    @@media (max-width: 720px) {
+        .stat-filter-row {
+            flex-direction: column;
+            gap: .4rem;
+        }
+
+        .stat-filter-label {
+            width: auto;
+            padding-top: 0;
+        }
+
+        .stat-table thead {
+            display: none;
+        }
+    }
+
+    a.stat-majstor-ime {
+        text-decoration: none;
+    }
+
+        a.stat-majstor-ime:hover {
+            text-decoration: underline;
+        }
+</style>

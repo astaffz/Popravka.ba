@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Application.DTOs;
 using PopravkaBa.Domain.Enums;
 using PopravkaBa.Domain.Models;
 using System.Security.Claims;
-using System.Linq;
 using PopravkaBa.Application.Strategies.Interface;
+using PopravkaBa.Web.Models.ViewModels;
 
 namespace PopravkaBa.Web.Controllers
 {
@@ -14,11 +14,19 @@ namespace PopravkaBa.Web.Controllers
     {
         private readonly IPretragaService _pretragaService;
         private readonly IEnumerable<IPretragaStrategy> _pretragaStrategies;
+        private readonly IMjestoService _mjestoService;
+        private readonly IKategorijaService _kategorijaService;
 
-        public PretragaController(IPretragaService pretragaService, IEnumerable<IPretragaStrategy> pretragaStrategies)
+        public PretragaController(
+            IPretragaService pretragaService,
+            IEnumerable<IPretragaStrategy> pretragaStrategies,
+            IMjestoService mjestoService,
+            IKategorijaService kategorijaService)
         {
             _pretragaService = pretragaService;
             _pretragaStrategies = pretragaStrategies;
+            _mjestoService = mjestoService;
+            _kategorijaService = kategorijaService;
         }
 
         [HttpGet]
@@ -35,10 +43,17 @@ namespace PopravkaBa.Web.Controllers
             if (strategija == null)
                 return Forbid();
 
-            var result = await _pretragaService.PretraziAsync(filteri, strategija);
-            return View(result);
+            var rezultat = await _pretragaService.PretraziAsync(filteri, strategija);
 
+            var vm = new PretragaViewModel
+            {
+                Rezultat = rezultat,
+                Filteri = filteri,
+                Mjesta = await _mjestoService.DajSvaMjestaAsync(),
+                Kategorije = await _kategorijaService.DajSveKategorije()
+            };
+
+            return View(vm);
         }
     }
-       
 }

@@ -43,9 +43,10 @@ namespace PopravkaBa.Application.Strategies.Implementation
 
             if (!string.IsNullOrEmpty(filteri.KljucneRijeci))
             {
-                spec = new AndSpecification<IzvrsilacUsluge>(
-                    spec,
-                    new KljucneRijeciOpisIzvrsiocaSpecification<IzvrsilacUsluge>(filteri.KljucneRijeci));
+                var kljuc = new OrSpecification<IzvrsilacUsluge>(
+                    new KljucneRijeciOpisIzvrsiocaSpecification<IzvrsilacUsluge>(filteri.KljucneRijeci),
+                    new KljucneRijeciDisplayNameIzvrsiocaSpecification<IzvrsilacUsluge>(filteri.KljucneRijeci));
+                spec = new AndSpecification<IzvrsilacUsluge>(spec, kljuc);
             }
 
             // Donja granica

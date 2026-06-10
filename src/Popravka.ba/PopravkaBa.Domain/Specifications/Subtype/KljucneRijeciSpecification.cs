@@ -61,4 +61,24 @@ namespace PopravkaBa.Domain.Specifications.Subtype
                 izvrsilac.Opis.ToLower().Contains(_kljucnaRijec);
         }
     }
+
+    public class KljucneRijeciDisplayNameIzvrsiocaSpecification<T> : BaseSpecification<T> where T : IzvrsilacUsluge
+    {
+        private readonly string _kljucnaRijec;
+
+        public KljucneRijeciDisplayNameIzvrsiocaSpecification(string kljucnaRijec)
+        {
+            _kljucnaRijec = kljucnaRijec.ToLower();
+        }
+
+        public override Expression<Func<T, bool>> ToExpression()
+        {
+            return izvrsilac =>
+            // Majstor — pretraži po Ime i Prezime
+            (izvrsilac.Ime != null && izvrsilac.Ime.ToLower().Contains(_kljucnaRijec)) ||
+            (izvrsilac.Prezime != null && izvrsilac.Prezime.ToLower().Contains(_kljucnaRijec)) ||
+            // Firma — pretraži po NazivFirme kroz cast
+            (izvrsilac is Firma && ((Firma)(object)izvrsilac).NazivFirme.ToLower().Contains(_kljucnaRijec));
+        }
+    }
 }

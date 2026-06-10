@@ -19,6 +19,6 @@ namespace PopravkaBa.Domain.Models
 
         [ForeignKey("Mjesto")]
         public int MjestoID { get; set; }
-        public Mjesto Mjesto { get; set; }
+        public Mjesto Mjesto { get; set; } 
     }
 }

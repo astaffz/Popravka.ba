@@ -61,7 +61,8 @@ namespace PopravkaBa.Application.Services.Implementation
                     MinCijenaUsluge = m.MinCijenaUsluge,
                     BrojZavrsenihPoslova = m.BrojZavrsenihPoslova,
                     BrojRecenzija = m.BrojRecenzija,
-                    Lokacija = m.Mjesta?.FirstOrDefault()?.Mjesto?.Naziv
+                    Lokacija = m.Mjesta?.FirstOrDefault()?.Mjesto?.Naziv,
+                    PrvaKategorija = m.Kategorije?.FirstOrDefault()?.Kategorija?.Naziv
                 }).ToList();
             }
 
@@ -83,7 +84,7 @@ namespace PopravkaBa.Application.Services.Implementation
                     MaxBudzet = o.MaxBudzet,
                     VlasnikSkracenoIme = o.VlasnikOglasa.SkracenoIme,
                     VlasnikSlika = o.VlasnikOglasa.Slika,
-                    Lokacija = o.VlasnikOglasa.Mjesta?.FirstOrDefault()?.Mjesto?.Naziv
+                    Lokacija = o.Mjesto?.Naziv
                 }).ToList();
             }
 
@@ -105,7 +106,7 @@ namespace PopravkaBa.Application.Services.Implementation
                     MaxPrihod = o.MaxPrihod,
                     VlasnikDisplayName = o.VlasnikOglasa.DisplayName,
                     VlasnikSlika = o.VlasnikOglasa.Slika,
-                    Lokacija = o.VlasnikOglasa.Mjesta?.FirstOrDefault()?.Mjesto?.Naziv
+                    Lokacija = o.Mjesto?.Naziv
                 }).ToList();
             }
 

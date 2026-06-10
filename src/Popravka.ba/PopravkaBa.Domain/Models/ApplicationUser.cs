@@ -14,8 +14,8 @@ namespace PopravkaBa.Domain.Models
         [NotMapped]
         public virtual string SkracenoIme => !string.IsNullOrEmpty(Prezime) ? $"{Ime} {Prezime[0]}." : DisplayName;
 
-        private string _ime = string.Empty;
-        private string _prezime = string.Empty;
+        private string _ime = null;
+        private string _prezime = null;
         public string? Ime {
             get => _ime;
             set => _ime = NameFormatter.NormalizeName(value ?? string.Empty);
@@ -49,7 +49,7 @@ namespace PopravkaBa.Domain.Models
 
         // Za firme mora dodatno provjeriti da li je Admin verificirao,
         // to se vrši overrideom ove funkcije
-        public virtual Status Aktivan() =>
+        public virtual Status   Aktivan() =>
           EmailConfirmed ? Status.Aktivan : Status.NaCekanju; 
     }
 }

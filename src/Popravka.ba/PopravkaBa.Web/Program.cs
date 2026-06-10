@@ -1,3 +1,4 @@
+using Amazon.S3;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -13,6 +14,7 @@ using PopravkaBa.Domain.Models;
 using PopravkaBa.Domain.Shared;
 using PopravkaBa.Infrastructure.Adapters;
 using PopravkaBa.Infrastructure.Adapters.Options;
+using PopravkaBa.Infrastructure.BackgroundServices;
 using PopravkaBa.Infrastructure.Repositories;
 using PopravkaBa.Infrastructure.Seeders;
 using System.Threading.RateLimiting;
@@ -44,6 +46,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddErrorDescriber<BosanskiIdentityErrorDescriber>()
 .AddPasswordValidator<CaseInsensitivePasswordValidator<ApplicationUser>>()
 .AddDefaultTokenProviders();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+    options.LogoutPath = "/logout";
+    options.AccessDeniedPath = "/login";
+});
 builder.Services.AddControllersWithViews();
 
 // Dodaj rate limiter
@@ -71,6 +79,7 @@ builder.Services.AddScoped<IKategorijaRepository, KategorijaRepository>();
 builder.Services.AddScoped<IMjestoService, MjestoService>();
 builder.Services.AddScoped<IMjestoRepository,MjestoRepository>();
 
+builder.Services.AddScoped<IMjesecnaStatistikaRepository, MjesecnaStatistikaRepository>();
 
 builder.Services.AddScoped<IOglasRepository, OglasRepository>();
 builder.Services.AddScoped<IOglasService, OglasService>();
@@ -102,13 +111,46 @@ builder.Services.AddScoped<IPretragaStrategy, AdministratorStrategy>();
 
 builder.Services.AddScoped<IPretragaService, PretragaService>();
 
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaKategorija>();
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaMajstor>();
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaMjesto>();
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaOcjena>();
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaPoslovi>();
+builder.Services.AddSingleton<IStatistikaSortResolver, StatistikaSortResolver>();
+builder.Services.AddScoped<IStatistikaService, StatistikaService>();
+builder.Services.AddScoped<IMjesecnaStatistikaRepository, MjesecnaStatistikaRepository>();
+
 builder.Services.AddScoped<IEmailSender, BrevoEmailAdapter>();
 builder.Services.Configure<BrevoEmailOptions>(builder.Configuration.GetSection("Brevo"));
+
+builder.Services.Configure<R2Options>(builder.Configuration.GetSection("R2"));
+
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var o = sp.GetRequiredService<IOptions<R2Options>>().Value;
+    return new AmazonS3Client(o.AccessKey, o.SecretKey, new AmazonS3Config
+    {
+        ServiceURL = $"https://{o.AccountID}.r2.cloudflarestorage.com",
+        ForcePathStyle = true
+    });
+});
+
+builder.Services.AddSingleton<IFileStorage, S3FileStorageAdapter>();
 
 builder.Services.AddScoped<IVerifikacijaEmailaService, VerifikacijaEmailaService>();
 builder.Services.AddScoped<IVerifikacijskiTokenRepository, VerifikacijskiTokenRepository>();
 
+builder.Services.AddHostedService<VerifikacijskiTokenCleanupJob>();
+builder.Services.AddHostedService<MjesecnaStatistikaJob>();
 builder.Services.AddScoped<DbSeeder>();
+
+
+
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    // Ostavljeno za određivanje trajanja sesije, ako je korisnik otišao/korisniku obrisan nalog
+    options.ValidationInterval = TimeSpan.FromMinutes(15);
+});
 
 
 
@@ -138,6 +180,7 @@ else
     app.UseHsts();
 
 }
+
 
 app.UseHttpsRedirection();
 

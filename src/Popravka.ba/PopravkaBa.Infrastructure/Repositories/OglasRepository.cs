@@ -130,6 +130,7 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(o => o.VlasnikOglasa)
                     .ThenInclude(v => v.Mjesta)
                         .ThenInclude(km => km.Mjesto)
+                .Include(o => o.Mjesto)
                 .Where(spec.ToExpression())
                 .AsNoTracking();
 
@@ -244,8 +245,9 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(o => o.VlasnikOglasa)
                     .ThenInclude(v => v.Mjesta)
                         .ThenInclude(km => km.Mjesto)
-                        .Where(spec.ToExpression())
-                        .AsNoTracking();
+                .Include(o => o.Mjesto)
+                .Where(spec.ToExpression())
+                .AsNoTracking();
 
             var ukupno = await query.CountAsync();
 

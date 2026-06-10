@@ -26,6 +26,7 @@ namespace PopravkaBa.Web.Controllers
         private readonly IEmailSender _emailSender;
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<AccountController> _logger;
+        private readonly IFileStorage _storage;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -35,7 +36,9 @@ namespace PopravkaBa.Web.Controllers
             IVerifikacijaEmailaService verifikacijaService,
             IEmailSender emailSender,
             IWebHostEnvironment env,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            IFileStorage storage
+            )
         {
 
             _userManager = userManager;
@@ -46,16 +49,32 @@ namespace PopravkaBa.Web.Controllers
             _emailSender = emailSender;
             _env = env;
             _logger = logger;
+            _storage = storage;
         }
 
-        // TODO: Implementirati returnURL logiku
 
-        
+
+        private static readonly string[] DozvoljeniLogoFormati = { ".jpg", ".jpeg", ".png", ".webp" };
+        private const long MaxLogoVelicina = 5 * 1024 * 1024; // 5MB
+
+        private bool ValidirajLogo(IFormFile logo)
+        {
+            var ekstenzija = Path.GetExtension(logo.FileName).ToLowerInvariant();
+            if (!DozvoljeniLogoFormati.Contains(ekstenzija))
+                ModelState.AddModelError(string.Empty, "Nepodržan format logotipa. (.jpg, .jpeg, .png, .webp)");
+            else if (logo.Length > MaxLogoVelicina)
+                ModelState.AddModelError(string.Empty, "Logotip ne smije biti veći od 5MB.");
+
+            return ModelState.IsValid;
+        }
+
+
+        [HttpGet("/login")]
         [AllowAnonymous]
         [RedirectIfAuthenticated]
-        [HttpGet("/login")]
-        public async Task<IActionResult> Login()
+        public async Task<IActionResult> Login(string? returnUrl = null)
         {
+          
             var vm =  new RegistracijaViewModel
             {
                 ActiveTab = AuthTab.Prijava,
@@ -63,7 +82,10 @@ namespace PopravkaBa.Web.Controllers
                 Kategorije = await _kategorijaService.DajSveKategorije(),
 
             };
+            
+            ViewData["ReturnUrl"] = returnUrl;
             ViewData["Title"] = "Prijava – Popravka.ba";
+           
             return View("Registracija",vm);
         }
         [AllowAnonymous]
@@ -71,11 +93,16 @@ namespace PopravkaBa.Web.Controllers
         [RedirectIfAuthenticated]
         [ValidateAntiForgeryToken]
         [HttpPost("/login")]
-        public async Task<IActionResult> Login(RegistracijaViewModel vm)
-        {
-            if (!ModelState.IsValid)
-                return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
+      public async Task<IActionResult> Login(RegistracijaViewModel vm, string? returnUrl = null)
+{
 
+            returnUrl ??= Request.Form["returnUrl"].FirstOrDefault();
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["ReturnUrl"] = returnUrl;
+                return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
+            }
             var login = vm.Login;
 
             var user = login.EmailUsername.Contains('@')
@@ -85,6 +112,7 @@ namespace PopravkaBa.Web.Controllers
             if (user is null)
             {
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
+                ViewData["ReturnUrl"] = returnUrl;
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
 
@@ -96,10 +124,15 @@ namespace PopravkaBa.Web.Controllers
             if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
+                ViewData["ReturnUrl"] = returnUrl;
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
 
+        
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
             return RedirectToAction("Index", "Home");
+                
         }
 
         [Authorize]
@@ -227,7 +260,7 @@ namespace PopravkaBa.Web.Controllers
         [RedirectIfAuthenticated]
         [HttpPost("/register/firma")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RegistracijaFirme([Bind(Prefix = "FirmaDTO")] RegistracijaFirmeDto dto, IFormFile? logo)
+        public async Task<IActionResult> RegistracijaFirme([Bind(Prefix = "FirmaDTO")] RegistracijaFirmeDto dto, IFormFile? logo, CancellationToken ct = default)
         {
             if (!ModelState.IsValid)
                 return View("Registracija", await IzgradiRegistracijaVmAsync(firma: dto));
@@ -258,11 +291,12 @@ namespace PopravkaBa.Web.Controllers
 
             await _userManager.AddToRoleAsync(user, KorisnickeUloge.Firma.ToString());
 
-            // Spasi logo ako je priložen.
-            if (logo != null && logo.Length > 0)
+           
+            if (logo is { Length: > 0 })
             {
-                user.Slika = await SpasiLogoAsync(logo);
-                await _userManager.UpdateAsync(user);
+                ValidirajLogo(logo);   
+                await using var s = logo.OpenReadStream();
+                user.Slika = await _storage.SpremiSlikuPublic(s, logo.ContentType, ct);
             }
 
             await _kategorijaService.DodajKategorijeIzvrsiocu(user.Id, dto.KategorijeID);
@@ -351,17 +385,18 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> ResetLozinke(string? token)
         {
             if (string.IsNullOrEmpty(token))
-                return StatusCode(403);
+                return StatusCode(404);
 
             var (status, _, _) = await _verifikacijaService.ValidirajResetTokenAsync(token);
             if (status != Status.Aktivan)
                 return RedirectToAction("StatusCode", "Home", new { code = 403 });
             return View(new ResetLozinkeViewModel { Token = token });
         }
-
-
+        
 
         
+
+
         [HttpPost("profil/reset-lozinke")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetLozinke(ResetLozinkeViewModel vm)
@@ -386,34 +421,9 @@ namespace PopravkaBa.Web.Controllers
             return View("ResetLozinkePotvrda");
         }
 
-        private static readonly string[] DozvoljeniLogoFormati = { ".jpg", ".jpeg", ".png" };
-        private const long MaxLogoVelicina = 5 * 1024 * 1024; // 5MB
-
-        private bool ValidirajLogo(IFormFile logo)
-        {
-            var ekstenzija = Path.GetExtension(logo.FileName).ToLowerInvariant();
-            if (!DozvoljeniLogoFormati.Contains(ekstenzija))
-                ModelState.AddModelError(string.Empty, "Nepodržani format logotipa. (.jpg, .jpeg ili .png)");
-            else if (logo.Length > MaxLogoVelicina)
-                ModelState.AddModelError(string.Empty, "Logotip ne smije biti veći od 5MB.");
-
-            return ModelState.IsValid;
-        }
 
         
-        private async Task<string> SpasiLogoAsync(IFormFile logo)
-        {
-            var folder = Path.Combine(_env.WebRootPath, "images", "logos");
-            Directory.CreateDirectory(folder);
-
-            var imeFajla = $"{Guid.NewGuid():N}{Path.GetExtension(logo.FileName).ToLowerInvariant()}";
-            var putanja = Path.Combine(folder, imeFajla);
-
-            using (var stream = new FileStream(putanja, FileMode.Create))
-                await logo.CopyToAsync(stream);
-
-            return $"/images/logos/{imeFajla}";
-        }
+     
 
       
         private async Task<RegistracijaViewModel> IzgradiRegistracijaVmAsync(
