@@ -50,7 +50,6 @@ namespace PopravkaBa.Web.Controllers
 
 
 
-
         [HttpGet("/login")]
         [AllowAnonymous]
         [RedirectIfAuthenticated]

@@ -14,8 +14,8 @@ namespace PopravkaBa.Domain.Models
         [NotMapped]
         public virtual string SkracenoIme => !string.IsNullOrEmpty(Prezime) ? $"{Ime} {Prezime[0]}." : DisplayName;
 
-        private string _ime = string.Empty;
-        private string _prezime = string.Empty;
+        private string _ime = null;
+        private string _prezime = null;
         public string? Ime {
             get => _ime;
             set => _ime = NameFormatter.NormalizeName(value ?? string.Empty);

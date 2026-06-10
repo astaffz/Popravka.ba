@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Popravka.ba.Data;
@@ -11,9 +12,11 @@ using Popravka.ba.Data;
 namespace PopravkaBa.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260610023644_StatsMigration")]
+    partial class StatsMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -334,6 +337,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("IzvrsilacName")
+                        .HasColumnType("text");
+
                     b.Property<int?>("KategorijaID")
                         .HasColumnType("integer");
 
@@ -356,13 +362,6 @@ namespace PopravkaBa.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Slika")
-                        .HasColumnType("text");
-
-                    b.Property<int>("TipKorisnika")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("VrijemeAzuriranja")

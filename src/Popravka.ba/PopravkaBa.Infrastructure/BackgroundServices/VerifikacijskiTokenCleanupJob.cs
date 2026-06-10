@@ -9,16 +9,16 @@ using Popravka.ba.Data;
 
 namespace PopravkaBa.Infrastructure.BackgroundServices
 {
-    public class VerifikacijskiTokenCleanupService : BackgroundService
+    public class VerifikacijskiTokenCleanupJob : BackgroundService
     {
         // background service je singleton, a DbContext scoped, moramo ih injectat u servis
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ILogger<VerifikacijskiTokenCleanupService> _logger;
+        private readonly ILogger<VerifikacijskiTokenCleanupJob> _logger;
         private readonly TimeSpan _interval = TimeSpan.FromDays(30);
 
-        public VerifikacijskiTokenCleanupService(
+        public VerifikacijskiTokenCleanupJob(
             IServiceScopeFactory scope,
-            ILogger<VerifikacijskiTokenCleanupService> logger)
+            ILogger<VerifikacijskiTokenCleanupJob> logger)
         {
             _scopeFactory = scope;
             _logger = logger;

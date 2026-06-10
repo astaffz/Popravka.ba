@@ -46,8 +46,7 @@ namespace PopravkaBa.Web.Controllers
                     ID = elem.Item1.ID,
                     Naziv = elem.Item1.Naziv,
                     AktivniIzvrsilacCount = elem.Item2
-                    // Tehnički, nije implementirana logika da li je profil izvrsioca "aktivan"
-                }
+                    }
                 ),
                 NedavniOglasi = nedavniOglasi?.Select(oglas => new NedavniOglasiViewModel
                 {

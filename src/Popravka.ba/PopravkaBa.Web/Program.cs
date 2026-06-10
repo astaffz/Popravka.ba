@@ -78,6 +78,7 @@ builder.Services.AddScoped<IKategorijaRepository, KategorijaRepository>();
 builder.Services.AddScoped<IMjestoService, MjestoService>();
 builder.Services.AddScoped<IMjestoRepository,MjestoRepository>();
 
+builder.Services.AddScoped<IMjesecnaStatistikaRepository, MjesecnaStatistikaRepository>();
 
 builder.Services.AddScoped<IOglasRepository, OglasRepository>();
 builder.Services.AddScoped<IOglasService, OglasService>();
@@ -109,13 +110,23 @@ builder.Services.AddScoped<IPretragaStrategy, AdministratorStrategy>();
 
 builder.Services.AddScoped<IPretragaService, PretragaService>();
 
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaKategorija>();
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaMajstor>();
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaMjesto>();
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaOcjena>();
+builder.Services.AddSingleton<IStatistikaStrategy, SortStatistikaPoslovi>();
+builder.Services.AddSingleton<IStatistikaSortResolver, StatistikaSortResolver>();
+builder.Services.AddScoped<IStatistikaService, StatistikaService>();
+builder.Services.AddScoped<IMjesecnaStatistikaRepository, MjesecnaStatistikaRepository>();
+
 builder.Services.AddScoped<IEmailSender, BrevoEmailAdapter>();
 builder.Services.Configure<BrevoEmailOptions>(builder.Configuration.GetSection("Brevo"));
 
 builder.Services.AddScoped<IVerifikacijaEmailaService, VerifikacijaEmailaService>();
 builder.Services.AddScoped<IVerifikacijskiTokenRepository, VerifikacijskiTokenRepository>();
 
-builder.Services.AddHostedService<VerifikacijskiTokenCleanupService>();
+builder.Services.AddHostedService<VerifikacijskiTokenCleanupJob>();
+builder.Services.AddHostedService<MjesecnaStatistikaJob>();
 builder.Services.AddScoped<DbSeeder>();
 
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
