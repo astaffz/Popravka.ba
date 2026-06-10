@@ -10,9 +10,9 @@ namespace PopravkaBa.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IzvrsilacName",
-                table: "MjesecnaStatistikaKompozicija");
+            migrationBuilder.Sql(
+        "ALTER TABLE \"MjesecnaStatistikaKompozicija\" DROP COLUMN IF EXISTS \"IzvrsilacName\";");
+           
 
             migrationBuilder.AddColumn<int>(
                 name: "TipKorisnika",

@@ -36,7 +36,8 @@ namespace PopravkaBa.Infrastructure.Migrations
                     ProsjecnaOcjena = table.Column<decimal>(type: "numeric", nullable: false),
                     BrojPoslova = table.Column<int>(type: "integer", nullable: false),
                     RangStandardni = table.Column<int>(type: "integer", nullable: false),
-                    VrijemeAzuriranja = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    VrijemeAzuriranja = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IzvrsilacName = table.Column<String>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
