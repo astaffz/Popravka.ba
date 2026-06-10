@@ -400,7 +400,7 @@
                         {
                             foreach (var izv in Model.Rezultat.Izvrsioci)
                             {
-                                <a class="result-card result-card--izvrsilac" href="/Profil/@izv.Id">
+                                <a class="result-card result-card--izvrsilac" href="/Profil/@(izv.Username ?? izv.Id)">
                                     <div class="result-card-main">
                                         <div class="izv-avatar">
                                             @if (!string.IsNullOrEmpty(izv.Slika))

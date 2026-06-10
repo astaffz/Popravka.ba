@@ -27,10 +27,11 @@ namespace PopravkaBa.Application.Services
         public async Task<IEnumerable<Kategorija>> DajSveKategorije()
             => await _kategorijaService.DajSveKategorije();
 
-        public async Task ObjaviOglas(ObjaviOglasMajstoraDto dto, string vlasnikId)
+        public async Task<int> ObjaviOglas(ObjaviOglasMajstoraDto dto, string vlasnikId)
         {
             var oglasId = await _oglasService.ObjaviOglas(dto, vlasnikId);
             await _kategorijaService.DodajKategorijeOglasu(oglasId, dto.KategorijeID);
+            return oglasId;
         }
 
         public async Task UrediOglas(UrediOglasMajstoraDto dto)
@@ -42,7 +43,7 @@ namespace PopravkaBa.Application.Services
 
         public async Task ObrisiOglas(int oglasId)
         {
-            await _kategorijaService.UkloniSveKategorijeOglasa(oglasId);
+            // Soft delete: oglas se postavlja na Neaktivan, kategorije ostaju jer oglas i dalje postoji
             await _oglasService.ObrisiOglas(oglasId);
         }
     }
@@ -93,9 +94,8 @@ namespace PopravkaBa.Application.Services
 
         public async Task ObrisiOglas(int oglasId)
         {
-            await _kategorijaService.UkloniSveKategorijeOglasa(oglasId);
+            // Soft delete: oglas se postavlja na Neaktivan, kategorije i uvjeti ostaju
             await _oglasService.ObrisiOglas(oglasId);
-            await _uvjetiService.UkloniSveUvjeteOglasa(oglasId);
         }
     }
 
@@ -123,10 +123,11 @@ namespace PopravkaBa.Application.Services
         public async Task<IEnumerable<Kategorija>> DajSveKategorije()
             => await _kategorijaService.DajSveKategorije();
 
-        public async Task ObjaviOglas(ObjaviOglasUslugeDto dto, string vlasnikId)
+        public async Task<int> ObjaviOglas(ObjaviOglasUslugeDto dto, string vlasnikId)
         {
             var oglasId = await _oglasService.ObjaviOglas(dto, vlasnikId);
             await _kategorijaService.DodajKategorijeOglasu(oglasId, dto.KategorijeID);
+            return oglasId;
         }
 
         public async Task UrediOglas(UrediOglasUslugeDto dto)
@@ -137,7 +138,7 @@ namespace PopravkaBa.Application.Services
 
         public async Task ObrisiOglas(int oglasId)
         {
-            await _kategorijaService.UkloniSveKategorijeOglasa(oglasId);
+            // Soft delete: oglas se postavlja na Neaktivan, kategorije ostaju
             await _oglasService.ObrisiOglas(oglasId);
         }
 

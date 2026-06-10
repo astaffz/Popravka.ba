@@ -54,6 +54,7 @@ namespace PopravkaBa.Application.Services.Implementation
                 rezultat.Izvrsioci = paginiran.Stavke.Select(m => new IzvrsilacListDto
                 {
                     Id = m.Id,
+                    Username = m.UserName,
                     DisplayName = m.DisplayName,
                     Slika = m.Slika,
                     ProsjecnaOcjena = m.ProsjecnaOcjena,

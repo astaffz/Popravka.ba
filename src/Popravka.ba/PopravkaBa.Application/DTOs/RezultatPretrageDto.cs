@@ -30,6 +30,7 @@ namespace PopravkaBa.Application.DTOs
     public class IzvrsilacListDto
     {
         public string Id { get; set; }
+        public string? Username { get; set; }
         public string DisplayName { get; set; }
         public string? Slika { get; set; }
         public decimal ProsjecnaOcjena { get; set; }

@@ -1,18 +1,19 @@
-@model PopravkaBa.Application.DTOs.UrediOglasUslugeDto
+@model PopravkaBa.Application.DTOs.UrediOglasMajstoraDto
 @using PopravkaBa.Domain.Models
+@using PopravkaBa.Domain.Enums
 @{
-    ViewData["Title"] = "Uredi oglas usluge – Popravka.ba";
+    ViewData["Title"] = "Uredi oglas majstora – Popravka.ba";
     var kategorije = (ViewBag.Kategorije as IEnumerable<Kategorija>) ?? Enumerable.Empty<Kategorija>();
     var mjesta = (ViewBag.Mjesta as IEnumerable<Mjesto>) ?? Enumerable.Empty<Mjesto>();
-    var msKat = new KategorijeMultiSelectModel { Prefix = "katUrediUsluge", Kategorije = kategorije, InputName = "KategorijeID", Selektovano = Model.KategorijeID ?? new() };
+    var msKat = new KategorijeMultiSelectModel { Prefix = "katUrediMajstora", Kategorije = kategorije, InputName = "KategorijeID", Selektovano = Model.KategorijeID ?? new() };
 }
 
 <div class="container mt-4 mb-5" style="max-width:760px;">
-    <a asp-controller="OglasUsluge" asp-action="Detalji" asp-route-id="@Model.OglasID" class="text-muted text-decoration-none small d-block mb-3">
+    <a asp-controller="OglasMajstora" asp-action="Detalji" asp-route-id="@Model.OglasID" class="text-muted text-decoration-none small d-block mb-3">
         <i class="fa-solid fa-arrow-left me-1"></i>Nazad na oglas
     </a>
 
-    <h3 class="fw-bold mb-1">Uredi oglas usluge</h3>
+    <h3 class="fw-bold mb-1">Uredi oglas majstora</h3>
     <p class="text-muted mb-4">Izmijenite podatke svog oglasa.</p>
 
     <form asp-action="UrediOglas" asp-route-id="@Model.OglasID" method="post">
@@ -24,7 +25,7 @@
             <div class="card-body p-4">
                 <h5 class="fw-semibold mb-3">Osnovne informacije</h5>
                 <div class="mb-3">
-                    <label asp-for="Naslov" class="form-label fw-medium">Naziv posla *</label>
+                    <label asp-for="Naslov" class="form-label fw-medium">Naziv usluge *</label>
                     <input asp-for="Naslov" class="form-control" />
                     <span asp-validation-for="Naslov" class="text-danger small"></span>
                 </div>
@@ -34,15 +35,14 @@
                         <partial name="_KategorijeMultiSelect" model="msKat" />
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="MjestoID" class="form-label fw-medium">Lokacija *</label>
-                        <select asp-for="MjestoID" class="form-select" required>
-                            <option value="">Odaberite grad...</option>
+                        <label asp-for="MjestoID" class="form-label fw-medium">Lokacija</label>
+                        <select asp-for="MjestoID" class="form-select">
+                            <option value="0">Odaberite grad...</option>
                             @foreach (var m in mjesta)
                             {
                                 <option value="@m.MjestoID">@m.Naziv</option>
                             }
                         </select>
-                        <span asp-validation-for="MjestoID" class="text-danger small"></span>
                     </div>
                 </div>
             </div>
@@ -50,7 +50,7 @@
 
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-body p-4">
-                <h5 class="fw-semibold mb-3">Opis</h5>
+                <h5 class="fw-semibold mb-3">Opis usluge</h5>
                 <textarea asp-for="Opis" class="form-control" rows="5"></textarea>
                 <span asp-validation-for="Opis" class="text-danger small"></span>
             </div>
@@ -58,28 +58,30 @@
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
-                <h5 class="fw-semibold mb-3">Budžet</h5>
+                <h5 class="fw-semibold mb-3">Cijena</h5>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label asp-for="MinBudzet" class="form-label fw-medium">Minimalni budžet (KM)</label>
+                        <label asp-for="MinCijena" class="form-label fw-medium">Cijena od (KM)</label>
                         <div class="input-group">
-                            <input asp-for="MinBudzet" type="number" class="form-control" min="0" />
+                            <input asp-for="MinCijena" type="number" class="form-control" min="0" step="0.5" />
                             <span class="input-group-text">KM</span>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="MaxBudzet" class="form-label fw-medium">Maksimalni budžet (KM)</label>
-                        <div class="input-group">
-                            <input asp-for="MaxBudzet" type="number" class="form-control" min="0" />
-                            <span class="input-group-text">KM</span>
-                        </div>
+                        <label asp-for="TipIsplate" class="form-label fw-medium">Tip isplate *</label>
+                        <select name="TipIsplate" class="form-select" required>
+                            <option value="1" selected="@(Model.TipIsplate == TipIsplate.PoSatu ? "selected" : null)">Po satu</option>
+                            <option value="0" selected="@(Model.TipIsplate == TipIsplate.Jednokratno ? "selected" : null)">Jednokratno (fiksno)</option>
+                            <option value="2" selected="@(Model.TipIsplate == TipIsplate.Sedmicno ? "selected" : null)">Sedmično</option>
+                            <option value="3" selected="@(Model.TipIsplate == TipIsplate.Mjesecno ? "selected" : null)">Mjesečno</option>
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="d-flex justify-content-end gap-2">
-            <a asp-controller="OglasUsluge" asp-action="Detalji" asp-route-id="@Model.OglasID" class="btn btn-outline-secondary">Odustani</a>
+            <a asp-controller="OglasMajstora" asp-action="Detalji" asp-route-id="@Model.OglasID" class="btn btn-outline-secondary">Odustani</a>
             <button type="submit" class="btn btn-primary px-4">
                 <i class="fa-solid fa-floppy-disk me-2"></i>Sačuvaj izmjene
             </button>

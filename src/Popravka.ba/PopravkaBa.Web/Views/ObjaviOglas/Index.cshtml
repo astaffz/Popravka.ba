@@ -1,5 +1,6 @@
 @using PopravkaBa.Domain.Enums
 @using PopravkaBa.Domain.Models
+@using PopravkaBa.Web.Models.ViewModels
 @{
     ViewData["Title"] = "Objavi oglas – Popravka.ba";
 
@@ -7,10 +8,27 @@
     var mjesta = (ViewBag.Mjesta as IEnumerable<Mjesto>) ?? Enumerable.Empty<Mjesto>();
     string aktivniTab = ViewBag.AktivniTab ?? "usluge";
 
-    bool mozeUsluge     = User.IsInRole("Klijent") || User.IsInRole("Administrator");
-    bool mozeMajstora   = User.IsInRole("Majstor") || User.IsInRole("Firma") || User.IsInRole("Administrator");
+    bool mozeUsluge      = User.IsInRole("Klijent") || User.IsInRole("Administrator");
+    bool mozeMajstora    = User.IsInRole("Majstor") || User.IsInRole("Firma") || User.IsInRole("Administrator");
     bool mozeRadnoMjesto = User.IsInRole("Firma") || User.IsInRole("Administrator");
+
+    var msUsluge      = new KategorijeMultiSelectModel { Prefix = "katUsluge",      Kategorije = kategorije, InputName = "KategorijeID" };
+    var msMajstora    = new KategorijeMultiSelectModel { Prefix = "katMajstora",    Kategorije = kategorije, InputName = "KategorijeID" };
+    var msRadnoMjesto = new KategorijeMultiSelectModel { Prefix = "katRadnoMjesto", Kategorije = kategorije, InputName = "KategorijeID" };
 }
+
+<!-- Confirmation modal (potvrda objave) -->
+<div id="confirmModal" class="confirm-modal-overlay" style="display:none;" aria-modal="true" role="dialog">
+    <div class="confirm-modal-box">
+        <p id="confirmModalText" class="confirm-modal-text"></p>
+        <div class="confirm-modal-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="confirmModalCancel">Odustani</button>
+            <button type="button" class="btn btn-primary btn-sm" id="confirmModalOk">
+                <i class="fa-solid fa-paper-plane me-1"></i>Objavi
+            </button>
+        </div>
+    </div>
+</div>
 
 <div class="container mt-4 mb-5" style="max-width:800px;">
 
@@ -43,7 +61,7 @@
             <li class="nav-item">
                 <button class="nav-link @(aktivniTab == "usluge" ? "active" : "")"
                         id="tab-usluge" data-bs-toggle="pill" data-bs-target="#panel-usluge" type="button" role="tab">
-                    <i class="fa-solid fa-wrench me-1"></i>Oglas usluge
+                    Oglas usluge
                 </button>
             </li>
         }
@@ -52,7 +70,7 @@
             <li class="nav-item">
                 <button class="nav-link @(aktivniTab == "majstora" ? "active" : "")"
                         id="tab-majstora" data-bs-toggle="pill" data-bs-target="#panel-majstora" type="button" role="tab">
-                    <i class="fa-solid fa-hard-hat me-1"></i>Oglas majstora
+                    Oglas majstora
                 </button>
             </li>
         }
@@ -61,7 +79,7 @@
             <li class="nav-item">
                 <button class="nav-link @(aktivniTab == "radnomjesto" ? "active" : "")"
                         id="tab-radnomjesto" data-bs-toggle="pill" data-bs-target="#panel-radnomjesto" type="button" role="tab">
-                    <i class="fa-solid fa-briefcase me-1"></i>Oglas za posao
+                    Oglas za posao
                 </button>
             </li>
         }
@@ -73,7 +91,7 @@
         @if (mozeUsluge)
         {
             <div class="tab-pane fade @(aktivniTab == "usluge" ? "show active" : "")" id="panel-usluge" role="tabpanel">
-                <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasUsluge" method="post">
+                <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasUsluge" method="post" class="objavi-form" data-tip="oglas usluge">
                     @Html.AntiForgeryToken()
 
                     <div class="card border-0 shadow-sm mb-3">
@@ -89,13 +107,7 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium">Kategorija <span class="text-danger">*</span></label>
-                                    <select name="KategorijeID" class="form-select" multiple size="4" required>
-                                        @foreach (var kat in kategorije)
-                                        {
-                                            <option value="@kat.ID">@kat.Naziv</option>
-                                        }
-                                    </select>
-                                    <div class="form-text">Ctrl+klik za više kategorija</div>
+                                    <partial name="_KategorijeMultiSelect" model="msUsluge" />
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium">Lokacija <span class="text-danger">*</span></label>
@@ -151,8 +163,8 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Odustani</a>
-                        <button type="submit" class="btn btn-primary px-4">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary">Odustani</a>
+                        <button type="button" class="btn btn-primary px-4 objavi-btn">
                             <i class="fa-solid fa-paper-plane me-2"></i>Objavi oglas
                         </button>
                     </div>
@@ -164,7 +176,7 @@
         @if (mozeMajstora)
         {
             <div class="tab-pane fade @(aktivniTab == "majstora" ? "show active" : "")" id="panel-majstora" role="tabpanel">
-                <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasMajstora" method="post">
+                <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasMajstora" method="post" class="objavi-form" data-tip="oglas majstora">
                     @Html.AntiForgeryToken()
 
                     <div class="card border-0 shadow-sm mb-3">
@@ -180,18 +192,12 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium">Kategorija <span class="text-danger">*</span></label>
-                                    <select name="KategorijeID" class="form-select" multiple size="4" required>
-                                        @foreach (var kat in kategorije)
-                                        {
-                                            <option value="@kat.ID">@kat.Naziv</option>
-                                        }
-                                    </select>
-                                    <div class="form-text">Ctrl+klik za više kategorija</div>
+                                    <partial name="_KategorijeMultiSelect" model="msMajstora" />
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-medium">Lokacija</label>
-                                    <select name="MjestoID" class="form-select">
-                                        <option value="0">Odaberite grad...</option>
+                                    <label class="form-label fw-medium">Lokacija <span class="text-danger">*</span></label>
+                                    <select name="MjestoID" class="form-select" required>
+                                        <option value="">Odaberite grad...</option>
                                         @foreach (var m in mjesta)
                                         {
                                             <option value="@m.MjestoID">@m.Naziv</option>
@@ -241,8 +247,8 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Odustani</a>
-                        <button type="submit" class="btn btn-primary px-4">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary">Odustani</a>
+                        <button type="button" class="btn btn-primary px-4 objavi-btn">
                             <i class="fa-solid fa-paper-plane me-2"></i>Objavi oglas
                         </button>
                     </div>
@@ -254,7 +260,7 @@
         @if (mozeRadnoMjesto)
         {
             <div class="tab-pane fade @(aktivniTab == "radnomjesto" ? "show active" : "")" id="panel-radnomjesto" role="tabpanel">
-                <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasRadnoMjesto" method="post">
+                <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasRadnoMjesto" method="post" class="objavi-form" data-tip="oglas za posao">
                     @Html.AntiForgeryToken()
 
                     <div class="card border-0 shadow-sm mb-3">
@@ -270,13 +276,7 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium">Kategorija <span class="text-danger">*</span></label>
-                                    <select name="KategorijeID" class="form-select" multiple size="4" required>
-                                        @foreach (var kat in kategorije)
-                                        {
-                                            <option value="@kat.ID">@kat.Naziv</option>
-                                        }
-                                    </select>
-                                    <div class="form-text">Ctrl+klik za više kategorija</div>
+                                    <partial name="_KategorijeMultiSelect" model="msRadnoMjesto" />
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium">Lokacija <span class="text-danger">*</span></label>
@@ -290,7 +290,7 @@
                                 </div>
                             </div>
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-md-8">
                                     <label class="form-label fw-medium">Tip zaposlenja <span class="text-danger">*</span></label>
                                     <div class="d-flex flex-wrap gap-2 mt-1">
                                         @foreach (var vz in Enum.GetValues<VrstaZaposlenja>())
@@ -312,10 +312,9 @@
                                         }
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label class="form-label fw-medium">Broj izvršilaca <span class="text-danger">*</span></label>
-                                    <input type="number" name="BrojIzvrsilaca" class="form-control" min="1" value="1" required
-                                           placeholder="npr. 1" />
+                                    <input type="number" name="BrojIzvrsilaca" class="form-control" min="1" value="1" required placeholder="npr. 1" />
                                 </div>
                             </div>
                         </div>
@@ -358,11 +357,11 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label fw-medium">Minimalni prihod (KM)</label>
-                                    <input type="number" name="MinPrihod" class="form-control" min="0" placeholder="1.500" />
+                                    <input type="number" name="MinPrihod" class="form-control" min="0" placeholder="1500" />
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-medium">Maksimalni prihod (KM)</label>
-                                    <input type="number" name="MaxPrihod" class="form-control" min="0" placeholder="2.200" />
+                                    <input type="number" name="MaxPrihod" class="form-control" min="0" placeholder="2200" />
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-medium">Period isplate <span class="text-danger">*</span></label>
@@ -378,8 +377,8 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Odustani</a>
-                        <button type="submit" class="btn btn-primary px-4">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary">Odustani</a>
+                        <button type="button" class="btn btn-primary px-4 objavi-btn">
                             <i class="fa-solid fa-paper-plane me-2"></i>Objavi oglas
                         </button>
                     </div>
@@ -393,12 +392,12 @@
 @section Scripts {
 <script>
 (function () {
+    // --- Dodavanje uvjeta (radno mjesto) ---
     var btnDodajUvjet = document.getElementById('btnDodajUvjet');
     if (btnDodajUvjet) {
         btnDodajUvjet.addEventListener('click', function () {
             var container = document.getElementById('uvjetiContainer');
-            var children = container.querySelectorAll('.input-group');
-            if (children.length >= 3) {
+            if (container.querySelectorAll('.input-group').length >= 3) {
                 alert('Možete dodati najviše 3 uvjeta.');
                 return;
             }
@@ -407,6 +406,41 @@
             div.innerHTML = '<input type="text" name="Uvjeti" class="form-control" placeholder="Dodajte uvjet..." />' +
                 '<button type="button" class="btn btn-outline-secondary" onclick="this.closest(\'.input-group\').remove()">×</button>';
             container.appendChild(div);
+        });
+    }
+
+    // --- Potvrda objave (modal) ---
+    var overlay = document.getElementById('confirmModal');
+    var modalText = document.getElementById('confirmModalText');
+    var btnOk = document.getElementById('confirmModalOk');
+    var btnCancel = document.getElementById('confirmModalCancel');
+    var pendingForm = null;
+
+    document.querySelectorAll('.objavi-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var form = btn.closest('.objavi-form');
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+            pendingForm = form;
+            modalText.textContent = 'Jeste li sigurni da želite objaviti ' + (form.dataset.tip || 'oglas') + '?';
+            overlay.style.display = 'flex';
+        });
+    });
+
+    if (btnOk) {
+        btnOk.addEventListener('click', function () {
+            overlay.style.display = 'none';
+            if (pendingForm) pendingForm.submit();
+        });
+    }
+    if (btnCancel) {
+        btnCancel.addEventListener('click', function () {
+            overlay.style.display = 'none';
+            pendingForm = null;
+        });
+    }
+    if (overlay) {
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) { overlay.style.display = 'none'; pendingForm = null; }
         });
     }
 })();

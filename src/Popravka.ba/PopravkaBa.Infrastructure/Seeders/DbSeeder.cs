@@ -1079,6 +1079,32 @@ public class DbSeeder
         {
             await _context.OglasiRadnogMjesta.AddRangeAsync(oglasiRM);
             await _context.SaveChangesAsync();
+
+            // Kategorije za oglase radnog mjesta (mapiranje po naslovu, neovisno o tome koje su firme seedane)
+            var rmKatMapa = new Dictionary<string, string[]>
+            {
+                ["Tražimo iskusnog keramičara / moleraja"] = new[] { "Keramičke usluge", "Moleraj i farbanje" },
+                ["Fasader — projektni angažman"]            = new[] { "Fasaderski radovi", "Izolacijski radovi" },
+                ["Elektroinstalater — puno radno vrijeme"]  = new[] { "Elektroinstalacije" },
+                ["Solarni tehničar — praksa / junior"]      = new[] { "Solarni paneli" },
+                ["Vodoinstalater — honorarni angažman"]     = new[] { "Vodoinstalaterske usluge" },
+            };
+
+            var rmKat = new List<OglasKategorija>();
+            foreach (var oglas in oglasiRM)
+            {
+                if (rmKatMapa.TryGetValue(oglas.Naslov, out var nazivi))
+                {
+                    foreach (var naziv in nazivi)
+                        rmKat.Add(new OglasKategorija { OglasID = oglas.OglasID, KategorijaID = KatId(naziv) });
+                }
+            }
+
+            if (rmKat.Any())
+            {
+                await _context.OglasKategorije.AddRangeAsync(rmKat);
+                await _context.SaveChangesAsync();
+            }
         }
 
         // ── Recenzije ─────────────────────────────────────────────────────────

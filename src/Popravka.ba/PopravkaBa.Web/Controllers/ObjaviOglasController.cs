@@ -42,6 +42,7 @@ namespace PopravkaBa.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Klijent,Administrator")]
         public async Task<IActionResult> ObjaviOglasUsluge(ObjaviOglasUslugeDto dto)
         {
             if (!ModelState.IsValid)
@@ -53,9 +54,9 @@ namespace PopravkaBa.Web.Controllers
             try
             {
                 var vlasnikId = _userManager.GetUserId(User)!;
-                await _uslugeService.ObjaviOglas(dto, vlasnikId);
+                var oglasId = await _uslugeService.ObjaviOglas(dto, vlasnikId);
                 TempData["Success"] = "Oglas usluge je uspješno objavljen.";
-                return RedirectToAction("Detalji", "OglasUsluge");
+                return RedirectToAction("Detalji", "OglasUsluge", new { id = oglasId });
             }
             catch (Exception ex)
             {
@@ -69,6 +70,7 @@ namespace PopravkaBa.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Majstor,Firma,Administrator")]
         public async Task<IActionResult> ObjaviOglasMajstora(ObjaviOglasMajstoraDto dto)
         {
             if (!ModelState.IsValid)
@@ -80,9 +82,9 @@ namespace PopravkaBa.Web.Controllers
             try
             {
                 var vlasnikId = _userManager.GetUserId(User)!;
-                await _majstoraService.ObjaviOglas(dto, vlasnikId);
+                var oglasId = await _majstoraService.ObjaviOglas(dto, vlasnikId);
                 TempData["Success"] = "Oglas majstora je uspješno objavljen.";
-                return RedirectToAction("Detalji", "OglasMajstora");
+                return RedirectToAction("Detalji", "OglasMajstora", new { id = oglasId });
             }
             catch (Exception ex)
             {
@@ -96,6 +98,7 @@ namespace PopravkaBa.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Firma,Administrator")]
         public async Task<IActionResult> ObjaviOglasRadnoMjesto(ObjaviOglasRadnoMjestoDto dto)
         {
             // Filtriramo prazne uvjete
