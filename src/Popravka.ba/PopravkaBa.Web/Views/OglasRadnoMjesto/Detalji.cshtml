@@ -133,6 +133,12 @@
                         </div>
                     }
 
+                    @if (!string.IsNullOrEmpty(Model.Slika))
+                    {
+                        <img src="@Model.Slika" alt="@Model.Naslov"
+                             class="img-fluid rounded mb-3 w-100" style="max-height:360px;object-fit:cover;" />
+                    }
+
                     @if (!string.IsNullOrEmpty(Model.Opis))
                     {
                         <p style="white-space: pre-line;">@Model.Opis</p>
@@ -336,13 +342,11 @@
                         }
                         else
                         {
-                            <p class="text-muted small mb-2">Oglas je trenutno aktivan i još uvijek možete dostaviti vašu ponudu korisniku</p>
-                            <form asp-controller="PrijavaOglas" asp-action="Apliciraj" method="get">
-                                <input type="hidden" name="oglasId" value="@Model.OglasId" />
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fa-solid fa-paper-plane me-2"></i>Apliciraj ponudu
-                                </button>
-                            </form>
+                            <p class="text-muted small mb-2">Oglas je trenutno aktivan i još uvijek možete dostaviti vašu prijavu poslodavcu.</p>
+                            <a asp-controller="PrijavaOglas" asp-action="Apliciraj" asp-route-oglasId="@Model.OglasId"
+                               class="btn btn-primary w-100">
+                                <i class="fa-solid fa-paper-plane me-2"></i>Apliciraj na oglas
+                            </a>
                         }
                     </div>
                 </div>

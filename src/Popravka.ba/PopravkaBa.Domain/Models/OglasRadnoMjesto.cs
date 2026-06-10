@@ -19,6 +19,10 @@ namespace PopravkaBa.Domain.Models
         public int MaxPrihod { get; set; } = 0;
         public TipIsplate TipIsplate { get; set; }
         public int MinIskustvo { get; set; }
+
+        // Opcionalna slika oglasa (javni URL na storage-u)
+        public string? Slika { get; set; }
+
         public override int BrojPrijava => Prijave?.Count ?? 0;
         
     }

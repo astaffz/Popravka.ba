@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
+using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Models;
 
 namespace PopravkaBa.Web.Controllers
@@ -14,14 +15,19 @@ namespace PopravkaBa.Web.Controllers
         private readonly IOglasMajstoraFacade _majstoraService;
         private readonly IOglasRadnoMjestoFacade _radnoMjestoService;
         private readonly IMjestoService _mjestoService;
+        private readonly IFileStorage _storage;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<ObjaviOglasController> _logger;
+
+        private static readonly string[] DozvoljeniFormati = { ".jpg", ".jpeg", ".png", ".webp" };
+        private const long MaxSlikaVelicina = 5 * 1024 * 1024; // 5MB
 
         public ObjaviOglasController(
             IOglasUslugeFacade uslugeService,
             IOglasMajstoraFacade majstoraService,
             IOglasRadnoMjestoFacade radnoMjestoService,
             IMjestoService mjestoService,
+            IFileStorage storage,
             UserManager<ApplicationUser> userManager,
             ILogger<ObjaviOglasController> logger)
         {
@@ -29,8 +35,30 @@ namespace PopravkaBa.Web.Controllers
             _majstoraService = majstoraService;
             _radnoMjestoService = radnoMjestoService;
             _mjestoService = mjestoService;
+            _storage = storage;
             _userManager = userManager;
             _logger = logger;
+        }
+
+        // Vraća javni URL ako je slika validna; null ako nema slike; baca poruku kroz ModelState ako je nevalidna.
+        private async Task<string?> UploadSlikeAsync(IFormFile? slika, CancellationToken ct)
+        {
+            if (slika is not { Length: > 0 }) return null;
+
+            var ekstenzija = Path.GetExtension(slika.FileName).ToLowerInvariant();
+            if (!DozvoljeniFormati.Contains(ekstenzija))
+            {
+                ModelState.AddModelError("Slika", "Nepodržan format slike (.jpg, .jpeg, .png, .webp).");
+                return null;
+            }
+            if (slika.Length > MaxSlikaVelicina)
+            {
+                ModelState.AddModelError("Slika", "Slika ne smije biti veća od 5MB.");
+                return null;
+            }
+
+            await using var s = slika.OpenReadStream();
+            return await _storage.SpremiSlikuPublic(s, slika.ContentType, ct);
         }
 
         public async Task<IActionResult> Index(string? tab)
@@ -99,10 +127,12 @@ namespace PopravkaBa.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Firma,Administrator")]
-        public async Task<IActionResult> ObjaviOglasRadnoMjesto(ObjaviOglasRadnoMjestoDto dto)
+        public async Task<IActionResult> ObjaviOglasRadnoMjesto(ObjaviOglasRadnoMjestoDto dto, IFormFile? slika, CancellationToken ct = default)
         {
             // Filtriramo prazne uvjete
             dto.Uvjeti = dto.Uvjeti?.Where(u => !string.IsNullOrWhiteSpace(u)).ToList() ?? new();
+
+            dto.Slika = await UploadSlikeAsync(slika, ct);
 
             if (!ModelState.IsValid)
             {

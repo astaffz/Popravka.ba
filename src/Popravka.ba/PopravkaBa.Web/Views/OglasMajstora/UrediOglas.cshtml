@@ -25,13 +25,13 @@
             <div class="card-body p-4">
                 <h5 class="fw-semibold mb-3">Osnovne informacije</h5>
                 <div class="mb-3">
-                    <label asp-for="Naslov" class="form-label fw-medium">Naziv usluge *</label>
+                    <label asp-for="Naslov" class="form-label fw-medium">Naziv usluge</label>
                     <input asp-for="Naslov" class="form-control" />
                     <span asp-validation-for="Naslov" class="text-danger small"></span>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-medium">Kategorija *</label>
+                        <label class="form-label fw-medium">Kategorija</label>
                         <partial name="_KategorijeMultiSelect" model="msKat" />
                     </div>
                     <div class="col-md-6">
@@ -68,7 +68,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="TipIsplate" class="form-label fw-medium">Tip isplate *</label>
+                        <label asp-for="TipIsplate" class="form-label fw-medium">Tip isplate</label>
                         <select name="TipIsplate" class="form-select" required>
                             <option value="1" selected="@(Model.TipIsplate == TipIsplate.PoSatu ? "selected" : null)">Po satu</option>
                             <option value="0" selected="@(Model.TipIsplate == TipIsplate.Jednokratno ? "selected" : null)">Jednokratno (fiksno)</option>

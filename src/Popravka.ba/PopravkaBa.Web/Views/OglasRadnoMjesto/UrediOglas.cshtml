@@ -17,7 +17,7 @@
     <h3 class="fw-bold mb-1">Uredi oglas za posao</h3>
     <p class="text-muted mb-4">Izmijenite podatke svog oglasa.</p>
 
-    <form asp-action="UrediOglas" asp-route-id="@Model.OglasID" method="post" id="radnoMjestoForm">
+    <form asp-action="UrediOglas" asp-route-id="@Model.OglasID" method="post" id="radnoMjestoForm" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="OglasID" />
         <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display:none;"></div>
@@ -26,17 +26,17 @@
             <div class="card-body p-4">
                 <h5 class="fw-semibold mb-3">Osnovne informacije</h5>
                 <div class="mb-3">
-                    <label asp-for="Naslov" class="form-label fw-medium">Naziv radnog mjesta *</label>
+                    <label asp-for="Naslov" class="form-label fw-medium">Naziv radnog mjesta</label>
                     <input asp-for="Naslov" class="form-control" />
                     <span asp-validation-for="Naslov" class="text-danger small"></span>
                 </div>
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-medium">Kategorija *</label>
+                        <label class="form-label fw-medium">Kategorija</label>
                         <partial name="_KategorijeMultiSelect" model="msKat" />
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="MjestoID" class="form-label fw-medium">Lokacija *</label>
+                        <label asp-for="MjestoID" class="form-label fw-medium">Lokacija</label>
                         <select asp-for="MjestoID" class="form-select" required>
                             <option value="">Odaberite grad...</option>
                             @foreach (var m in mjesta)
@@ -49,7 +49,7 @@
                 </div>
                 <div class="row g-3">
                     <div class="col-md-8">
-                        <label class="form-label fw-medium">Tip zaposlenja *</label>
+                        <label class="form-label fw-medium">Tip zaposlenja</label>
                         <div class="d-flex flex-wrap gap-2 mt-1">
                             @foreach (var vz in Enum.GetValues<VrstaZaposlenja>())
                             {
@@ -71,7 +71,7 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label asp-for="BrojIzvrsilaca" class="form-label fw-medium">Broj izvršilaca *</label>
+                        <label asp-for="BrojIzvrsilaca" class="form-label fw-medium">Broj izvršilaca</label>
                         <input asp-for="BrojIzvrsilaca" type="number" class="form-control" min="1" required />
                     </div>
                 </div>
@@ -82,7 +82,7 @@
             <div class="card-body p-4">
                 <h5 class="fw-semibold mb-3">Opis posla i uvjeti</h5>
                 <div class="mb-3">
-                    <label asp-for="Opis" class="form-label fw-medium">Opis radnog mjesta *</label>
+                    <label asp-for="Opis" class="form-label fw-medium">Opis radnog mjesta</label>
                     <textarea asp-for="Opis" class="form-control" rows="5" maxlength="800"></textarea>
                     <span asp-validation-for="Opis" class="text-danger small"></span>
                 </div>
@@ -125,7 +125,7 @@
                         <input asp-for="MaxPrihod" type="number" class="form-control" min="0" />
                     </div>
                     <div class="col-md-4">
-                        <label asp-for="TipIsplate" class="form-label fw-medium">Period isplate *</label>
+                        <label asp-for="TipIsplate" class="form-label fw-medium">Period isplate</label>
                         <select name="TipIsplate" class="form-select" required>
                             <option value="3" selected="@(Model.TipIsplate == TipIsplate.Mjesecno ? "selected" : null)">Mjesečno</option>
                             <option value="2" selected="@(Model.TipIsplate == TipIsplate.Sedmicno ? "selected" : null)">Sedmično</option>
@@ -134,6 +134,21 @@
                         </select>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Slika oglasa <span class="text-muted fw-normal small">(opcionalno)</span></h5>
+                @if (!string.IsNullOrEmpty(Model.Slika))
+                {
+                    <div class="mb-2">
+                        <img src="@Model.Slika" alt="Trenutna slika" class="img-fluid rounded" style="max-height:200px;object-fit:cover;" />
+                        <div class="form-text">Trenutna slika. Odaberite novu da je zamijenite.</div>
+                    </div>
+                }
+                <input type="file" name="slika" class="form-control" accept="image/png,image/jpeg,image/webp" />
+                <div class="form-text">JPG, PNG ili WEBP – maksimalno 5MB.</div>
             </div>
         </div>
 

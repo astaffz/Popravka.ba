@@ -15,6 +15,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public TipIsplate TipIsplate { get; set; }
         public VrstaZaposlenja VrstaZaposlenja { get; set; }
         public int BrojIzvrsilaca { get; set; }
+        public string? Slika { get; set; }
         public List<string> Kategorije { get; set; } = new();
         public List<string> Uvjeti { get; set; } = new();
 

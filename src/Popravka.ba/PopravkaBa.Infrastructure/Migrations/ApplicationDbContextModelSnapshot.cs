@@ -889,6 +889,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<int>("MinPrihod")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Slika")
+                        .HasColumnType("text");
+
                     b.Property<int>("TipIsplate")
                         .HasColumnType("integer");
 

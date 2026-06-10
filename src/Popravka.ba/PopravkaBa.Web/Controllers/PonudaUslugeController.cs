@@ -58,6 +58,15 @@ namespace PopravkaBa.Web.Controllers
                 TempData["Error"] = "Molimo popunite sva obavezna polja.";
                 return RedirectToAction("Detalji", "OglasUsluge", new { id = dto.OglasUslugeID });
             }
+
+            // Validacija datuma: završetak mora biti nakon početka
+            if (dto.DatumOcekivanogZavrsetka.HasValue &&
+                dto.DatumOcekivanogZavrsetka.Value.Date < dto.DatumPocetkaUsluge.Date)
+            {
+                TempData["Error"] = "Datum završetka mora biti nakon datuma početka.";
+                return RedirectToAction("Detalji", "OglasUsluge", new { id = dto.OglasUslugeID });
+            }
+
             try
             {
                 var izvrsilacId = _userManager.GetUserId(User)!;

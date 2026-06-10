@@ -17,6 +17,7 @@ using PopravkaBa.Infrastructure.Adapters.Options;
 using PopravkaBa.Infrastructure.BackgroundServices;
 using PopravkaBa.Infrastructure.Repositories;
 using PopravkaBa.Infrastructure.Seeders;
+using System.Globalization;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -188,6 +189,18 @@ else
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
+// Lokalizacija: bazirana na InvariantCulture (decimalni separator ostaje "."),
+// ali s dd/MM/yyyy formatom datuma za prikaz i model binding formi.
+var bhKultura = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+bhKultura.DateTimeFormat.ShortDatePattern = "dd/MM/yyyy";
+bhKultura.DateTimeFormat.DateSeparator = "/";
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(bhKultura),
+    SupportedCultures = new[] { bhKultura },
+    SupportedUICultures = new[] { bhKultura }
+});
 
 app.UseRouting();
 app.UseRateLimiter();

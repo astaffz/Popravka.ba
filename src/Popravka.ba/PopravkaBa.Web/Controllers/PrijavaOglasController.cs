@@ -1,17 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
+using PopravkaBa.Domain.Enums;
+using PopravkaBa.Domain.Models;
 
 public class PrijavaOglasController : Controller
 {
     private readonly IPrijavaOglasService _prijavaOglasService;
     private readonly IOglasRadnoMjestoService _oglasRadnoMjestoService;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<PrijavaOglasController> _logger;
 
-    public PrijavaOglasController(IPrijavaOglasService prijavaOglasService, IOglasRadnoMjestoService oglasRadnoMjestoService, ILogger<PrijavaOglasController> logger)
+    public PrijavaOglasController(IPrijavaOglasService prijavaOglasService, IOglasRadnoMjestoService oglasRadnoMjestoService, UserManager<ApplicationUser> userManager, ILogger<PrijavaOglasController> logger)
     {
         _prijavaOglasService = prijavaOglasService;
         _oglasRadnoMjestoService = oglasRadnoMjestoService;
+        _userManager = userManager;
         _logger = logger;
     }
 
@@ -23,20 +29,44 @@ public class PrijavaOglasController : Controller
     }
 
 
-    public IActionResult Apliciraj(int oglasId)
+    [Authorize(Roles = "Majstor")]
+    public async Task<IActionResult> Apliciraj(int oglasId)
     {
-        var dto = new KreirajPrijavaRadnoMjestoDto
+        var oglas = await _oglasRadnoMjestoService.DajOglasPoId(oglasId);
+        if (oglas is null) return NotFound();
+
+        if (oglas.StatusOglasa != Status.Aktivan)
         {
-            OglasID = oglasId
-        };
-        return View(dto);
+            TempData["Error"] = "Oglas više nije aktivan.";
+            return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = oglasId });
+        }
+
+        var korisnikId = _userManager.GetUserId(User);
+        var vecPrijavljen = oglas.Prijave?.Any(p => p.MajstorID == korisnikId) ?? false;
+        if (vecPrijavljen)
+        {
+            TempData["Error"] = "Već ste se prijavili na ovaj oglas.";
+            return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = oglasId });
+        }
+
+        ViewBag.Oglas = oglas;
+        return View(new KreirajPrijavaRadnoMjestoDto { OglasID = oglasId });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Majstor")]
     public async Task<IActionResult> Apliciraj(KreirajPrijavaRadnoMjestoDto dto)
     {
-        if (!ModelState.IsValid) return View(dto);
+        // MajstorID se postavlja sa servera (prijavljeni korisnik), ne iz forme
+        dto.MajstorID = _userManager.GetUserId(User)!;
+        ModelState.Remove(nameof(dto.MajstorID));
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Oglas = await _oglasRadnoMjestoService.DajOglasPoId(dto.OglasID);
+            return View(dto);
+        }
 
         try
         {
@@ -47,8 +77,8 @@ public class PrijavaOglasController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Greška pri kreiranju prijave.");
-            ModelState.AddModelError("", "Došlo je do greške.");
-            return View(dto);
+            TempData["Error"] = "Došlo je do greške pri slanju prijave.";
+            return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = dto.OglasID });
         }
     }
 

@@ -97,6 +97,7 @@ namespace PopravkaBa.Application.Services
                 MinPrihod = dto.MinPrihod,
                 MaxPrihod = dto.MaxPrihod,
                 TipIsplate = dto.TipIsplate,
+                Slika = dto.Slika,
                 DatumObjave = DateTime.UtcNow,
                 VlasnikOglasaID = vlasnikId
             };
@@ -141,6 +142,8 @@ namespace PopravkaBa.Application.Services
             oglas.MinPrihod = dto.MinPrihod;
             oglas.MaxPrihod = dto.MaxPrihod;
             oglas.TipIsplate = dto.TipIsplate;
+            if (dto.Slika is not null)
+                oglas.Slika = dto.Slika;
 
             await _repo.UrediAsync(oglas);
         }

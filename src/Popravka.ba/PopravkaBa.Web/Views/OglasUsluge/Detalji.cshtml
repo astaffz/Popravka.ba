@@ -318,25 +318,24 @@
                         else
                         {
                             <h6 class="fw-semibold mb-3">Pošalji ponudu</h6>
-                            <form id="ponudaForm" asp-controller="PonudaUsluge" asp-action="PosaljiPonudu" method="post">
+                            <form asp-controller="PonudaUsluge" asp-action="PosaljiPonudu" method="post"
+                                  onsubmit="return confirm('Ponuda se ne može povući, a po oglasu možete poslati samo jednu ponudu. Želite li poslati ponudu?');">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="OglasUslugeID" value="@Model.OglasId" />
                                 <div class="mb-2">
-                                    <label class="form-label small fw-medium">Datum početka <span class="text-danger">*</span></label>
-                                    <input type="date" id="datumPocetka" name="DatumPocetkaUsluge" class="form-control form-control-sm" required
-                                           min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                    <label class="form-label small fw-medium">Datum početka</label>
+                                    <input type="text" name="DatumPocetkaUsluge" class="form-control form-control-sm"
+                                           placeholder="dd/mm/yyyy" required />
                                 </div>
                                 <div class="mb-2">
-                                    <label class="form-label small fw-medium">Očekivani završetak</label>
-                                    <input type="date" id="datumKraja" name="DatumOcekivanogZavrsetka" class="form-control form-control-sm" />
-                                    <div id="datumKrajaGreska" class="text-danger small mt-1" style="display:none;">
-                                        Datum završetka mora biti nakon datuma početka.
-                                    </div>
+                                    <label class="form-label small fw-medium">Očekivani završetak <span class="text-muted">(opcionalno)</span></label>
+                                    <input type="text" name="DatumOcekivanogZavrsetka" class="form-control form-control-sm"
+                                           placeholder="dd/mm/yyyy" />
                                 </div>
                                 <div class="row g-2 mb-2">
                                     <div class="col-6">
                                         <label class="form-label small fw-medium">Cijena (KM)</label>
-                                        <input type="number" name="Cijena" class="form-control form-control-sm" min="0" placeholder="npr. 50" />
+                                        <input type="number" name="Cijena" class="form-control form-control-sm" min="0" placeholder="npr. 50" required />
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label small fw-medium">Tip isplate</label>
@@ -348,12 +347,15 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-2">
                                     <label class="form-label small fw-medium">Poruka <span class="text-muted">(opcionalno)</span></label>
                                     <textarea name="Poruka" class="form-control form-control-sm" rows="3" maxlength="500"
                                               placeholder="Kratko se predstavite..."></textarea>
                                 </div>
-                                <button type="button" id="btnPosaljiPonudu" class="btn btn-primary w-100">
+                                <p class="text-muted mb-2" style="font-size:.75rem;">
+                                    Napomena: ponuda se ne može povući, a po oglasu možete poslati samo jednu ponudu.
+                                </p>
+                                <button type="submit" class="btn btn-primary w-100">
                                     <i class="fa-solid fa-paper-plane me-2"></i>Pošalji ponudu
                                 </button>
                             </form>
@@ -409,8 +411,9 @@
 @section Scripts {
 <script>
 (function () {
-    // ---- Confirm modal (Prihvati/Odbij) ----
+    // ---- Confirm modal (Prihvati/Odbij/Obriši) ----
     var overlay = document.getElementById('confirmModal');
+    if (!overlay) return;
     var modalText = document.getElementById('confirmModalText');
     var btnOk = document.getElementById('confirmModalOk');
     var btnCancel = document.getElementById('confirmModalCancel');
@@ -435,67 +438,6 @@
     overlay.addEventListener('click', function (e) {
         if (e.target === overlay) { overlay.style.display = 'none'; pendingForm = null; }
     });
-
-    // ---- Date validation ----
-    var datumPocetka = document.getElementById('datumPocetka');
-    var datumKraja   = document.getElementById('datumKraja');
-    var datumKrajaGreska = document.getElementById('datumKrajaGreska');
-
-    if (datumKraja) {
-        datumKraja.addEventListener('change', function () {
-            if (datumPocetka && datumKraja.value && datumPocetka.value) {
-                var ok = datumKraja.value >= datumPocetka.value;
-                if (datumKrajaGreska) datumKrajaGreska.style.display = ok ? 'none' : 'block';
-                datumKraja.setCustomValidity(ok ? '' : 'Datum završetka mora biti nakon datuma početka.');
-            }
-        });
-        if (datumPocetka) {
-            datumPocetka.addEventListener('change', function () {
-                if (datumKraja.value) datumKraja.dispatchEvent(new Event('change'));
-            });
-        }
-    }
-
-    // ---- Ponuda submit modal ----
-    var btnPosalji = document.getElementById('btnPosaljiPonudu');
-    if (btnPosalji) {
-        // Dodaj ponuda-warn modal u DOM
-        var warnHtml = '<div id="ponudaWarnModal" class="confirm-modal-overlay" style="display:none;" role="dialog" aria-modal="true">' +
-            '<div class="confirm-modal-box">' +
-            '<p class="confirm-modal-text"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i>' +
-            '<strong>Pažnja!</strong><br>Jednom poslana ponuda <strong>ne može se povući</strong>. Isti izvršilac ne može ' +
-            'poslati više od jedne ponude na isti oglas.</p>' +
-            '<div class="confirm-modal-actions">' +
-            '<button id="ponudaWarnCancel" class="btn btn-secondary btn-sm">Odustani</button>' +
-            '<button id="ponudaWarnOk" class="btn btn-primary btn-sm"><i class="fa-solid fa-paper-plane me-1"></i>Pošalji</button>' +
-            '</div></div></div>';
-        document.body.insertAdjacentHTML('beforeend', warnHtml);
-
-        var warnModal = document.getElementById('ponudaWarnModal');
-        document.getElementById('ponudaWarnCancel').addEventListener('click', function () {
-            warnModal.style.display = 'none';
-        });
-        document.getElementById('ponudaWarnOk').addEventListener('click', function () {
-            warnModal.style.display = 'none';
-            document.getElementById('ponudaForm').submit();
-        });
-        warnModal.addEventListener('click', function (e) {
-            if (e.target === warnModal) warnModal.style.display = 'none';
-        });
-
-        btnPosalji.addEventListener('click', function () {
-            var form = document.getElementById('ponudaForm');
-            // Provjera HTML5 validacije
-            if (!form.checkValidity()) { form.reportValidity(); return; }
-            // Provjera datuma
-            if (datumKraja && datumKraja.value && datumPocetka && datumPocetka.value &&
-                datumKraja.value < datumPocetka.value) {
-                if (datumKrajaGreska) datumKrajaGreska.style.display = 'block';
-                return;
-            }
-            warnModal.style.display = 'flex';
-        });
-    }
 })();
 </script>
 }

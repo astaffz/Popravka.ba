@@ -40,13 +40,17 @@ namespace PopravkaBa.Application.Services.Implementation
             if (oglas.StatusOglasa != Status.Aktivan)
                 throw new InvalidOperationException("Oglas nije aktivan.");
 
+            // PostgreSQL kolone su 'timestamp with time zone' → DateTime mora biti Kind=Utc,
+            // inače Npgsql baca grešku. Datumi iz forme su Kind=Unspecified pa ih označavamo kao UTC.
             var ponuda = new PonudaUsluge
             {
                 OglasUslugeID = dto.OglasUslugeID,
                 IzvrsilacID = izvrsilacId,
                 DatumSlanja = DateTime.UtcNow,
-                DatumPocetkaUsluge = dto.DatumPocetkaUsluge,
-                DatumOcekivanogZavrsetka = dto.DatumOcekivanogZavrsetka,
+                DatumPocetkaUsluge = DateTime.SpecifyKind(dto.DatumPocetkaUsluge, DateTimeKind.Utc),
+                DatumOcekivanogZavrsetka = dto.DatumOcekivanogZavrsetka.HasValue
+                    ? DateTime.SpecifyKind(dto.DatumOcekivanogZavrsetka.Value, DateTimeKind.Utc)
+                    : null,
                 Cijena = dto.Cijena,
                 TipIsplate = dto.TipIsplate,
                 Poruka = dto.Poruka,
