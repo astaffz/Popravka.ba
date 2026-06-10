@@ -41,6 +41,7 @@ namespace PopravkaBa.Web.Controllers
             if (oglas is null) return NotFound();
 
             var trenutniKorisnikId = _userManager.GetUserId(User);
+            var vlasnik = await _userManager.FindByIdAsync(oglas.VlasnikOglasaID);
 
             var vm = new OglasMajstoraDetaljiViewModel
             {
@@ -54,7 +55,8 @@ namespace PopravkaBa.Web.Controllers
                 TipIsplate   = oglas.TipIsplate,
                 Kategorije   = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
                                     .Where(n => n != "").ToList() ?? new(),
-                VlasnikId    = oglas.VlasnikOglasaID,
+                VlasnikId       = oglas.VlasnikOglasaID,
+                VlasnikUsername = vlasnik?.UserName ?? oglas.VlasnikOglasaID,
                 VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
                 VlasnikSlika = oglas.VlasnikOglasa?.Slika,
                 JeVlasnik    = trenutniKorisnikId == oglas.VlasnikOglasaID
@@ -204,19 +206,29 @@ namespace PopravkaBa.Web.Controllers
             if (oglas is null) return NotFound();
 
             var trenutniKorisnikId = _userManager.GetUserId(User);
+            var vlasnik = await _userManager.FindByIdAsync(oglas.VlasnikOglasaID);
 
-            var prijaveDto = oglas.Prijave?.Select(p => new PrijavaDto
+            var prijaveDto = new List<PrijavaDto>();
+            if (oglas.Prijave != null)
             {
-                PrijavaId       = p.ID,
-                MajstorId       = p.MajstorID,
-                MajstorIme      = p.Majstor?.DisplayName ?? "—",
-                MajstorSlika    = p.Majstor?.Slika,
-                MajstorKategorija = p.Majstor?.Kategorije?.FirstOrDefault()?.Kategorija?.Naziv,
-                ProsjecnaOcjena = (decimal)(p.Majstor?.ProsjecnaOcjena ?? 0),
-                BrojRecenzija   = p.Majstor?.BrojRecenzija ?? 0,
-                VrijemePrijave  = p.VrijemePrijave,
-                StatusPrijave   = p.StatusPrijave
-            }).ToList() ?? new List<PrijavaDto>();
+                foreach (var p in oglas.Prijave)
+                {
+                    var majstorUser = await _userManager.FindByIdAsync(p.MajstorID);
+                    prijaveDto.Add(new PrijavaDto
+                    {
+                        PrijavaId         = p.ID,
+                        MajstorId         = p.MajstorID,
+                        MajstorUsername   = majstorUser?.UserName ?? p.MajstorID,
+                        MajstorIme        = p.Majstor?.DisplayName ?? "—",
+                        MajstorSlika      = p.Majstor?.Slika,
+                        MajstorKategorija = p.Majstor?.Kategorije?.FirstOrDefault()?.Kategorija?.Naziv,
+                        ProsjecnaOcjena   = (decimal)(p.Majstor?.ProsjecnaOcjena ?? 0),
+                        BrojRecenzija     = p.Majstor?.BrojRecenzija ?? 0,
+                        VrijemePrijave    = p.VrijemePrijave,
+                        StatusPrijave     = p.StatusPrijave
+                    });
+                }
+            }
 
             var vm = new OglasRadnoMjestoDetaljiViewModel
             {
@@ -235,6 +247,7 @@ namespace PopravkaBa.Web.Controllers
                                        .Where(n => n != "").ToList() ?? new(),
                 Uvjeti           = oglas.Uvjeti?.Select(u => u.TekstUvjeta).ToList() ?? new(),
                 VlasnikId        = oglas.VlasnikOglasaID,
+                VlasnikUsername  = vlasnik?.UserName ?? oglas.VlasnikOglasaID,
                 VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
                 VlasnikSlika     = oglas.VlasnikOglasa?.Slika,
                 Prijave          = prijaveDto,
@@ -354,12 +367,14 @@ namespace PopravkaBa.Web.Controllers
     {
         private readonly IOglasUslugeFacade _facadeService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IPonudaUslugeService _ponudaUslugeService;
         private readonly ILogger<OglasUslugeController> _logger;
 
-        public OglasUslugeController(IOglasUslugeFacade facadeService, UserManager<ApplicationUser> userManager, ILogger<OglasUslugeController> logger)
+        public OglasUslugeController(IOglasUslugeFacade facadeService, UserManager<ApplicationUser> userManager, IPonudaUslugeService ponudaUslugeService, ILogger<OglasUslugeController> logger)
         {
             _facadeService = facadeService;
             _userManager = userManager;
+            _ponudaUslugeService = ponudaUslugeService;
             _logger = logger;
         }
 
@@ -381,37 +396,47 @@ namespace PopravkaBa.Web.Controllers
             if (oglas is null) return NotFound();
 
             var trenutniKorisnikId = _userManager.GetUserId(User);
+            var vlasnik = await _userManager.FindByIdAsync(oglas.VlasnikOglasaID);
 
             // Mapiranje ponuda u DTO
-            var ponudeDto = oglas.Ponude?.Select(p => new PonudaDto
+            var ponudeDto = new List<PonudaDto>();
+            if (oglas.Ponude != null)
             {
-                PonudaId      = p.ID,
-                IzvrsilacId   = p.IzvrsilacID,
-                IzvrsilacIme  = p.Izvrsilac?.DisplayName ?? "—",
-                IzvrsilacSlika = p.Izvrsilac?.Slika,
-                IzvrsilacKategorija = p.Izvrsilac?.Kategorije?
-                    .FirstOrDefault()?.Kategorija?.Naziv,
-                Verificiran   = false, // TODO: uvesti Verificiran flag na IzvrsilacUsluge
-                Cijena        = p.Cijena,
-                TipIsplate    = p.TipIsplate,
-                ProsjecnaOcjena = (decimal)(p.Izvrsilac?.ProsjecnaOcjena ?? 0),
-                BrojRecenzija = p.Izvrsilac?.BrojRecenzija ?? 0,
-                DatumPocetka  = p.DatumPocetkaUsluge,
-                DatumKraja    = p.DatumOcekivanogZavrsetka,
-                StatusPonude  = p.StatusPonude,
-                Poruka        = p.Poruka
-            }).ToList() ?? new List<PonudaDto>();
+                foreach (var p in oglas.Ponude)
+                {
+                    var izvUser = await _userManager.FindByIdAsync(p.IzvrsilacID);
+                    ponudeDto.Add(new PonudaDto
+                    {
+                        PonudaId            = p.ID,
+                        IzvrsilacId         = p.IzvrsilacID,
+                        IzvrsilacUsername   = izvUser?.UserName ?? p.IzvrsilacID,
+                        IzvrsilacIme        = p.Izvrsilac?.DisplayName ?? "—",
+                        IzvrsilacSlika      = p.Izvrsilac?.Slika,
+                        IzvrsilacKategorija = p.Izvrsilac?.Kategorije?.FirstOrDefault()?.Kategorija?.Naziv,
+                        Verificiran         = false,
+                        Cijena              = p.Cijena,
+                        TipIsplate          = p.TipIsplate,
+                        ProsjecnaOcjena     = (decimal)(p.Izvrsilac?.ProsjecnaOcjena ?? 0),
+                        BrojRecenzija       = p.Izvrsilac?.BrojRecenzija ?? 0,
+                        DatumPocetka        = p.DatumPocetkaUsluge,
+                        DatumKraja          = p.DatumOcekivanogZavrsetka,
+                        StatusPonude        = p.StatusPonude,
+                        Poruka              = p.Poruka
+                    });
+                }
+            }
 
-            // Prosječna cijena ponuda (samo oni koji imaju cijenu)
-            var cijeneKojePostoje = ponudeDto.Where(p => p.Cijena.HasValue).Select(p => (decimal)p.Cijena!.Value).ToList();
-            decimal? prosjecnaCijena = cijeneKojePostoje.Any() ? cijeneKojePostoje.Average() : null;
+            // Prosječna cijena po kategoriji oglasa (platforma-wide)
+            var kategorijeIds = oglas.Kategorije?.Select(k => k.KategorijaID).ToList() ?? new();
+            decimal? prosjecnaCijenaKategorije = kategorijeIds.Any()
+                ? await _ponudaUslugeService.DajProsjekCijenePoKategorijama(kategorijeIds)
+                : null;
 
             // Izračunaj razliku od prosjeka za svaku ponudu
-            if (prosjecnaCijena.HasValue)
-            {
-                foreach (var p in ponudeDto.Where(p => p.Cijena.HasValue))
-                    p.RazlikaOdProsjeka = (decimal)p.Cijena!.Value - prosjecnaCijena.Value;
-            }
+            foreach (var p in ponudeDto.Where(p => p.Cijena.HasValue))
+                p.RazlikaOdProsjeka = prosjecnaCijenaKategorije.HasValue
+                    ? (decimal)p.Cijena!.Value - prosjecnaCijenaKategorije.Value
+                    : null;
 
             var vm = new OglasUslugeDetaljiViewModel
             {
@@ -425,10 +450,11 @@ namespace PopravkaBa.Web.Controllers
                 MaxBudzet     = oglas.MaxBudzet,
                 Kategorije    = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "").Where(n => n != "").ToList() ?? new(),
                 VlasnikId     = oglas.VlasnikOglasaID,
+                VlasnikUsername = vlasnik?.UserName ?? oglas.VlasnikOglasaID,
                 VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
                 VlasnikSlika  = oglas.VlasnikOglasa?.Slika,
                 Ponude        = ponudeDto,
-                ProsjecnaCijenaPonude = prosjecnaCijena,
+                ProsjecnaCijenaPonude = prosjecnaCijenaKategorije,
                 JeVlasnik     = trenutniKorisnikId == oglas.VlasnikOglasaID
                                 || User.IsInRole("Administrator"),
                 MozeApplicirati = (User.IsInRole("Majstor") || User.IsInRole("Firma"))

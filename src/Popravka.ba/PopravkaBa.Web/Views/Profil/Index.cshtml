@@ -1,0 +1,131 @@
+@model PopravkaBa.Web.Models.ViewModels.ProfilViewModel
+@using PopravkaBa.Domain.Enums
+@{
+    ViewData["Title"] = Model.DisplayName + " – Profil";
+
+    string tipIsplateLabel(TipIsplate t) => t switch
+    {
+        TipIsplate.PoSatu      => "/h",
+        TipIsplate.Jednokratno => " fiksno",
+        TipIsplate.Sedmicno    => "/sedm.",
+        TipIsplate.Mjesecno    => "/mj.",
+        _ => ""
+    };
+
+    string ulogaLabel(string u) => u switch
+    {
+        "Majstor"       => "Majstor",
+        "Firma"         => "Firma",
+        "Klijent"       => "Klijent",
+        "Administrator" => "Administrator",
+        _               => u
+    };
+}
+
+<div class="container mt-4 mb-5">
+
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Početna</a></li>
+            <li class="breadcrumb-item active">Profil</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- Lijeva kolona: avatar + info -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4 text-center">
+                    @if (!string.IsNullOrEmpty(Model.Slika))
+                    {
+                        <img src="@Model.Slika" alt="@Model.DisplayName"
+                             class="rounded-circle mb-3" style="width:96px;height:96px;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <span class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center mx-auto mb-3"
+                              style="width:96px;height:96px;font-size:3rem;color:#6c757d;">
+                            <i class="fa-solid fa-circle-user"></i>
+                        </span>
+                    }
+                    <h4 class="fw-bold mb-1">@Model.DisplayName</h4>
+                    <p class="text-muted small mb-2">@@@Model.Username</p>
+                    <span class="badge bg-primary-subtle text-primary px-3 py-1">@ulogaLabel(Model.Uloga)</span>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fa-regular fa-calendar me-1"></i>
+                        Član od @Model.DatumRegistracije.ToString("MMMM yyyy.")
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desna kolona: sadržaj -->
+        <div class="col-lg-8">
+
+            @if ((Model.Uloga == "Majstor" || Model.Uloga == "Firma") && Model.OglasiMajstora.Any())
+            {
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-semibold">
+                            <i class="fa-solid fa-briefcase me-2 text-primary"></i>
+                            Oglasi usluga (@Model.OglasiMajstora.Count)
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var oglas in Model.OglasiMajstora)
+                            {
+                                <li class="list-group-item p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <a asp-controller="OglasMajstora" asp-action="Detalji" asp-route-id="@oglas.OglasId"
+                                               class="fw-semibold text-decoration-none text-body">@oglas.Naslov</a>
+                                            @if (oglas.Kategorije.Any())
+                                            {
+                                                <div class="mt-1">
+                                                    @foreach (var kat in oglas.Kategorije)
+                                                    {
+                                                        <span class="badge bg-primary-subtle text-primary me-1 small">@kat</span>
+                                                    }
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(oglas.Lokacija))
+                                            {
+                                                <small class="text-muted"><i class="fa-solid fa-location-dot me-1"></i>@oglas.Lokacija</small>
+                                            }
+                                        </div>
+                                        <div class="text-end ms-3 flex-shrink-0">
+                                            <span class="fw-bold text-primary">
+                                                od @oglas.MinCijena.ToString("F0") KM@(tipIsplateLabel(oglas.TipIsplate))
+                                            </span>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+            else if (Model.Uloga == "Majstor" || Model.Uloga == "Firma")
+            {
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4 text-center text-muted">
+                        <i class="fa-solid fa-inbox fa-2x mb-2 d-block"></i>
+                        Ovaj korisnik još nema objavljenih oglasa usluga.
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4 text-center text-muted">
+                        <i class="fa-solid fa-user fa-2x mb-2 d-block"></i>
+                        Javni dio profila ovog korisnika nije dostupan.
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

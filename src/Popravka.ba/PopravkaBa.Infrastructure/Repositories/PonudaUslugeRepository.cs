@@ -55,5 +55,18 @@ namespace PopravkaBa.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<decimal?> DajProsjekCijenePoKategorijama(IEnumerable<int> kategorijeIds)
+        {
+            var idsArr = kategorijeIds.ToList();
+            if (!idsArr.Any()) return null;
+
+            var query = _context.PonudeUsluge
+                .Where(p => p.Cijena.HasValue &&
+                       p.OglasUsluge.Kategorije.Any(k => idsArr.Contains(k.KategorijaID)));
+
+            if (!await query.AnyAsync()) return null;
+            return (decimal)await query.AverageAsync(p => (double)p.Cijena!.Value);
+        }
     }
 }

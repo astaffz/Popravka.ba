@@ -22,7 +22,7 @@ namespace PopravkaBa.Application.Services.Interface
         Task<IEnumerable<OglasRadnoMjesto?>> PronadjiOglase(string pretraga, int? lokacija);
         Task<IEnumerable<Kategorija?>> DajSveKategorije();
         Task<IEnumerable<UvjetOglasa?>> DajSveUvjeteOglasa(int id);
-        Task ObjaviOglas(ObjaviOglasRadnoMjestoDto dto, string vlasnikId);
+        Task<int> ObjaviOglas(ObjaviOglasRadnoMjestoDto dto, string vlasnikId);
         Task UrediOglas(UrediOglasRadnoMjestoDto dto);
         Task ObrisiOglas(int oglasId);
     }

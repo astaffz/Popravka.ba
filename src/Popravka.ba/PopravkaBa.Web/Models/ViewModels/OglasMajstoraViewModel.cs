@@ -16,6 +16,7 @@ namespace PopravkaBa.Web.Models.ViewModels
 
         // Vlasnik (Majstor/Firma)
         public string VlasnikId { get; set; }
+        public string VlasnikUsername { get; set; }
         public string VlasnikDisplayName { get; set; }
         public string? VlasnikSlika { get; set; }
 

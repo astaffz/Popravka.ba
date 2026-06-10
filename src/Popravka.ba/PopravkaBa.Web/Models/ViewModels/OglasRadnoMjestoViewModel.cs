@@ -20,6 +20,7 @@ namespace PopravkaBa.Web.Models.ViewModels
 
         // Vlasnik oglasa
         public string VlasnikId { get; set; }
+        public string VlasnikUsername { get; set; }
         public string VlasnikDisplayName { get; set; }
         public string? VlasnikSlika { get; set; }
 
@@ -36,6 +37,7 @@ namespace PopravkaBa.Web.Models.ViewModels
     {
         public int PrijavaId { get; set; }
         public string MajstorId { get; set; }
+        public string MajstorUsername { get; set; }
         public string MajstorIme { get; set; }
         public string? MajstorSlika { get; set; }
         public string? MajstorKategorija { get; set; }

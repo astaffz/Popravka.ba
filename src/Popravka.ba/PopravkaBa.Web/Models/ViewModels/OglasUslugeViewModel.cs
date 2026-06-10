@@ -18,6 +18,7 @@ namespace PopravkaBa.Web.Models.ViewModels
 
         // Vlasnik oglasa
         public string VlasnikId { get; set; }
+        public string VlasnikUsername { get; set; }
         public string VlasnikDisplayName { get; set; }
         public string? VlasnikSlika { get; set; }
 

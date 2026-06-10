@@ -10,5 +10,6 @@ namespace PopravkaBa.Domain.Interfaces
         Task DodajAsync(PonudaUsluge ponuda);
         Task UrediAsync(PonudaUsluge ponuda);
         Task ObrisiAsync(int id);
+        Task<decimal?> DajProsjekCijenePoKategorijama(IEnumerable<int> kategorijeIds);
     }
 }

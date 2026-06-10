@@ -90,5 +90,8 @@ namespace PopravkaBa.Application.Services.Implementation
             ponuda.StatusPonude = Status.Odbijeno;
             await _ponudaRepo.UrediAsync(ponuda);
         }
+
+        public async Task<decimal?> DajProsjekCijenePoKategorijama(IEnumerable<int> kategorijeIds) =>
+            await _ponudaRepo.DajProsjekCijenePoKategorijama(kategorijeIds);
     }
 }

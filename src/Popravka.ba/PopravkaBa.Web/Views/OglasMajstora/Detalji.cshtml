@@ -4,6 +4,20 @@
     ViewData["Title"] = Model.Naslov + " – Popravka.ba";
     bool jeAktivan = Model.StatusOglasa == Status.Aktivan;
 
+    string statusLabel(Status s) => s switch
+    {
+        Status.Aktivan    => "Aktivan",
+        Status.Neaktivan  => "Neaktivan",
+        Status.Isporuceno => "Završen",
+        _                 => s.ToString()
+    };
+    string statusBadgeClass(Status s) => s switch
+    {
+        Status.Aktivan    => "bg-success",
+        Status.Isporuceno => "bg-info",
+        _                 => "bg-secondary"
+    };
+
     Func<DateTime, string> relativnoVrijeme = (DateTime d) =>
     {
         var diff = DateTime.UtcNow - d.ToUniversalTime();
@@ -57,8 +71,8 @@
 
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h1 class="h3 fw-bold mb-0">@Model.Naslov</h1>
-                        <span class="badge @(jeAktivan ? "bg-success" : "bg-secondary") ms-3 flex-shrink-0">
-                            @(jeAktivan ? "Aktivan" : "Neaktivan")
+                        <span class="badge @statusBadgeClass(Model.StatusOglasa) ms-3 flex-shrink-0">
+                            @statusLabel(Model.StatusOglasa)
                         </span>
                     </div>
 
@@ -67,7 +81,7 @@
                         <span><i class="fa-regular fa-clock me-1"></i>@relativnoVrijeme(Model.DatumObjave)</span>
                         <span>
                             <i class="fa-solid fa-circle-user me-1"></i>
-                            <a href="/Profil/@Model.VlasnikId" class="text-decoration-none">@Model.VlasnikDisplayName</a>
+                            <a href="/Profil/@Model.VlasnikUsername" class="text-decoration-none">@Model.VlasnikDisplayName</a>
                         </span>
                     </div>
 
@@ -104,7 +118,7 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-3">
                     <h6 class="fw-semibold text-muted mb-3 text-uppercase" style="font-size:0.75rem;letter-spacing:.05em;">Izvršilac usluge</h6>
-                    <a href="/Profil/@Model.VlasnikId" class="d-flex align-items-center gap-3 text-decoration-none text-body">
+                    <a href="/Profil/@Model.VlasnikUsername" class="d-flex align-items-center gap-3 text-decoration-none text-body">
                         @if (!string.IsNullOrEmpty(Model.VlasnikSlika))
                         {
                             <img src="@Model.VlasnikSlika" alt="@Model.VlasnikDisplayName"
@@ -141,13 +155,13 @@
                             </tr>
                             <tr>
                                 <td class="text-muted small">Tip isplate</td>
-                                <td class="fw-medium small text-end">@tipIsplateLabel(Model.TipIsplate)</td>
+                                <td class="fw-medium small text-end">@(tipIsplateLabel(Model.TipIsplate))</td>
                             </tr>
                             <tr>
                                 <td class="text-muted small">Status</td>
                                 <td class="text-end">
-                                    <span class="badge @(jeAktivan ? "bg-success" : "bg-secondary")">
-                                        @(jeAktivan ? "Aktivan" : "Neaktivan")
+                                    <span class="badge @statusBadgeClass(Model.StatusOglasa)">
+                                        @statusLabel(Model.StatusOglasa)
                                     </span>
                                 </td>
                             </tr>
@@ -156,12 +170,25 @@
                 </div>
             </div>
 
-            @if (jeAktivan)
+            @if (!User.Identity!.IsAuthenticated)
+            {
+                <div class="card shadow-sm border-0 mb-4" style="background:linear-gradient(135deg,#1a73e8,#0d47a1);color:#fff;">
+                    <div class="card-body p-3 text-center">
+                        <i class="fa-solid fa-hard-hat fa-2x mb-2 d-block"></i>
+                        <h6 class="fw-semibold mb-1">Tražite majstora?</h6>
+                        <p class="small mb-3" style="opacity:.85;">Prijavite se da biste kontaktirali izvršioca i dogovorili uslugu.</p>
+                        <a asp-controller="Account" asp-action="Prijava" class="btn btn-light btn-sm w-100 fw-semibold">
+                            Pristupite nalogu
+                        </a>
+                    </div>
+                </div>
+            }
+            else if (jeAktivan)
             {
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body p-3 text-center">
                         <p class="text-muted small mb-2">Zainteresirani ste za uslugu?</p>
-                        <a href="/Profil/@Model.VlasnikId" class="btn btn-primary w-100">
+                        <a href="/Profil/@Model.VlasnikUsername" class="btn btn-primary w-100">
                             <i class="fa-solid fa-envelope me-2"></i>Kontaktiraj izvršioca
                         </a>
                     </div>

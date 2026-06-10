@@ -286,7 +286,7 @@ namespace PopravkaBa.Infrastructure.Repositories
 
         public async Task DodajAsync(OglasRadnoMjesto oglas)
         {
-            oglas.DatumObjave = DateTime.Now;
+            oglas.DatumObjave = DateTime.UtcNow;
             await _context.OglasiRadnogMjesta.AddAsync(oglas);
             await _context.SaveChangesAsync();
         }

@@ -1,5 +1,6 @@
 ﻿using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
+using PopravkaBa.Domain.Enums;
 using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Models;
 
@@ -107,7 +108,8 @@ namespace PopravkaBa.Application.Services
             if (oglas is null)
                 throw new KeyNotFoundException($"Oglas sa ID {id} nije pronađen.");
 
-            await _repo.ObrisiAsync(id);
+            oglas.StatusOglasa = Status.Neaktivan;
+            await _repo.UrediAsync(oglas);
         }
 
         public async Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija)

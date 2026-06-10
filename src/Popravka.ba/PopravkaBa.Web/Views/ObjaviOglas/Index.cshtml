@@ -1,0 +1,414 @@
+@using PopravkaBa.Domain.Enums
+@using PopravkaBa.Domain.Models
+@{
+    ViewData["Title"] = "Objavi oglas – Popravka.ba";
+
+    var kategorije = (ViewBag.Kategorije as IEnumerable<Kategorija>) ?? Enumerable.Empty<Kategorija>();
+    var mjesta = (ViewBag.Mjesta as IEnumerable<Mjesto>) ?? Enumerable.Empty<Mjesto>();
+    string aktivniTab = ViewBag.AktivniTab ?? "usluge";
+
+    bool mozeUsluge     = User.IsInRole("Klijent") || User.IsInRole("Administrator");
+    bool mozeMajstora   = User.IsInRole("Majstor") || User.IsInRole("Firma") || User.IsInRole("Administrator");
+    bool mozeRadnoMjesto = User.IsInRole("Firma") || User.IsInRole("Administrator");
+}
+
+<div class="container mt-4 mb-5" style="max-width:800px;">
+
+    <a href="javascript:history.back()" class="text-muted text-decoration-none small d-block mb-3">
+        <i class="fa-solid fa-arrow-left me-1"></i>Povratak
+    </a>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fa-solid fa-circle-check me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <h2 class="fw-bold mb-1">Objavi oglas</h2>
+    <p class="text-muted mb-4">Odaberite vrstu oglasa koji želite objaviti.</p>
+
+    <!-- Tabovi -->
+    <ul class="nav nav-pills mb-4 gap-2" id="oglasTabs" role="tablist">
+        @if (mozeUsluge)
+        {
+            <li class="nav-item">
+                <button class="nav-link @(aktivniTab == "usluge" ? "active" : "")"
+                        id="tab-usluge" data-bs-toggle="pill" data-bs-target="#panel-usluge" type="button" role="tab">
+                    <i class="fa-solid fa-wrench me-1"></i>Oglas usluge
+                </button>
+            </li>
+        }
+        @if (mozeMajstora)
+        {
+            <li class="nav-item">
+                <button class="nav-link @(aktivniTab == "majstora" ? "active" : "")"
+                        id="tab-majstora" data-bs-toggle="pill" data-bs-target="#panel-majstora" type="button" role="tab">
+                    <i class="fa-solid fa-hard-hat me-1"></i>Oglas majstora
+                </button>
+            </li>
+        }
+        @if (mozeRadnoMjesto)
+        {
+            <li class="nav-item">
+                <button class="nav-link @(aktivniTab == "radnomjesto" ? "active" : "")"
+                        id="tab-radnomjesto" data-bs-toggle="pill" data-bs-target="#panel-radnomjesto" type="button" role="tab">
+                    <i class="fa-solid fa-briefcase me-1"></i>Oglas za posao
+                </button>
+            </li>
+        }
+    </ul>
+
+    <div class="tab-content">
+
+        <!-- ===== TAB: OGLAS USLUGE ===== -->
+        @if (mozeUsluge)
+        {
+            <div class="tab-pane fade @(aktivniTab == "usluge" ? "show active" : "")" id="panel-usluge" role="tabpanel">
+                <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasUsluge" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                <span class="badge bg-primary rounded-circle" style="width:28px;height:28px;line-height:28px;font-size:.85rem;">1</span>
+                                Osnovne informacije
+                            </h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Naziv posla <span class="text-danger">*</span></label>
+                                <input type="text" name="Naslov" class="form-control" placeholder="npr. Popravka vodovodnih cijevi" required />
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Kategorija <span class="text-danger">*</span></label>
+                                    <select name="KategorijeID" class="form-select" multiple size="4" required>
+                                        @foreach (var kat in kategorije)
+                                        {
+                                            <option value="@kat.ID">@kat.Naziv</option>
+                                        }
+                                    </select>
+                                    <div class="form-text">Ctrl+klik za više kategorija</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Lokacija <span class="text-danger">*</span></label>
+                                    <select name="MjestoID" class="form-select" required>
+                                        <option value="">Odaberite grad...</option>
+                                        @foreach (var m in mjesta)
+                                        {
+                                            <option value="@m.MjestoID">@m.Naziv</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                <span class="badge bg-primary rounded-circle" style="width:28px;height:28px;line-height:28px;font-size:.85rem;">2</span>
+                                Opis
+                            </h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Opis posla <span class="text-danger">*</span></label>
+                                <textarea name="Opis" class="form-control" rows="5" required
+                                          placeholder="Opišite šta je potrebno uraditi, stanje, pristup i sve što smatrate važnim za izvršioca..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                <span class="badge bg-primary rounded-circle" style="width:28px;height:28px;line-height:28px;font-size:.85rem;">3</span>
+                                Budžet
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Minimalni budžet (KM)</label>
+                                    <div class="input-group">
+                                        <input type="number" name="MinBudzet" class="form-control" min="0" placeholder="npr. 100" />
+                                        <span class="input-group-text">KM</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Maksimalni budžet (KM)</label>
+                                    <div class="input-group">
+                                        <input type="number" name="MaxBudzet" class="form-control" min="0" placeholder="npr. 500" />
+                                        <span class="input-group-text">KM</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Odustani</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa-solid fa-paper-plane me-2"></i>Objavi oglas
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+
+        <!-- ===== TAB: OGLAS MAJSTORA ===== -->
+        @if (mozeMajstora)
+        {
+            <div class="tab-pane fade @(aktivniTab == "majstora" ? "show active" : "")" id="panel-majstora" role="tabpanel">
+                <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasMajstora" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                <span class="badge bg-primary rounded-circle" style="width:28px;height:28px;line-height:28px;font-size:.85rem;">1</span>
+                                Osnovne informacije
+                            </h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Naziv usluge <span class="text-danger">*</span></label>
+                                <input type="text" name="Naslov" class="form-control" placeholder="npr. Vodoinstalaterske usluge" required />
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Kategorija <span class="text-danger">*</span></label>
+                                    <select name="KategorijeID" class="form-select" multiple size="4" required>
+                                        @foreach (var kat in kategorije)
+                                        {
+                                            <option value="@kat.ID">@kat.Naziv</option>
+                                        }
+                                    </select>
+                                    <div class="form-text">Ctrl+klik za više kategorija</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Lokacija</label>
+                                    <select name="MjestoID" class="form-select">
+                                        <option value="0">Odaberite grad...</option>
+                                        @foreach (var m in mjesta)
+                                        {
+                                            <option value="@m.MjestoID">@m.Naziv</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                <span class="badge bg-primary rounded-circle" style="width:28px;height:28px;line-height:28px;font-size:.85rem;">2</span>
+                                Opis usluge
+                            </h5>
+                            <textarea name="Opis" class="form-control" rows="5" required
+                                      placeholder="Opišite usluge koje nudite, iskustvo, opremu i certifikate..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                <span class="badge bg-primary rounded-circle" style="width:28px;height:28px;line-height:28px;font-size:.85rem;">3</span>
+                                Cijena
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Cijena od (KM)</label>
+                                    <div class="input-group">
+                                        <input type="number" name="MinCijena" class="form-control" min="0" step="0.5" placeholder="npr. 25" />
+                                        <span class="input-group-text">KM</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Tip isplate <span class="text-danger">*</span></label>
+                                    <select name="TipIsplate" class="form-select" required>
+                                        <option value="1">Po satu</option>
+                                        <option value="0">Jednokratno (fiksno)</option>
+                                        <option value="2">Sedmično</option>
+                                        <option value="3">Mjesečno</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Odustani</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa-solid fa-paper-plane me-2"></i>Objavi oglas
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+
+        <!-- ===== TAB: OGLAS RADNOG MJESTA ===== -->
+        @if (mozeRadnoMjesto)
+        {
+            <div class="tab-pane fade @(aktivniTab == "radnomjesto" ? "show active" : "")" id="panel-radnomjesto" role="tabpanel">
+                <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasRadnoMjesto" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                <span class="badge bg-primary rounded-circle" style="width:28px;height:28px;line-height:28px;font-size:.85rem;">1</span>
+                                Osnovne informacije
+                            </h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Naziv radnog mjesta <span class="text-danger">*</span></label>
+                                <input type="text" name="Naslov" class="form-control" placeholder="npr. Komercijalni prevoznik/ica" required />
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Kategorija <span class="text-danger">*</span></label>
+                                    <select name="KategorijeID" class="form-select" multiple size="4" required>
+                                        @foreach (var kat in kategorije)
+                                        {
+                                            <option value="@kat.ID">@kat.Naziv</option>
+                                        }
+                                    </select>
+                                    <div class="form-text">Ctrl+klik za više kategorija</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Lokacija <span class="text-danger">*</span></label>
+                                    <select name="MjestoID" class="form-select" required>
+                                        <option value="">Odaberite grad...</option>
+                                        @foreach (var m in mjesta)
+                                        {
+                                            <option value="@m.MjestoID">@m.Naziv</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Tip zaposlenja <span class="text-danger">*</span></label>
+                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                        @foreach (var vz in Enum.GetValues<VrstaZaposlenja>())
+                                        {
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="VrstaZaposlenja"
+                                                       id="vz_@vz" value="@((int)vz)" required
+                                                       @(vz == VrstaZaposlenja.PunoRadnoVrijeme ? "checked" : "") />
+                                                <label class="form-check-label" for="vz_@vz">
+                                                    @(vz switch {
+                                                        VrstaZaposlenja.PunoRadnoVrijeme  => "Stalni radni odnos",
+                                                        VrstaZaposlenja.PolaRadnogVrijema => "Honorarno",
+                                                        VrstaZaposlenja.UgovorDjelo       => "Ugovor o djelu",
+                                                        VrstaZaposlenja.Praksa            => "Sezonski",
+                                                        _ => vz.ToString()
+                                                    })
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Broj izvršilaca <span class="text-danger">*</span></label>
+                                    <input type="number" name="BrojIzvrsilaca" class="form-control" min="1" value="1" required
+                                           placeholder="npr. 1" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                <span class="badge bg-primary rounded-circle" style="width:28px;height:28px;line-height:28px;font-size:.85rem;">2</span>
+                                Opis posla i uvjeti
+                            </h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Opis radnog mjesta <span class="text-danger">*</span></label>
+                                <textarea name="Opis" class="form-control" rows="5" required maxlength="800"
+                                          placeholder="Opišite radno mjesto, odgovornosti, radno okruženje i sve što smatrate važnim za kandidata..."></textarea>
+                            </div>
+                            <label class="form-label fw-medium">Uvjeti <span class="text-muted fw-normal">(opcionalno, max 3)</span></label>
+                            <div id="uvjetiContainer">
+                                <div class="input-group mb-2">
+                                    <input type="text" name="Uvjeti" class="form-control" placeholder="npr. Vozačka dozvola kategorije C/CE" />
+                                    <button type="button" class="btn btn-outline-secondary" onclick="this.closest('.input-group').remove()">×</button>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <input type="text" name="Uvjeti" class="form-control" placeholder="npr. CMR dokumentacija prednost" />
+                                    <button type="button" class="btn btn-outline-secondary" onclick="this.closest('.input-group').remove()">×</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="btnDodajUvjet">
+                                <i class="fa-solid fa-plus me-1"></i>Dodaj uvjet
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                <span class="badge bg-primary rounded-circle" style="width:28px;height:28px;line-height:28px;font-size:.85rem;">3</span>
+                                Prihod
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">Minimalni prihod (KM)</label>
+                                    <input type="number" name="MinPrihod" class="form-control" min="0" placeholder="1.500" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">Maksimalni prihod (KM)</label>
+                                    <input type="number" name="MaxPrihod" class="form-control" min="0" placeholder="2.200" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">Period isplate <span class="text-danger">*</span></label>
+                                    <select name="TipIsplate" class="form-select" required>
+                                        <option value="3" selected>Mjesečno</option>
+                                        <option value="2">Sedmično</option>
+                                        <option value="1">Po satu</option>
+                                        <option value="0">Jednokratno</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Odustani</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa-solid fa-paper-plane me-2"></i>Objavi oglas
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+
+    </div><!-- /tab-content -->
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var btnDodajUvjet = document.getElementById('btnDodajUvjet');
+    if (btnDodajUvjet) {
+        btnDodajUvjet.addEventListener('click', function () {
+            var container = document.getElementById('uvjetiContainer');
+            var children = container.querySelectorAll('.input-group');
+            if (children.length >= 3) {
+                alert('Možete dodati najviše 3 uvjeta.');
+                return;
+            }
+            var div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = '<input type="text" name="Uvjeti" class="form-control" placeholder="Dodajte uvjet..." />' +
+                '<button type="button" class="btn btn-outline-secondary" onclick="this.closest(\'.input-group\').remove()">×</button>';
+            container.appendChild(div);
+        });
+    }
+})();
+</script>
+}

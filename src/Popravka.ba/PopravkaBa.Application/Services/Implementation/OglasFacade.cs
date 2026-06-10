@@ -76,11 +76,12 @@ namespace PopravkaBa.Application.Services
         public async Task<IEnumerable<UvjetOglasa?>> DajSveUvjeteOglasa(int id)
             => await _uvjetiService.DajSveUvjeteOglasa(id);
 
-        public async Task ObjaviOglas(ObjaviOglasRadnoMjestoDto dto, string vlasnikId)
+        public async Task<int> ObjaviOglas(ObjaviOglasRadnoMjestoDto dto, string vlasnikId)
         {
             var oglasId = await _oglasService.ObjaviOglas(dto, vlasnikId);
             await _kategorijaService.DodajKategorijeOglasu(oglasId, dto.KategorijeID);
             await _uvjetiService.DodajUvjeteOglasu(oglasId, dto.Uvjeti);
+            return oglasId;
         }
 
         public async Task UrediOglas(UrediOglasRadnoMjestoDto dto)

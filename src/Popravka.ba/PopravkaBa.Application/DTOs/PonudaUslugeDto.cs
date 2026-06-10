@@ -8,6 +8,7 @@ namespace PopravkaBa.Application.DTOs
     {
         public int PonudaId { get; set; }
         public string IzvrsilacId { get; set; }
+        public string IzvrsilacUsername { get; set; }
         public string IzvrsilacIme { get; set; }
         public string? IzvrsilacSlika { get; set; }
         public string? IzvrsilacKategorija { get; set; }
