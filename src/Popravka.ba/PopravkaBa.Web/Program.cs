@@ -1,3 +1,4 @@
+using Amazon.S3;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -125,12 +126,28 @@ builder.Services.AddScoped<IMjesecnaStatistikaRepository, MjesecnaStatistikaRepo
 builder.Services.AddScoped<IEmailSender, BrevoEmailAdapter>();
 builder.Services.Configure<BrevoEmailOptions>(builder.Configuration.GetSection("Brevo"));
 
+builder.Services.Configure<R2Options>(builder.Configuration.GetSection("R2"));
+
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var o = sp.GetRequiredService<IOptions<R2Options>>().Value;
+    return new AmazonS3Client(o.AccessKey, o.SecretKey, new AmazonS3Config
+    {
+        ServiceURL = $"https://{o.AccountID}.r2.cloudflarestorage.com",
+        ForcePathStyle = true
+    });
+});
+
+builder.Services.AddSingleton<IFileStorage, S3FileStorageAdapter>();
+
 builder.Services.AddScoped<IVerifikacijaEmailaService, VerifikacijaEmailaService>();
 builder.Services.AddScoped<IVerifikacijskiTokenRepository, VerifikacijskiTokenRepository>();
 
 builder.Services.AddHostedService<VerifikacijskiTokenCleanupJob>();
 builder.Services.AddHostedService<MjesecnaStatistikaJob>();
 builder.Services.AddScoped<DbSeeder>();
+
+
 
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
