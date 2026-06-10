@@ -36,16 +36,9 @@ public class DbSeeder
     string? SemaId() => _userManager.FindByEmailAsync("info@semagradnja.ba").Result?.Id;
     string? ZukanId() => _userManager.FindByEmailAsync("info@zukanvolt.ba").Result?.Id;
     string? HVId() => _userManager.FindByEmailAsync("hvojvodic@hvobrt.ba").Result?.Id;
-    string? HajroId() => _userManager.FindByNameAsync("hajromustafic").Result?.Id;
 
     public async Task SeedAsync()
     {
-        var majstor = await _context.Majstori.FirstOrDefaultAsync(m => m.Id == HasoId());
-        var ponude = await _context.PonudeUsluge.Where(p => p.IzvrsilacID == HasoId()).ToListAsync();
-        _context.PonudeUsluge.RemoveRange(ponude);
-        _context.Majstori.Remove(majstor);
-        majstor = await _context.Majstori.FirstOrDefaultAsync(m => m.Id == HajroId());
-        _context.Majstori.Remove(majstor);
         await _context.SaveChangesAsync();
         await SeedRolesAsync();
         await SeedKategorijeAsync();
@@ -93,8 +86,6 @@ public class DbSeeder
 
         await _context.Kategorije.AddRangeAsync(nadkategorije.Values);
         await _context.SaveChangesAsync();
-
-
 
         var potkategorije = new List<Kategorija>
         {

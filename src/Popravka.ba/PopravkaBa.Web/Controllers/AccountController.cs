@@ -48,14 +48,14 @@ namespace PopravkaBa.Web.Controllers
             _logger = logger;
         }
 
-        // TODO: Implementirati returnURL logiku
 
-        
+
+        [HttpGet("/login")]
         [AllowAnonymous]
         [RedirectIfAuthenticated]
-        [HttpGet("/login")]
-        public async Task<IActionResult> Login()
+        public async Task<IActionResult> Login(string? returnUrl = null)
         {
+          
             var vm =  new RegistracijaViewModel
             {
                 ActiveTab = AuthTab.Prijava,
@@ -63,7 +63,10 @@ namespace PopravkaBa.Web.Controllers
                 Kategorije = await _kategorijaService.DajSveKategorije(),
 
             };
+            
+            ViewData["ReturnUrl"] = returnUrl;
             ViewData["Title"] = "Prijava – Popravka.ba";
+           
             return View("Registracija",vm);
         }
         [AllowAnonymous]
@@ -71,11 +74,16 @@ namespace PopravkaBa.Web.Controllers
         [RedirectIfAuthenticated]
         [ValidateAntiForgeryToken]
         [HttpPost("/login")]
-        public async Task<IActionResult> Login(RegistracijaViewModel vm)
-        {
-            if (!ModelState.IsValid)
-                return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
+      public async Task<IActionResult> Login(RegistracijaViewModel vm, string? returnUrl = null)
+{
 
+            returnUrl ??= Request.Form["returnUrl"].FirstOrDefault();
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["ReturnUrl"] = returnUrl;
+                return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
+            }
             var login = vm.Login;
 
             var user = login.EmailUsername.Contains('@')
@@ -85,6 +93,7 @@ namespace PopravkaBa.Web.Controllers
             if (user is null)
             {
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
+                ViewData["ReturnUrl"] = returnUrl;
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
 
@@ -96,10 +105,15 @@ namespace PopravkaBa.Web.Controllers
             if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "Pogrešni pristupni podaci");
+                ViewData["ReturnUrl"] = returnUrl;
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
 
+        
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
             return RedirectToAction("Index", "Home");
+                
         }
 
         [Authorize]
@@ -358,10 +372,11 @@ namespace PopravkaBa.Web.Controllers
                 return RedirectToAction("StatusCode", "Home", new { code = 403 });
             return View(new ResetLozinkeViewModel { Token = token });
         }
-
-
+        
 
         
+
+
         [HttpPost("profil/reset-lozinke")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetLozinke(ResetLozinkeViewModel vm)

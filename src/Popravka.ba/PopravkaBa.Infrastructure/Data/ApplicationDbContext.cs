@@ -25,6 +25,8 @@ namespace Popravka.ba.Data
         public DbSet<KorisnikMjesto> KorisnikMjesto { get; set; }
         public DbSet<Majstor> Majstori { get; set; }
         public DbSet<Mjesto> Mjesta { get; set; }
+
+        public DbSet<MjesecnaStatistikaKompozicija> MjesecnaStatistikaKompozicija { get; set; }
         public DbSet<OglasKategorija> OglasKategorije { get; set; }
 
         public DbSet<OglasMajstora> OglasiMajstora { get; set; }
@@ -53,6 +55,7 @@ namespace Popravka.ba.Data
             builder.Entity<Kategorija>().ToTable("Kategorija"); 
             builder.Entity<KorisnikMjesto>().ToTable("KorisnikMjesto");
             builder.Entity<Mjesto>().ToTable("Mjesto");
+            builder.Entity<MjesecnaStatistikaKompozicija>().ToTable("MjesecnaStatistikaKompozicija");
             builder.Entity<OglasKategorija>().ToTable("OglasKategorija");
             builder.Entity<OglasMajstora>().ToTable("OglasMajstora");
             builder.Entity<OglasRadnoMjesto>().ToTable("OglasRadnoMjesto");

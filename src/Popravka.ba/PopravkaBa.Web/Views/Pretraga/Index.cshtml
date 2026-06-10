@@ -12,19 +12,19 @@
 
     // Pre-compute enum int values to avoid cast expressions inside Razor attributes
     int sortIzvDesc = (int)SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Desc;
-    int sortIzvAsc  = (int)SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Asc;
-    int sortIzvCijAsc  = (int)SortiranjeIzvrsilacaUsluga.MinCijena_Asc;
+    int sortIzvAsc = (int)SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Asc;
+    int sortIzvCijAsc = (int)SortiranjeIzvrsilacaUsluga.MinCijena_Asc;
     int sortIzvCijDesc = (int)SortiranjeIzvrsilacaUsluga.MinCijena_Desc;
 
     int sortUslMinDesc = (int)SortiranjeOglasaUsluge.MinBudzet_Desc;
-    int sortUslMinAsc  = (int)SortiranjeOglasaUsluge.MinBudzet_Asc;
+    int sortUslMinAsc = (int)SortiranjeOglasaUsluge.MinBudzet_Asc;
     int sortUslMaxDesc = (int)SortiranjeOglasaUsluge.MaxBudzet_Desc;
-    int sortUslMaxAsc  = (int)SortiranjeOglasaUsluge.MaxBudzet_Asc;
+    int sortUslMaxAsc = (int)SortiranjeOglasaUsluge.MaxBudzet_Asc;
 
     int sortRmMinDesc = (int)SortiranjeOglasaRadnoMjesto.MinPrihod_Desc;
-    int sortRmMinAsc  = (int)SortiranjeOglasaRadnoMjesto.MinPrihod_Asc;
+    int sortRmMinAsc = (int)SortiranjeOglasaRadnoMjesto.MinPrihod_Asc;
     int sortRmMaxDesc = (int)SortiranjeOglasaRadnoMjesto.MaxPrihod_Desc;
-    int sortRmMaxAsc  = (int)SortiranjeOglasaRadnoMjesto.MaxPrihod_Asc;
+    int sortRmMaxAsc = (int)SortiranjeOglasaRadnoMjesto.MaxPrihod_Asc;
 
     // Pagination URL builder
     Func<int, string> paginacijaUrl = (int stranica) =>
@@ -71,10 +71,10 @@
 
     Func<VrstaZaposlenja, string> displayVrstaZaposlenja = (VrstaZaposlenja v) => v switch
     {
-        VrstaZaposlenja.PunoRadnoVrijeme  => "Puno radno vrijeme",
+        VrstaZaposlenja.PunoRadnoVrijeme => "Puno radno vrijeme",
         VrstaZaposlenja.PolaRadnogVrijema => "Pola radnog vremena",
-        VrstaZaposlenja.UgovorDjelo       => "Ugovor o djelu",
-        VrstaZaposlenja.Praksa            => "Praksa",
+        VrstaZaposlenja.UgovorDjelo => "Ugovor o djelu",
+        VrstaZaposlenja.Praksa => "Praksa",
         _ => v.ToString()
     };
 
@@ -83,7 +83,7 @@
     int currentPage = Model.Rezultat.TrenutnaStrana;
     int windowSize = 5;
     int pageStart = Math.Max(1, currentPage - windowSize / 2);
-    int pageEnd   = Math.Min(totalPages, pageStart + windowSize - 1);
+    int pageEnd = Math.Min(totalPages, pageStart + windowSize - 1);
     if (pageEnd - pageStart < windowSize - 1) pageStart = Math.Max(1, pageEnd - windowSize + 1);
 }
 
@@ -154,35 +154,50 @@
                     <!-- Zanimanja (Kategorija) -->
                     <div class="filter-group">
                         <label class="filter-group-label">Zanimanja</label>
-                        <select class="filter-select" id="kategorijaSelect">
-                            <option value="">-- Odaberi --</option>
-                            @{
-                                var nadkategorije = Model.Kategorije
-                                    .Where(k => k.NadkategorijaID == null)
-                                    .OrderBy(k => k.Naziv)
-                                    .ToList();
-                            }
-                            @foreach (var nadkat in nadkategorije)
-                            {
-                                var podkategorije = Model.Kategorije
-                                    .Where(k => k.NadkategorijaID == nadkat.ID)
-                                    .OrderBy(k => k.Naziv)
-                                    .ToList();
-                                if (podkategorije.Any())
-                                {
-                                    <optgroup label="@nadkat.Naziv">
-                                        @foreach (var podkat in podkategorije)
+                        <div class="filter-multiselect" id="kategorijaWrap">
+                            <div class="filter-ms-display" id="kategorijaDisplay">
+                                <span class="filter-ms-placeholder">-- Odaberi --</span>
+                                <i class="fa-solid fa-chevron-down filter-ms-caret"></i>
+                            </div>
+                            <div class="filter-ms-dropdown" id="kategorijaDropdown">
+                                <div class="filter-ms-search-wrap">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="7"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                    <input type="text" class="filter-ms-search" id="kategorijaSearch"
+                                           placeholder="Pretraži zanimanje..." autocomplete="off" 
+                                           oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()"/>
+                                </div>
+                                <div class="filter-ms-options" id="kategorijaOptions">
+                                    @{
+                                        var nadkategorije = Model.Kategorije
+                                            .Where(k => k.NadkategorijaID == null)
+                                            .OrderBy(k => k.Naziv)
+                                            .ToList();
+                                    }
+                                    @foreach (var nadkat in nadkategorije)
+                                    {
+                                        var podkategorije = Model.Kategorije
+                                            .Where(k => k.NadkategorijaID == nadkat.ID)
+                                            .OrderBy(k => k.Naziv)
+                                            .ToList();
+                                        if (podkategorije.Any())
                                         {
-                                            <option value="@podkat.ID" data-label="@podkat.Naziv">@podkat.Naziv</option>
+                                            <div class="filter-ms-group-label" data-group="@nadkat.Naziv">@nadkat.Naziv</div>
+                                            @foreach (var podkat in podkategorije)
+                                            {
+                                                <div class="filter-ms-option" data-value="@podkat.ID" data-label="@podkat.Naziv" data-group="@nadkat.Naziv">@podkat.Naziv</div>
+                                            }
                                         }
-                                    </optgroup>
-                                }
-                                else
-                                {
-                                    <option value="@nadkat.ID" data-label="@nadkat.Naziv">@nadkat.Naziv</option>
-                                }
-                            }
-                        </select>
+                                        else
+                                        {
+                                            <div class="filter-ms-option" data-value="@nadkat.ID" data-label="@nadkat.Naziv" data-group="@nadkat.Naziv">@nadkat.Naziv</div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
                         <div class="chip-container" id="kategorijaChips"></div>
                         <div id="kategorijaHiddenInputs"></div>
                     </div>
@@ -190,27 +205,41 @@
                     <!-- Lokacija -->
                     <div class="filter-group">
                         <label class="filter-group-label">Lokacija</label>
-                        <select class="filter-select" id="lokacijaSelect">
-                            <option value="">-- Odaberi --</option>
-                            @{
-                                var mjestaGrupe = Model.Mjesta.GroupBy(m => m.Kanton).OrderBy(g => (int)g.Key);
-                            }
-                            @foreach (var group in mjestaGrupe)
-                            {
-                                var kantonNaziv = group.Key.GetType()
-                                    .GetMember(group.Key.ToString())
-                                    .First()
-                                    .GetCustomAttributes(typeof(DisplayAttribute), false)
-                                    .Cast<DisplayAttribute>()
-                                    .FirstOrDefault()?.Name ?? group.Key.ToString();
-                                <optgroup label="@kantonNaziv">
-                                    @foreach (var m in group.OrderBy(x => x.Naziv))
-                                    {
-                                        <option value="@m.MjestoID" data-label="@m.Naziv">@m.Naziv</option>
+                        <div class="filter-multiselect" id="lokacijaWrap">
+                            <div class="filter-ms-display" id="lokacijaDisplay">
+                                <span class="filter-ms-placeholder">-- Odaberi --</span>
+                                <i class="fa-solid fa-chevron-down filter-ms-caret"></i>
+                            </div>
+                            <div class="filter-ms-dropdown" id="lokacijaDropdown">
+                                <div class="filter-ms-search-wrap">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="7"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                    <input type="text" class="filter-ms-search" id="lokacijaSearch"
+                                           placeholder="Pretraži mjesto..." autocomplete="off" onchange="this.value = this.value.trim()", oninput="this.value = this.value.trimStart()"/>
+                                </div>
+                                <div class="filter-ms-options" id="lokacijaOptions">
+                                    @{
+                                        var mjestaGrupe = Model.Mjesta.GroupBy(m => m.Kanton).OrderBy(g => (int)g.Key);
                                     }
-                                </optgroup>
-                            }
-                        </select>
+                                    @foreach (var group in mjestaGrupe)
+                                    {
+                                        var kantonNaziv = group.Key.GetType()
+                                            .GetMember(group.Key.ToString())
+                                            .First()
+                                            .GetCustomAttributes(typeof(DisplayAttribute), false)
+                                            .Cast<DisplayAttribute>()
+                                            .FirstOrDefault()?.Name ?? group.Key.ToString();
+                                        <div class="filter-ms-group-label" data-group="@kantonNaziv">@kantonNaziv</div>
+                                        @foreach (var m in group.OrderBy(x => x.Naziv))
+                                        {
+                                            <div class="filter-ms-option" data-value="@m.MjestoID" data-label="@m.Naziv" data-group="@kantonNaziv">@m.Naziv</div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
                         <div class="chip-container" id="lokacijaChips"></div>
                         <div id="lokacijaHiddenInputs"></div>
                     </div>
@@ -313,24 +342,24 @@
                         <label class="results-sort-label">Sortiraj po:</label>
                         @if (jeIzvrsiociTab)
                         {
-                            bool selIzvDesc   = filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Desc;
-                            bool selIzvAsc    = filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Asc;
+                            bool selIzvDesc = filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Desc;
+                            bool selIzvAsc = filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.ProsjecnaOcjena_Asc;
                             bool selIzvCijAsc = filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.MinCijena_Asc;
-                            bool selIzvCijDesc= filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.MinCijena_Desc;
+                            bool selIzvCijDesc = filteri.SortiranjeIzvrsilaca == SortiranjeIzvrsilacaUsluga.MinCijena_Desc;
                             <select name="SortiranjeIzvrsilaca" class="results-sort-select"
                                     onchange="document.getElementById('pretragaForm').submit()">
-                                <option value="@sortIzvDesc"    selected="@(selIzvDesc    ? "selected" : null)">Ocjena (opadajuće)</option>
-                                <option value="@sortIzvAsc"     selected="@(selIzvAsc     ? "selected" : null)">Ocjena (rastuće)</option>
+                                <option value="@sortIzvDesc" selected="@(selIzvDesc ? "selected" : null)">Ocjena (opadajuće)</option>
+                                <option value="@sortIzvAsc" selected="@(selIzvAsc ? "selected" : null)">Ocjena (rastuće)</option>
                                 <option value="@sortIzvCijDesc" selected="@(selIzvCijDesc ? "selected" : null)">Cijena (opadajuće)</option>
-                                <option value="@sortIzvCijAsc"  selected="@(selIzvCijAsc  ? "selected" : null)">Cijena (rastuće)</option>
+                                <option value="@sortIzvCijAsc" selected="@(selIzvCijAsc ? "selected" : null)">Cijena (rastuće)</option>
                             </select>
                         }
                         else if (jePopravkeTab)
                         {
                             bool selUslMinDesc = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MinBudzet_Desc;
-                            bool selUslMinAsc  = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MinBudzet_Asc;
+                            bool selUslMinAsc = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MinBudzet_Asc;
                             bool selUslMaxDesc = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MaxBudzet_Desc;
-                            bool selUslMaxAsc  = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MaxBudzet_Asc;
+                            bool selUslMaxAsc = filteri.SortiranjeUsluge == SortiranjeOglasaUsluge.MaxBudzet_Asc;
                             <select name="SortiranjeUsluge" class="results-sort-select"
                                     onchange="document.getElementById('pretragaForm').submit()">
                                 <option value="@sortUslMinDesc" selected="@(selUslMinDesc ? "selected" : null)">Minimalnom budžetu (opadajuće)</option>
@@ -342,9 +371,9 @@
                         else if (jePosaoTab)
                         {
                             bool selRmMinDesc = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MinPrihod_Desc;
-                            bool selRmMinAsc  = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MinPrihod_Asc;
+                            bool selRmMinAsc = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MinPrihod_Asc;
                             bool selRmMaxDesc = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MaxPrihod_Desc;
-                            bool selRmMaxAsc  = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MaxPrihod_Asc;
+                            bool selRmMaxAsc = filteri.SortiranjeRadnoMjesto == SortiranjeOglasaRadnoMjesto.MaxPrihod_Asc;
                             <select name="SortiranjeRadnoMjesto" class="results-sort-select"
                                     onchange="document.getElementById('pretragaForm').submit()">
                                 <option value="@sortRmMinDesc" selected="@(selRmMinDesc ? "selected" : null)">Minimalnom prihodu (opadajuće)</option>
@@ -538,7 +567,11 @@
                         @if (pageStart > 1)
                         {
                             <a href="@paginacijaUrl(1)" class="page-btn">1</a>
-                            if (pageStart > 2) { <span class="page-ellipsis">…</span> }
+                            if (pageStart > 2)
+                            {
+
+                                <span class="page-ellipsis">…</span>
+                            }
                         }
                         @for (int i = pageStart; i <= pageEnd; i++)
                         {
@@ -546,7 +579,10 @@
                         }
                         @if (pageEnd < totalPages)
                         {
-                            if (pageEnd < totalPages - 1) { <span class="page-ellipsis">…</span> }
+                            if (pageEnd < totalPages - 1)
+                            {
+                                <span class="page-ellipsis">…</span>
+                            }
                             <a href="@paginacijaUrl(totalPages)" class="page-btn">@totalPages</a>
                         }
                         @if (currentPage < totalPages)
@@ -566,309 +602,355 @@
     </form>
 </div>
 
+<style>
+    /* ===== Searchable multi-select dropdown ===== */
+    .filter-multiselect {
+        position: relative;
+    }
+
+    .filter-ms-display {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+        padding: .55rem .75rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #fff;
+        cursor: pointer;
+        font-size: .95rem;
+        color: #334155;
+    }
+
+        .filter-ms-display:hover {
+            border-color: #94a3b8;
+        }
+
+    .filter-ms-placeholder {
+        color: #94a3b8;
+    }
+
+    .filter-ms-caret {
+        font-size: .7rem;
+        color: #94a3b8;
+        transition: transform .15s ease;
+    }
+
+    .filter-multiselect.open .filter-ms-caret {
+        transform: rotate(180deg);
+    }
+
+    .filter-ms-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        z-index: 50;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,.12);
+        display: none;
+        overflow: hidden;
+    }
+
+    .filter-multiselect.open .filter-ms-dropdown {
+        display: block;
+    }
+
+    .filter-ms-search-wrap {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .5rem .65rem;
+        border-bottom: 1px solid #eef0f2;
+    }
+
+        .filter-ms-search-wrap svg {
+            width: 16px;
+            height: 16px;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+
+    .filter-ms-search {
+        border: 0;
+        outline: 0;
+        width: 100%;
+        font-size: .9rem;
+        background: transparent;
+    }
+
+    .filter-ms-options {
+        max-height: 240px;
+        overflow-y: auto;
+        padding: .25rem 0;
+    }
+
+    .filter-ms-group-label {
+        padding: .4rem .85rem .25rem;
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        color: #94a3b8;
+    }
+
+    .filter-ms-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .5rem .85rem;
+        font-size: .9rem;
+        color: #334155;
+        cursor: pointer;
+    }
+
+        .filter-ms-option:hover {
+            background: #eff6ff;
+        }
+
+        .filter-ms-option.selected {
+            color: #1a6fd4;
+            font-weight: 600;
+        }
+
+            .filter-ms-option.selected::after {
+                content: "\2713";
+                color: #1a6fd4;
+                font-weight: 700;
+            }
+
+    .filter-ms-no-results {
+        padding: .75rem .85rem;
+        font-size: .85rem;
+        color: #94a3b8;
+        text-align: center;
+    }
+</style>
+
 @section Scripts {
-<script>
-(function () {
-    'use strict';
+    <script>
+        (function () {
+            'use strict';
 
-    var form            = document.getElementById('pretragaForm');
-    var aktivniTabInput = document.getElementById('aktivniTabInput');
-    var filterPanel     = document.getElementById('filterPanel');
-    var filtrirajToggle = document.getElementById('filtrirajToggle');
+            var form            = document.getElementById('pretragaForm');
+            var aktivniTabInput = document.getElementById('aktivniTabInput');
+            var filterPanel     = document.getElementById('filterPanel');
+            var filtrirajToggle = document.getElementById('filtrirajToggle');
 
-    // --- TAB switching ---
-    document.querySelectorAll('.pretraga-tab-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            aktivniTabInput.value = btn.dataset.tab;
+            var dropdowns = [];
 
-            var kljucni = document.getElementById('kljucneRijeciInput');
-            if (kljucni) kljucni.value = '';
+            // --- Reusable searchable multi-select ---
+            function setupMultiSelect(cfg) {
+                var wrap        = document.getElementById(cfg.wrap);
+                var display     = document.getElementById(cfg.display);
+                var placeholder = display.querySelector('.filter-ms-placeholder');
+                var dropdown    = document.getElementById(cfg.dropdown);
+                var search      = document.getElementById(cfg.search);
+                var optionEls   = Array.prototype.slice.call(dropdown.querySelectorAll('.filter-ms-option'));
+                var groupEls    = Array.prototype.slice.call(dropdown.querySelectorAll('.filter-ms-group-label'));
+                var chips       = document.getElementById(cfg.chips);
+                var hidden      = document.getElementById(cfg.hidden);
+                var selected    = new Set();
 
-            filterPanel.querySelectorAll('input[type="number"], input[type="range"]').forEach(function (el) {
-                el.value = '';
-            });
-            filterPanel.querySelectorAll('select').forEach(function (el) {
-                el.selectedIndex = 0;
-            });
+                function open()  { wrap.classList.add('open'); search.focus(); }
+                function close() { wrap.classList.remove('open'); search.value = ''; filter(''); }
 
-            clearChips('kategorija');
-            clearChips('lokacija');
-
-            form.submit();
-        });
-    });
-
-    // --- FILTER TOGGLE ---
-    filtrirajToggle.addEventListener('click', function () {
-        var isOpen = filterPanel.classList.toggle('open');
-        filtrirajToggle.classList.toggle('active', isOpen);
-    });
-
-    // --- RESET FILTERA ---
-    document.getElementById('resetFilteriBtn').addEventListener('click', function () {
-        var kljucni = document.getElementById('kljucneRijeciInput');
-        if (kljucni) kljucni.value = '';
-
-        filterPanel.querySelectorAll('input[type="number"]').forEach(function (el) {
-            el.value = '';
-        });
-        filterPanel.querySelectorAll('input[type="range"]').forEach(function (el) {
-            var isMax = el.id && el.id.toLowerCase().includes('max');
-            el.value = isMax ? el.max : el.min;
-            var valEl = document.getElementById(el.id.replace('Range', 'Val'));
-            if (valEl) valEl.textContent = parseFloat(el.value).toFixed(1);
-        });
-        filterPanel.querySelectorAll('select').forEach(function (el) {
-            el.selectedIndex = 0;
-        });
-
-        clearChips('kategorija');
-        clearChips('lokacija');
-
-        form.submit();
-    });
-
-    // --- KATEGORIJA chips ---
-    var kategorijaSelect       = document.getElementById('kategorijaSelect');
-    var kategorijaChips        = document.getElementById('kategorijaChips');
-    var kategorijaHiddenInputs = document.getElementById('kategorijaHiddenInputs');
-    var selectedKategorije     = new Set();
-
-    if (kategorijaSelect) {
-        kategorijaSelect.addEventListener('change', function () {
-            var val   = this.value;
-            var label = this.options[this.selectedIndex].dataset.label;
-            if (val && !selectedKategorije.has(val)) {
-                selectedKategorije.add(val);
-                addChip(kategorijaChips, kategorijaHiddenInputs, 'KategorijaId', val, label, selectedKategorije);
-            }
-            this.selectedIndex = 0;
-        });
-    }
-
-    // --- LOKACIJA chips ---
-    var lokacijaSelect       = document.getElementById('lokacijaSelect');
-    var lokacijaChips        = document.getElementById('lokacijaChips');
-    var lokacijaHiddenInputs = document.getElementById('lokacijaHiddenInputs');
-    var selectedLokacije     = new Set();
-
-    if (lokacijaSelect) {
-        lokacijaSelect.addEventListener('change', function () {
-            var val   = this.value;
-            var label = this.options[this.selectedIndex].dataset.label;
-            if (val && !selectedLokacije.has(val)) {
-                selectedLokacije.add(val);
-                addChip(lokacijaChips, lokacijaHiddenInputs, 'Lokacija', val, label, selectedLokacije);
-            }
-            this.selectedIndex = 0;
-        });
-    }
-
-    function addChip(chipsContainer, hiddenContainer, inputName, val, label, selectedSet) {
-        var chip = document.createElement('span');
-        chip.className   = 'filter-chip';
-        chip.dataset.value = val;
-
-        var text = document.createTextNode(label + ' ');
-        chip.appendChild(text);
-
-        var btn = document.createElement('button');
-        btn.type      = 'button';
-        btn.textContent = '×';
-        btn.className = 'filter-chip-remove';
-        btn.addEventListener('click', function () {
-            selectedSet.delete(val);
-            chip.remove();
-            var h = hiddenContainer.querySelector('input[value="' + val + '"]');
-            if (h) h.remove();
-        });
-        chip.appendChild(btn);
-        chipsContainer.appendChild(chip);
-
-        var hidden = document.createElement('input');
-        hidden.type  = 'hidden';
-        hidden.name  = inputName;
-        hidden.value = val;
-        hiddenContainer.appendChild(hidden);
-    }
-            /*
-    // --- OPTGROUP click: nadkategorija/kanton selects/deselects all sub-options ---
-    // Render small buttons above each select, one per optgroup label.
-    (function setupOptgroupClicks(selectEl, chipsContainer, hiddenContainer, inputName, selectedSet) {
-        if (!selectEl) return;
-        // Build a mapping: optgroup label -> array of option elements
-        function buildOptgroupMap() {
-            var map = [];
-            var children = selectEl.children;
-            for (var i = 0; i < children.length; i++) {
-                var child = children[i];
-                if (child.tagName === 'OPTGROUP') {
-                    map.push({ label: child.label, options: Array.from(child.querySelectorAll('option')) });
-                }
-            }
-            return map;
-        }
-        
-        // We render invisible click targets by overlaying the select. Since this is complex,
-        // use the simpler approach: add a sibling button list above the select.
-        function renderOptgroupButtons() {
-            var existingBar = selectEl.parentNode.querySelector('.optgroup-btn-bar');
-            if (existingBar) existingBar.remove();
-
-            var bar = document.createElement('div');
-            bar.className = 'optgroup-btn-bar';
-            bar.style.cssText = 'display:flex;flex-wrap:wrap;gap:0.25rem;margin-bottom:0.25rem;';
-
-            var map = buildOptgroupMap();
-            map.forEach(function (group) {
-                var btn = document.createElement('button');
-                btn.type = 'button';
-                btn.textContent = group.label;
-                btn.title = 'Selektuj/deselektuj sve';
-                btn.className = 'optgroup-toggle-btn';
-                btn.style.cssText = 'font-size:0.72rem;padding:0.15rem 0.5rem;border:1px solid #cbd5e1;border-radius:2px;background:#f8fafc;cursor:pointer;color:#475569;';
-                btn.addEventListener('click', function () {
-                    var allSelected = group.options.every(function (o) { return selectedSet.has(o.value); });
-                    if (allSelected) {
-                        // Deselect all
-                        group.options.forEach(function (o) {
-                            if (selectedSet.has(o.value)) {
-                                selectedSet.delete(o.value);
-                                var chip = chipsContainer.querySelector('[data-value="' + o.value + '"]');
-                                if (chip) chip.remove();
-                                var h = hiddenContainer.querySelector('input[value="' + o.value + '"]');
-                                if (h) h.remove();
-                            }
-                        });
-                    } else {
-                        // Select missing
-                        group.options.forEach(function (o) {
-                            if (o.value && !selectedSet.has(o.value)) {
-                                selectedSet.add(o.value);
-                                addChip(chipsContainer, hiddenContainer, inputName, o.value, o.dataset.label || o.text, selectedSet);
-                            }
-                        });
+                function filter(q) {
+                    q = q.toLowerCase();
+                    var visibleGroups = new Set();
+                    var anyVisible = false;
+                    optionEls.forEach(function (opt) {
+                        var match = opt.dataset.label.toLowerCase().indexOf(q) !== -1;
+                        opt.style.display = match ? '' : 'none';
+                        if (match) { visibleGroups.add(opt.dataset.group); anyVisible = true; }
+                    });
+                    groupEls.forEach(function (g) {
+                        g.style.display = visibleGroups.has(g.dataset.group) ? '' : 'none';
+                    });
+                    var nr = dropdown.querySelector('.filter-ms-no-results');
+                    if (!anyVisible) {
+                        if (!nr) {
+                            nr = document.createElement('div');
+                            nr.className = 'filter-ms-no-results';
+                            nr.textContent = 'Nema rezultata.';
+                            dropdown.querySelector('.filter-ms-options').appendChild(nr);
+                        }
+                        nr.style.display = '';
+                    } else if (nr) {
+                        nr.style.display = 'none';
                     }
-                });
-                bar.appendChild(btn);
-            });
-
-            if (bar.children.length > 0)
-                selectEl.parentNode.insertBefore(bar, selectEl);
-        }
-
-        renderOptgroupButtons();
-    })(kategorijaSelect, kategorijaChips, kategorijaHiddenInputs, 'KategorijaId', selectedKategorije);
-    
-    // Same for lokacijaSelect (kanton groups)
-    (function setupOptgroupClicks(selectEl, chipsContainer, hiddenContainer, inputName, selectedSet) {
-        if (!selectEl) return;
-        function buildOptgroupMap() {
-            var map = [];
-            var children = selectEl.children;
-            for (var i = 0; i < children.length; i++) {
-                var child = children[i];
-                if (child.tagName === 'OPTGROUP') {
-                    map.push({ label: child.label, options: Array.from(child.querySelectorAll('option')) });
                 }
-            }
-            return map;
-        }/*
-        function renderOptgroupButtons() {
-            var existingBar = selectEl.parentNode.querySelector('.optgroup-btn-bar');
-            if (existingBar) existingBar.remove();
 
-            var bar = document.createElement('div');
-            bar.className = 'optgroup-btn-bar';
-            bar.style.cssText = 'display:flex;flex-wrap:wrap;gap:0.25rem;margin-bottom:0.25rem;';
+                function optionEl(val) {
+                    return optionEls.filter(function (o) { return o.dataset.value === val; })[0];
+                }
 
-            var map = buildOptgroupMap();
-            map.forEach(function (group) {
-                var btn = document.createElement('button');
-                btn.type = 'button';
-                btn.textContent = group.label;
-                btn.title = 'Selektuj/deselektuj sve';
-                btn.className = 'optgroup-toggle-btn';
-                btn.style.cssText = 'font-size:0.72rem;padding:0.15rem 0.5rem;border:1px solid #cbd5e1;border-radius:2px;background:#f8fafc;cursor:pointer;color:#475569;';
-                btn.addEventListener('click', function () {
-                    var allSelected = group.options.every(function (o) { return selectedSet.has(o.value); });
-                    if (allSelected) {
-                        group.options.forEach(function (o) {
-                            if (selectedSet.has(o.value)) {
-                                selectedSet.delete(o.value);
-                                var chip = chipsContainer.querySelector('[data-value="' + o.value + '"]');
-                                if (chip) chip.remove();
-                                var h = hiddenContainer.querySelector('input[value="' + o.value + '"]');
-                                if (h) h.remove();
-                            }
-                        });
-                    } else {
-                        group.options.forEach(function (o) {
-                            if (o.value && !selectedSet.has(o.value)) {
-                                selectedSet.add(o.value);
-                                addChip(chipsContainer, hiddenContainer, inputName, o.value, o.dataset.label || o.text, selectedSet);
-                            }
-                        });
-                    }
+                function updatePlaceholder() {
+                    placeholder.textContent = selected.size > 0
+                        ? selected.size + ' odabrano'
+                        : cfg.placeholder;
+                }
+
+                function addChip(val, label) {
+                    var chip = document.createElement('span');
+                    chip.className = 'filter-chip';
+                    chip.dataset.value = val;
+                    chip.appendChild(document.createTextNode(label + ' '));
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'filter-chip-remove';
+                    btn.textContent = '×';
+                    btn.addEventListener('click', function (e) { e.stopPropagation(); deselect(val); });
+                    chip.appendChild(btn);
+                    chips.appendChild(chip);
+
+                    var h = document.createElement('input');
+                    h.type = 'hidden';
+                    h.name = cfg.inputName;
+                    h.value = val;
+                    h.dataset.value = val;
+                    hidden.appendChild(h);
+                }
+
+                function select(val, label) {
+                    if (selected.has(val)) return;
+                    selected.add(val);
+                    addChip(val, label);
+                    var o = optionEl(val); if (o) o.classList.add('selected');
+                    updatePlaceholder();
+                }
+
+                function deselect(val) {
+                    selected.delete(val);
+                    var chip = chips.querySelector('.filter-chip[data-value="' + val + '"]'); if (chip) chip.remove();
+                    var h = hidden.querySelector('input[data-value="' + val + '"]'); if (h) h.remove();
+                    var o = optionEl(val); if (o) o.classList.remove('selected');
+                    updatePlaceholder();
+                }
+
+                function clear() {
+                    selected.forEach(function (val) { var o = optionEl(val); if (o) o.classList.remove('selected'); });
+                    selected.clear();
+                    chips.innerHTML = '';
+                    hidden.innerHTML = '';
+                    updatePlaceholder();
+                }
+
+                display.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    wrap.classList.contains('open') ? close() : open();
                 });
-                bar.appendChild(btn);
+                dropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+                search.addEventListener('input', function () { filter(search.value); });
+                optionEls.forEach(function (opt) {
+                    opt.addEventListener('click', function () {
+                        var val = opt.dataset.value;
+                        selected.has(val) ? deselect(val) : select(val, opt.dataset.label);
+                    });
+                });
+
+                var instance = { wrap: wrap, close: close, clear: clear, select: select, optionEl: optionEl };
+                dropdowns.push(instance);
+                return instance;
+            }
+
+            var kategorijaMs = setupMultiSelect({
+                wrap: 'kategorijaWrap', display: 'kategorijaDisplay', dropdown: 'kategorijaDropdown',
+                search: 'kategorijaSearch', chips: 'kategorijaChips', hidden: 'kategorijaHiddenInputs',
+                inputName: 'KategorijaId', placeholder: '-- Odaberi --'
+            });
+            var lokacijaMs = setupMultiSelect({
+                wrap: 'lokacijaWrap', display: 'lokacijaDisplay', dropdown: 'lokacijaDropdown',
+                search: 'lokacijaSearch', chips: 'lokacijaChips', hidden: 'lokacijaHiddenInputs',
+                inputName: 'Lokacija', placeholder: '-- Odaberi --'
             });
 
-            if (bar.children.length > 0)
-                selectEl.parentNode.insertBefore(bar, selectEl);
-        }
-        renderOptgroupButtons();
-    })(lokacijaSelect, lokacijaChips, lokacijaHiddenInputs, 'Lokacija', selectedLokacije);
-    */
-    function clearChips(type) {
-        if (type === 'kategorija') {
-            selectedKategorije.clear();
-            if (kategorijaChips)        kategorijaChips.innerHTML = '';
-            if (kategorijaHiddenInputs) kategorijaHiddenInputs.innerHTML = '';
-        } else {
-            selectedLokacije.clear();
-            if (lokacijaChips)        lokacijaChips.innerHTML = '';
-            if (lokacijaHiddenInputs) lokacijaHiddenInputs.innerHTML = '';
-        }
-    }
+            // Close any open dropdown when clicking outside
+            document.addEventListener('click', function () {
+                dropdowns.forEach(function (d) { if (d.wrap.classList.contains('open')) d.close(); });
+            });
 
-    // --- Pre-populate chips from current URL ---
-    (function prePopulate() {
-        var params = new URLSearchParams(window.location.search);
-        var hasFilters = false;
+            // --- TAB switching ---
+            document.querySelectorAll('.pretraga-tab-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    aktivniTabInput.value = btn.dataset.tab;
 
-        params.getAll('KategorijaId').forEach(function (id) {
-            if (!kategorijaSelect) return;
-            var opt = kategorijaSelect.querySelector('option[value="' + id + '"]');
-            if (opt && !selectedKategorije.has(id)) {
-                selectedKategorije.add(id);
-                addChip(kategorijaChips, kategorijaHiddenInputs, 'KategorijaId', id, opt.dataset.label || id, selectedKategorije);
-                hasFilters = true;
-            }
-        });
+                    var kljucni = document.getElementById('kljucneRijeciInput');
+                    if (kljucni) kljucni.value = '';
 
-        params.getAll('Lokacija').forEach(function (id) {
-            if (!lokacijaSelect) return;
-            var opt = lokacijaSelect.querySelector('option[value="' + id + '"]');
-            if (opt && !selectedLokacije.has(id)) {
-                selectedLokacije.add(id);
-                addChip(lokacijaChips, lokacijaHiddenInputs, 'Lokacija', id, opt.dataset.label || id, selectedLokacije);
-                hasFilters = true;
-            }
-        });
+                    filterPanel.querySelectorAll('input[type="number"], input[type="range"]').forEach(function (el) {
+                        el.value = '';
+                    });
+                    filterPanel.querySelectorAll('select').forEach(function (el) {
+                        el.selectedIndex = 0;
+                    });
 
-        if (!hasFilters) {
-            hasFilters = !!(params.get('MinBudzet') || params.get('MaxBudzet') ||
-                            params.get('MinOcjena')  || params.get('MaxOcjena')  ||
-                            params.get('TipZaposlenja'));
-        }
+                    kategorijaMs.clear();
+                    lokacijaMs.clear();
 
-        if (hasFilters) {
-            filterPanel.classList.add('open');
-            filtrirajToggle.classList.add('active');
-        }
-    })();
+                    form.submit();
+                });
+            });
 
-})();
-</script>
+            // --- FILTER TOGGLE ---
+            filtrirajToggle.addEventListener('click', function () {
+                var isOpen = filterPanel.classList.toggle('open');
+                filtrirajToggle.classList.toggle('active', isOpen);
+            });
+
+            // --- RESET FILTERA ---
+            document.getElementById('resetFilteriBtn').addEventListener('click', function () {
+                var kljucni = document.getElementById('kljucneRijeciInput');
+                if (kljucni) kljucni.value = '';
+
+                filterPanel.querySelectorAll('input[type="number"]').forEach(function (el) {
+                    el.value = '';
+                });
+                filterPanel.querySelectorAll('input[type="range"]').forEach(function (el) {
+                    var isMax = el.id && el.id.toLowerCase().includes('max');
+                    el.value = isMax ? el.max : el.min;
+                    var valEl = document.getElementById(el.id.replace('Range', 'Val'));
+                    if (valEl) valEl.textContent = parseFloat(el.value).toFixed(1);
+                });
+                filterPanel.querySelectorAll('select').forEach(function (el) {
+                    el.selectedIndex = 0;
+                });
+
+                kategorijaMs.clear();
+                lokacijaMs.clear();
+
+                form.submit();
+            });
+
+            // --- Pre-populate chips from current URL ---
+            (function prePopulate() {
+                var params = new URLSearchParams(window.location.search);
+                var hasFilters = false;
+
+                params.getAll('KategorijaId').forEach(function (id) {
+                    var o = kategorijaMs.optionEl(id);
+                    if (o) { kategorijaMs.select(id, o.dataset.label); hasFilters = true; }
+                });
+
+                params.getAll('Lokacija').forEach(function (id) {
+                    var o = lokacijaMs.optionEl(id);
+                    if (o) { lokacijaMs.select(id, o.dataset.label); hasFilters = true; }
+                });
+
+                if (!hasFilters) {
+                    hasFilters = !!(params.get('MinBudzet') || params.get('MaxBudzet') ||
+                                    params.get('MinOcjena')  || params.get('MaxOcjena')  ||
+                                    params.get('TipZaposlenja'));
+                }
+
+                if (hasFilters) {
+                    filterPanel.classList.add('open');
+                    filtrirajToggle.classList.add('active');
+                }
+            })();
+
+        })();
+    </script>
 }

@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace PopravkaBa.Domain.Enums
 {
+    public enum Sortiranje
+    {
+        Ascending,
+        Descending
+    }
     public enum SortiranjeIzvrsilacaUsluga
     {
         ProsjecnaOcjena_Asc,
