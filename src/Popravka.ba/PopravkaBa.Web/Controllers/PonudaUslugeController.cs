@@ -91,12 +91,13 @@ namespace PopravkaBa.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Klijent,Administrator")]
         public async Task<IActionResult> Prihvati(int ponudaId, int oglasId)
         {
             try
             {
                 await _ponudaUslugeService.PrihvatiPonudu(ponudaId);
-                TempData["Success"] = "Ponuda je prihvaćena.";
+                TempData["Success"] = "Ponuda je prihvaćena. Sve ostale ponude su automatski odbijene.";
             }
             catch (Exception ex)
             {
@@ -108,6 +109,7 @@ namespace PopravkaBa.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Klijent,Administrator")]
         public async Task<IActionResult> Odbij(int ponudaId, int oglasId)
         {
             try

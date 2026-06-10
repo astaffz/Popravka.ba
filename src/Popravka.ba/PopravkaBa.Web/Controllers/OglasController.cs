@@ -5,6 +5,7 @@ using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Domain.Models;
 using PopravkaBa.Web.Models.ViewModels;
+using PopravkaBa.Domain.Enums;
 
 namespace PopravkaBa.Web.Controllers
 {
@@ -36,9 +37,30 @@ namespace PopravkaBa.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Detalji(int id)
         {
-            var oglas = await _facadeService.DajOglasPoId(id); 
+            var oglas = await _facadeService.DajOglasPoId(id);
             if (oglas is null) return NotFound();
-            return View(oglas);
+
+            var trenutniKorisnikId = _userManager.GetUserId(User);
+
+            var vm = new OglasMajstoraDetaljiViewModel
+            {
+                OglasId      = oglas.OglasID,
+                Naslov       = oglas.Naslov,
+                Opis         = oglas.Opis,
+                DatumObjave  = oglas.DatumObjave,
+                StatusOglasa = oglas.StatusOglasa,
+                Lokacija     = oglas.Mjesto?.Naziv,
+                MinCijena    = oglas.MinCijena,
+                TipIsplate   = oglas.TipIsplate,
+                Kategorije   = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
+                                    .Where(n => n != "").ToList() ?? new(),
+                VlasnikId    = oglas.VlasnikOglasaID,
+                VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
+                VlasnikSlika = oglas.VlasnikOglasa?.Slika,
+                JeVlasnik    = trenutniKorisnikId == oglas.VlasnikOglasaID
+                               || User.IsInRole("Administrator"),
+            };
+            return View(vm);
         }
 
         public async Task<IActionResult> ObjaviOglas()
@@ -150,12 +172,18 @@ namespace PopravkaBa.Web.Controllers
         private readonly IOglasRadnoMjestoFacade _facadeService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<OglasRadnoMjestoController> _logger;
+        private readonly IPrijavaOglasService _prijavaService;
 
-        public OglasRadnoMjestoController(IOglasRadnoMjestoFacade facadeService, UserManager<ApplicationUser> userManager, ILogger<OglasRadnoMjestoController> logger)
+        public OglasRadnoMjestoController(
+            IOglasRadnoMjestoFacade facadeService,
+            UserManager<ApplicationUser> userManager,
+            ILogger<OglasRadnoMjestoController> logger,
+            IPrijavaOglasService prijavaService)
         {
             _facadeService = facadeService;
             _userManager = userManager;
             _logger = logger;
+            _prijavaService = prijavaService;
         }
 
         [AllowAnonymous]
@@ -174,7 +202,50 @@ namespace PopravkaBa.Web.Controllers
         {
             var oglas = await _facadeService.DajOglasPoId(id);
             if (oglas is null) return NotFound();
-            return View(oglas);
+
+            var trenutniKorisnikId = _userManager.GetUserId(User);
+
+            var prijaveDto = oglas.Prijave?.Select(p => new PrijavaDto
+            {
+                PrijavaId       = p.ID,
+                MajstorId       = p.MajstorID,
+                MajstorIme      = p.Majstor?.DisplayName ?? "—",
+                MajstorSlika    = p.Majstor?.Slika,
+                MajstorKategorija = p.Majstor?.Kategorije?.FirstOrDefault()?.Kategorija?.Naziv,
+                ProsjecnaOcjena = (decimal)(p.Majstor?.ProsjecnaOcjena ?? 0),
+                BrojRecenzija   = p.Majstor?.BrojRecenzija ?? 0,
+                VrijemePrijave  = p.VrijemePrijave,
+                StatusPrijave   = p.StatusPrijave
+            }).ToList() ?? new List<PrijavaDto>();
+
+            var vm = new OglasRadnoMjestoDetaljiViewModel
+            {
+                OglasId          = oglas.OglasID,
+                Naslov           = oglas.Naslov,
+                Opis             = oglas.Opis,
+                DatumObjave      = oglas.DatumObjave,
+                StatusOglasa     = oglas.StatusOglasa,
+                Lokacija         = oglas.Mjesto?.Naziv,
+                MinPrihod        = oglas.MinPrihod,
+                MaxPrihod        = oglas.MaxPrihod,
+                TipIsplate       = oglas.TipIsplate,
+                VrstaZaposlenja  = oglas.VrstaZaposlenja,
+                BrojIzvrsilaca   = oglas.BrojIzvrsilaca,
+                Kategorije       = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
+                                       .Where(n => n != "").ToList() ?? new(),
+                Uvjeti           = oglas.Uvjeti?.Select(u => u.TekstUvjeta).ToList() ?? new(),
+                VlasnikId        = oglas.VlasnikOglasaID,
+                VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
+                VlasnikSlika     = oglas.VlasnikOglasa?.Slika,
+                Prijave          = prijaveDto,
+                JeVlasnik        = trenutniKorisnikId == oglas.VlasnikOglasaID
+                                   || User.IsInRole("Administrator"),
+                MozeApplicirati  = User.IsInRole("Majstor")
+                                   && trenutniKorisnikId != oglas.VlasnikOglasaID,
+                VecApplicirao    = oglas.Prijave?.Any(p => p.MajstorID == trenutniKorisnikId) ?? false
+            };
+
+            return View(vm);
         }
 
         public async Task<IActionResult> ObjaviOglas()
@@ -321,12 +392,14 @@ namespace PopravkaBa.Web.Controllers
                 IzvrsilacKategorija = p.Izvrsilac?.Kategorije?
                     .FirstOrDefault()?.Kategorija?.Naziv,
                 Verificiran   = false, // TODO: uvesti Verificiran flag na IzvrsilacUsluge
-                Cijena        = p.Izvrsilac?.MinCijenaUsluge,
+                Cijena        = p.Cijena,
+                TipIsplate    = p.TipIsplate,
                 ProsjecnaOcjena = (decimal)(p.Izvrsilac?.ProsjecnaOcjena ?? 0),
                 BrojRecenzija = p.Izvrsilac?.BrojRecenzija ?? 0,
                 DatumPocetka  = p.DatumPocetkaUsluge,
                 DatumKraja    = p.DatumOcekivanogZavrsetka,
-                StatusPonude  = p.StatusPonude
+                StatusPonude  = p.StatusPonude,
+                Poruka        = p.Poruka
             }).ToList() ?? new List<PonudaDto>();
 
             // Prosječna cijena ponuda (samo oni koji imaju cijenu)
@@ -356,7 +429,8 @@ namespace PopravkaBa.Web.Controllers
                 VlasnikSlika  = oglas.VlasnikOglasa?.Slika,
                 Ponude        = ponudeDto,
                 ProsjecnaCijenaPonude = prosjecnaCijena,
-                JeVlasnik     = trenutniKorisnikId == oglas.VlasnikOglasaID,
+                JeVlasnik     = trenutniKorisnikId == oglas.VlasnikOglasaID
+                                || User.IsInRole("Administrator"),
                 MozeApplicirati = (User.IsInRole("Majstor") || User.IsInRole("Firma"))
                                   && trenutniKorisnikId != oglas.VlasnikOglasaID,
                 VecApplicirao  = oglas.Ponude?.Any(p => p.IzvrsilacID == trenutniKorisnikId) ?? false

@@ -1,5 +1,383 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model PopravkaBa.Web.Models.ViewModels.OglasRadnoMjestoDetaljiViewModel
+@using PopravkaBa.Domain.Enums
 @{
+    ViewData["Title"] = Model.Naslov + " – Popravka.ba";
+    bool jeAktivan = Model.StatusOglasa == Status.Aktivan;
+
+    Func<DateTime, string> relativnoVrijeme = (DateTime d) =>
+    {
+        var diff = DateTime.UtcNow - d.ToUniversalTime();
+        if (diff.TotalMinutes < 60) return $"Prije {(int)diff.TotalMinutes} min.";
+        if (diff.TotalHours < 24) return $"Prije {(int)diff.TotalHours}h.";
+        return $"Prije {(int)diff.TotalDays} dana";
+    };
+
+    Func<decimal, string> ocjenaStars = (decimal ocjena) =>
+    {
+        int pune = (int)Math.Round(ocjena);
+        var sb = new System.Text.StringBuilder();
+        for (int i = 1; i <= 5; i++) sb.Append(i <= pune ? "★" : "☆");
+        return sb.ToString();
+    };
+
+    string vrstaZaposlenjaLabel(VrstaZaposlenja v) => v switch
+    {
+        VrstaZaposlenja.PunoRadnoVrijeme  => "Puno radno vrijeme",
+        VrstaZaposlenja.PolaRadnogVrijema => "Pola radnog vremena",
+        VrstaZaposlenja.UgovorDjelo       => "Ugovor o djelu",
+        VrstaZaposlenja.Praksa            => "Praksa",
+        _ => v.ToString()
+    };
+
+    string tipIsplateLabel(TipIsplate t) => t switch
+    {
+        TipIsplate.PoSatu      => "/h",
+        TipIsplate.Jednokratno => " fiksno",
+        TipIsplate.Sedmicno    => "/sedm.",
+        TipIsplate.Mjesecno    => "/mj.",
+        _ => ""
+    };
+}
+
+<!-- Confirmation modal -->
+<div id="confirmModal" class="confirm-modal-overlay" style="display:none;" aria-modal="true" role="dialog">
+    <div class="confirm-modal-box">
+        <p id="confirmModalText" class="confirm-modal-text"></p>
+        <div class="confirm-modal-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="confirmModalCancel">Odustani</button>
+            <button type="button" class="btn btn-danger btn-sm"    id="confirmModalOk">Potvrdi</button>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4 mb-5">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!jeAktivan)
+    {
+        <div class="alert alert-warning d-flex align-items-center gap-2 mb-3">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span><strong>Oglas je neaktivan.</strong> Prijava je prihvaćena ili je oglas zatvoren.</span>
+        </div>
+    }
+
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Početna</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Pretraga" asp-action="Index" asp-route-AktivniTab="Oglasi za posao">Oglasi za posao</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Naslov</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- Lijeva kolona -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h1 class="h3 fw-bold mb-0">@Model.Naslov</h1>
+                        <span class="badge @(jeAktivan ? "bg-success" : "bg-secondary") ms-3 flex-shrink-0">
+                            @(jeAktivan ? "Aktivan" : "Neaktivan")
+                        </span>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-3 text-muted small mb-3">
+                        <span><i class="fa-solid fa-location-dot me-1"></i>@(Model.Lokacija ?? "—")</span>
+                        <span><i class="fa-regular fa-clock me-1"></i>@relativnoVrijeme(Model.DatumObjave)</span>
+                        <span><i class="fa-solid fa-user-group me-1"></i>@Model.Prijave.Count prijava</span>
+                        <span>
+                            <i class="fa-solid fa-building me-1"></i>
+                            <a href="/Profil/@Model.VlasnikId" class="text-decoration-none">@Model.VlasnikDisplayName</a>
+                        </span>
+                    </div>
+
+                    @if (Model.Kategorije.Any())
+                    {
+                        <div class="mb-3">
+                            @foreach (var kat in Model.Kategorije)
+                            {
+                                <span class="badge bg-primary-subtle text-primary me-1">@kat</span>
+                            }
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Opis))
+                    {
+                        <p style="white-space: pre-line;">@Model.Opis</p>
+                    }
+
+                    @if (Model.Uvjeti.Any())
+                    {
+                        <div class="card bg-light border-0 p-3 mb-3">
+                            <h6 class="fw-semibold mb-2 text-uppercase small">Uvjeti</h6>
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var uvjet in Model.Uvjeti)
+                                {
+                                    <li class="mb-1">
+                                        <i class="fa-solid fa-circle-check text-success me-2"></i>@uvjet
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="alert alert-info py-2 mb-0">
+                        <i class="fa-solid fa-money-bill-wave me-2"></i>
+                        <strong>Prihod:</strong> @Model.MinPrihod.ToString("N0") – @Model.MaxPrihod.ToString("N0") KM@tipIsplateLabel(Model.TipIsplate)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prijave -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-users me-2 text-primary"></i>
+                        Prijave (@Model.Prijave.Count)
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (!Model.Prijave.Any())
+                    {
+                        <div class="p-4 text-center text-muted">
+                            <i class="fa-solid fa-inbox fa-2x mb-2 d-block"></i>
+                            Još nema prijava za ovaj oglas.
+                        </div>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var prijava in Model.Prijave)
+                            {
+                                <li class="list-group-item p-3 @(prijava.StatusPrijave == Status.Prihvaceno ? "list-group-item-success" : prijava.StatusPrijave == Status.Odbijeno ? "list-group-item-light" : "")">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <a href="/Profil/@prijava.MajstorId" class="flex-shrink-0">
+                                            @if (!string.IsNullOrEmpty(prijava.MajstorSlika))
+                                            {
+                                                <img src="@prijava.MajstorSlika" alt="@prijava.MajstorIme"
+                                                     class="rounded-circle" style="width:52px;height:52px;object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <span class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center"
+                                                      style="width:52px;height:52px;font-size:1.6rem;color:#6c757d;">
+                                                    <i class="fa-solid fa-circle-user"></i>
+                                                </span>
+                                            }
+                                        </a>
+
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <a href="/Profil/@prijava.MajstorId" class="fw-semibold text-decoration-none text-body">
+                                                        @prijava.MajstorIme
+                                                    </a>
+                                                    @if (!string.IsNullOrEmpty(prijava.MajstorKategorija))
+                                                    {
+                                                        <span class="badge bg-primary-subtle text-primary ms-2 small">@prijava.MajstorKategorija</span>
+                                                    }
+                                                </div>
+                                                <small class="text-muted">@relativnoVrijeme(prijava.VrijemePrijave)</small>
+                                            </div>
+
+                                            <div class="d-flex align-items-center gap-2 my-1 small text-muted">
+                                                <span class="izv-stars text-warning">@ocjenaStars(prijava.ProsjecnaOcjena)</span>
+                                                <span>@prijava.ProsjecnaOcjena.ToString("F1") (@prijava.BrojRecenzija recenzija)</span>
+                                            </div>
+
+                                            @if (prijava.StatusPrijave != Status.NaCekanju)
+                                            {
+                                                <span class="badge @(prijava.StatusPrijave == Status.Prihvaceno ? "bg-success" : "bg-secondary") mt-1">
+                                                    @(prijava.StatusPrijave == Status.Prihvaceno ? "✓ Prihvaćena" : "Odbijena")
+                                                </span>
+                                            }
+                                            else if (Model.JeVlasnik)
+                                            {
+                                                <div class="mt-2 d-flex gap-2">
+                                                    <form asp-controller="PrijavaOglas" asp-action="PrihvatiPrijavu" method="post" class="confirm-form">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="prijavaId" value="@prijava.PrijavaId" />
+                                                        <button type="button" class="btn btn-success btn-sm confirm-btn"
+                                                                data-msg="Prihvatiti prijavu od @prijava.MajstorIme? Sve ostale prijave bit će automatski odbijene.">
+                                                            <i class="fa-solid fa-check me-1"></i>Prihvati
+                                                        </button>
+                                                    </form>
+                                                    <form asp-controller="PrijavaOglas" asp-action="OdbijPrijavu" method="post" class="confirm-form">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="prijavaId" value="@prijava.PrijavaId" />
+                                                        <button type="button" class="btn btn-outline-danger btn-sm confirm-btn"
+                                                                data-msg="Odbiti prijavu od @prijava.MajstorIme?">
+                                                            <i class="fa-solid fa-xmark me-1"></i>Odbij
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Desna kolona -->
+        <div class="col-lg-4">
+
+            <!-- Info o oglasu -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-3">
+                    <h6 class="fw-semibold text-muted mb-3 text-uppercase" style="font-size:0.75rem;letter-spacing:.05em;">Informacije o oglasu</h6>
+                    <table class="table table-sm table-borderless mb-0">
+                        <tbody>
+                            @if (Model.Kategorije.Any())
+                            {
+                                <tr>
+                                    <td class="text-muted small">Kategorija</td>
+                                    <td class="fw-medium small text-end">@string.Join(", ", Model.Kategorije)</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td class="text-muted small">Lokacija</td>
+                                <td class="fw-medium small text-end">@(Model.Lokacija ?? "—")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted small">Autor</td>
+                                <td class="fw-medium small text-end">
+                                    <a href="/Profil/@Model.VlasnikId" class="text-decoration-none">@Model.VlasnikDisplayName</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted small">Prihod</td>
+                                <td class="fw-medium small text-end">@Model.MinPrihod.ToString("N0") – @Model.MaxPrihod.ToString("N0") KM</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted small">Tip zaposlenja</td>
+                                <td class="fw-medium small text-end">@vrstaZaposlenjaLabel(Model.VrstaZaposlenja)</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted small">Status</td>
+                                <td class="text-end">
+                                    <span class="badge @(jeAktivan ? "bg-success" : "bg-secondary")">
+                                        @(jeAktivan ? "Aktivan" : "Neaktivan")
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted small">Broj izvršilaca</td>
+                                <td class="fw-medium small text-end">@Model.BrojIzvrsilaca</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Apliciraj -->
+            @if (Model.MozeApplicirati && jeAktivan)
+            {
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-3 text-center">
+                        @if (Model.VecApplicirao)
+                        {
+                            <div class="alert alert-secondary mb-0 py-2">
+                                <i class="fa-solid fa-circle-check me-1"></i>Već ste aplicirali.
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted small mb-2">Oglas je trenutno aktivan i još uvijek možete dostaviti vašu ponudu korisniku</p>
+                            <form asp-controller="PrijavaOglas" asp-action="Apliciraj" method="get">
+                                <input type="hidden" name="oglasId" value="@Model.OglasId" />
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fa-solid fa-paper-plane me-2"></i>Apliciraj ponudu
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Vlasnik/Admin: uredi/obriši -->
+            @if (Model.JeVlasnik)
+            {
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-3 d-flex flex-column gap-2">
+                        <a asp-controller="OglasRadnoMjesto" asp-action="UrediOglas" asp-route-id="@Model.OglasId"
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fa-solid fa-pen-to-square me-1"></i>Uredi oglas
+                        </a>
+                        <a asp-controller="OglasRadnoMjesto" asp-action="ObrisiOglas" asp-route-id="@Model.OglasId"
+                           class="btn btn-outline-danger btn-sm">
+                            <i class="fa-solid fa-trash me-1"></i>Obriši oglas
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+.confirm-modal-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+}
+.confirm-modal-box {
+    background: #fff; border-radius: .75rem;
+    padding: 1.75rem 2rem; max-width: 380px; width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,.18); text-align: center;
+}
+.confirm-modal-text { font-size: 1rem; margin-bottom: 1.25rem; line-height: 1.5; }
+.confirm-modal-actions { display: flex; gap: .75rem; justify-content: center; }
+</style>
+
+@section Scripts {
+<script>
+(function () {
+    var overlay = document.getElementById('confirmModal');
+    var modalText = document.getElementById('confirmModalText');
+    var btnOk = document.getElementById('confirmModalOk');
+    var btnCancel = document.getElementById('confirmModalCancel');
+    var pendingForm = null;
+
+    document.querySelectorAll('.confirm-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            pendingForm = btn.closest('.confirm-form');
+            modalText.textContent = btn.dataset.msg;
+            overlay.style.display = 'flex';
+        });
+    });
+
+    btnOk.addEventListener('click', function () {
+        overlay.style.display = 'none';
+        if (pendingForm) pendingForm.submit();
+    });
+    btnCancel.addEventListener('click', function () {
+        overlay.style.display = 'none';
+        pendingForm = null;
+    });
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) { overlay.style.display = 'none'; pendingForm = null; }
+    });
+})();
+</script>
 }

@@ -93,15 +93,34 @@ public class PrijavaOglasController : Controller
         {
             var prijava = await _prijavaOglasService.DajPrijavuPoId(prijavaId);
             if (prijava is null) return NotFound();
-
             await _prijavaOglasService.PrihvatiPonudu(prijavaId);
-            TempData["Success"] = "Ponuda je prihvaćena.";
+            TempData["Success"] = "Prijava je prihvaćena. Sve ostale prijave su automatski odbijene.";
             return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = prijava.OglasID });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Greška pri prihvatanju ponude.");
-            TempData["Error"] = "Došlo je do greške pri prihvatanju ponude.";
+            TempData["Error"] = "Greška pri prihvatanju prijave.";
+            return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = prijavaId });
+        }
+    }
+
+    [HttpPost, ActionName("PrihvatiPrijavu")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> PrihvacenaPrijavaDirektno(int prijavaId)
+    {
+        try
+        {
+            var prijava = await _prijavaOglasService.DajPrijavuPoId(prijavaId);
+            if (prijava is null) return NotFound();
+            await _prijavaOglasService.PrihvatiPonudu(prijavaId);
+            TempData["Success"] = "Prijava je prihvaćena. Sve ostale prijave su automatski odbijene.";
+            return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = prijava.OglasID });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Greška pri prihvatanju prijave.");
+            TempData["Error"] = "Greška pri prihvatanju prijave.";
             return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = prijavaId });
         }
     }
@@ -122,7 +141,6 @@ public class PrijavaOglasController : Controller
         {
             var prijava = await _prijavaOglasService.DajPrijavuPoId(prijavaId);
             if (prijava is null) return NotFound();
-
             await _prijavaOglasService.OdbijPrijavu(prijavaId);
             TempData["Success"] = "Prijava je odbijena.";
             return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = prijava.OglasID });
@@ -130,7 +148,7 @@ public class PrijavaOglasController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Greška pri odbijanju prijave.");
-            TempData["Error"] = "Došlo je do greške.";
+            TempData["Error"] = "Greška pri odbijanju prijave.";
             return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = prijavaId });
         }
     }

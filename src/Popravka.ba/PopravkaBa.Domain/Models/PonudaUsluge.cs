@@ -25,5 +25,10 @@ namespace PopravkaBa.Domain.Models
         public DateTime? DatumIzvrsavanjaUsluge { get; set; }
         public Status StatusPonude { get; set; } = Status.NaCekanju;
 
+        // Cijena i tip isplate koje izvršilac nudi za ovaj oglas
+        public int? Cijena { get; set; }
+        public TipIsplate TipIsplate { get; set; } = TipIsplate.PoSatu;
+
+        public string? Poruka { get; set; }
     }
 }

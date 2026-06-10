@@ -99,8 +99,11 @@ builder.Services.AddScoped<IOglasMajstoraFacade, OglasMajstoraFacade>();
 builder.Services.AddScoped<IOglasRadnoMjestoFacade, OglasRadnoMjestoFacade>();
 builder.Services.AddScoped<IOglasUslugeFacade, OglasUslugeFacade>();
 
+builder.Services.AddScoped<IPonudaUslugeRepository, PonudaUslugeRepository>();
 builder.Services.AddScoped<IPonudaUslugeService, PonudaUslugeService>();
-// builder.Services.AddScoped<IPrijavaOglasService, PrijavaOglasService>();
+
+builder.Services.AddScoped<IPrijavaRadnoMjestoRepository, PrijavaRadnoMjestoRepository>();
+builder.Services.AddScoped<IPrijavaOglasService, PrijavaOglasService>();
 builder.Services.AddScoped<IRecenzijaService, RecenzijaService>();
 
 builder.Services.AddScoped<IPretragaStrategy, KlijentStrategy>();

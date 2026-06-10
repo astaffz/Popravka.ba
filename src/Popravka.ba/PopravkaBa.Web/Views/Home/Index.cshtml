@@ -172,7 +172,7 @@
         <div class="oglasi-grid">
             @foreach (var oglas in Model.NedavniOglasi)
             {
-                <a class="oglas-card" href="#">
+                <a class="oglas-card" asp-controller="@oglas.TipOglasa" asp-action="Detalji" asp-route-id="@oglas.ID">
                     <div class="oglas-body">
                         <strong>@oglas.Naslov</strong>
                         <p>@oglas.Opis</p>

@@ -220,15 +220,20 @@ namespace PopravkaBa.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<OglasRadnoMjesto?> DajPoIdAsync(int id) => 
-            await  _context.OglasiRadnogMjesta
+        public async Task<OglasRadnoMjesto?> DajPoIdAsync(int id) =>
+            await _context.OglasiRadnogMjesta
             .Include(orm => orm.VozackeDozvole)
             .Include(orm => orm.Uvjeti)
             .Include(orm => orm.VlasnikOglasa)
             .Include(orm => orm.Prijave)
+                .ThenInclude(p => p.Majstor)
+                    .ThenInclude(m => m.Kategorije)
+                        .ThenInclude(ik => ik.Kategorija)
             .Include(orm => orm.Mjesto)
             .Include(orm => orm.Kategorije)
+                .ThenInclude(ok => ok.Kategorija)
             .Include(orm => orm.Notifikacije)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(orm => orm.OglasID == id);
         public async Task<IEnumerable<OglasRadnoMjesto>?> DajNedavneAsync(int topN)
        => await _context.OglasiRadnogMjesta
