@@ -29,57 +29,30 @@ public class PrijavaOglasController : Controller
     }
 
 
-    [Authorize(Roles = "Majstor")]
-    public async Task<IActionResult> Apliciraj(int oglasId)
-    {
-        var oglas = await _oglasRadnoMjestoService.DajOglasPoId(oglasId);
-        if (oglas is null) return NotFound();
-
-        if (oglas.StatusOglasa != Status.Aktivan)
-        {
-            TempData["Error"] = "Oglas više nije aktivan.";
-            return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = oglasId });
-        }
-
-        var korisnikId = _userManager.GetUserId(User);
-        var vecPrijavljen = oglas.Prijave?.Any(p => p.MajstorID == korisnikId) ?? false;
-        if (vecPrijavljen)
-        {
-            TempData["Error"] = "Već ste se prijavili na ovaj oglas.";
-            return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = oglasId });
-        }
-
-        ViewBag.Oglas = oglas;
-        return View(new KreirajPrijavaRadnoMjestoDto { OglasID = oglasId });
-    }
-
+    // Prijava se šalje direktno sa stranice oglasa (pop-up potvrda), bez zasebne stranice.
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "Majstor")]
-    public async Task<IActionResult> Apliciraj(KreirajPrijavaRadnoMjestoDto dto)
+    public async Task<IActionResult> Posalji(int oglasId)
     {
-        // MajstorID se postavlja sa servera (prijavljeni korisnik), ne iz forme
-        dto.MajstorID = _userManager.GetUserId(User)!;
-        ModelState.Remove(nameof(dto.MajstorID));
-
-        if (!ModelState.IsValid)
-        {
-            ViewBag.Oglas = await _oglasRadnoMjestoService.DajOglasPoId(dto.OglasID);
-            return View(dto);
-        }
-
+        var korisnikId = _userManager.GetUserId(User)!;
         try
         {
+            var dto = new KreirajPrijavaRadnoMjestoDto { OglasID = oglasId, MajstorID = korisnikId };
             await _prijavaOglasService.KreirajPrijavu(dto);
             TempData["Success"] = "Prijava je uspješno poslana.";
-            return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = dto.OglasID });
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Oglas nije aktivan ili je već prijavljen
+            TempData["Error"] = ex.Message;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Greška pri kreiranju prijave.");
+            _logger.LogError(ex, "Greška pri slanju prijave.");
             TempData["Error"] = "Došlo je do greške pri slanju prijave.";
-            return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = dto.OglasID });
         }
+        return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = oglasId });
     }
 
     public async Task<IActionResult> ObrisiPrijavu(int prijavaId)

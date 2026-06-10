@@ -28,7 +28,10 @@ namespace PopravkaBa.Application.Services.Implementation
                 ?? throw new KeyNotFoundException($"Oglas {dto.OglasID} nije pronađen.");
 
             if (oglas.StatusOglasa != Status.Aktivan)
-                throw new InvalidOperationException("Oglas nije aktivan.");
+                throw new InvalidOperationException("Oglas više nije aktivan.");
+
+            if (oglas.Prijave?.Any(p => p.MajstorID == dto.MajstorID) ?? false)
+                throw new InvalidOperationException("Već ste se prijavili na ovaj oglas.");
 
             var prijava = new PrijavaRadnoMjesto
             {

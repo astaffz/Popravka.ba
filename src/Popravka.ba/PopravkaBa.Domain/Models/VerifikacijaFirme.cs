@@ -28,7 +28,7 @@ namespace PopravkaBa.Domain.Models
         public string PoreznoUvjerenje { get; set; }
         public string? LicencaDjelatnosti { get; set; }
         public string Logotip { get; set; }
-        public DateTime DatumPodnosenja { get; set; } = DateTime.Now;
+        public DateTime DatumPodnosenja { get; set; } = DateTime.UtcNow;
         public DateTime? DatumObrade { get; set; }
 
         public abstract void PodnesiVerifikaciju();

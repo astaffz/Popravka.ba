@@ -30,7 +30,7 @@ namespace PopravkaBa.Application.Services
                 MjestoID = dto.MjestoID,
                 MinCijena = dto.MinCijena,
                 TipIsplate = dto.TipIsplate,
-                DatumObjave = DateTime.Now,
+                DatumObjave = DateTime.UtcNow,
                 VlasnikOglasaID = vlasnikId
             };
 

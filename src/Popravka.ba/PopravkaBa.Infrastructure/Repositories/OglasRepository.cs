@@ -66,7 +66,7 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .ToListAsync();
         public async Task DodajAsync(OglasMajstora oglas)
         {
-            oglas.DatumObjave = DateTime.Now;
+            oglas.DatumObjave = DateTime.UtcNow;
             await _context.OglasiMajstora.AddAsync(oglas);
             await _context.SaveChangesAsync();
         }
@@ -169,7 +169,7 @@ namespace PopravkaBa.Infrastructure.Repositories
 
         public async Task DodajAsync(OglasUsluge oglas)
         {
-            oglas.DatumObjave = DateTime.Now;
+            oglas.DatumObjave = DateTime.UtcNow;
             await _context.OglasiUsluga.AddAsync(oglas);
             await _context.SaveChangesAsync();
         }

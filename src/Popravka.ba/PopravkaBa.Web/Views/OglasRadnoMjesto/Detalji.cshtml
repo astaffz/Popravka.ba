@@ -343,10 +343,14 @@
                         else
                         {
                             <p class="text-muted small mb-2">Oglas je trenutno aktivan i još uvijek možete dostaviti vašu prijavu poslodavcu.</p>
-                            <a asp-controller="PrijavaOglas" asp-action="Apliciraj" asp-route-oglasId="@Model.OglasId"
-                               class="btn btn-primary w-100">
-                                <i class="fa-solid fa-paper-plane me-2"></i>Apliciraj na oglas
-                            </a>
+                            <form asp-controller="PrijavaOglas" asp-action="Posalji" method="post" class="confirm-form">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="oglasId" value="@Model.OglasId" />
+                                <button type="button" class="btn btn-primary w-100 confirm-btn"
+                                        data-msg="Poslati prijavu na ovaj oglas? Prijava se ne može povući.">
+                                    <i class="fa-solid fa-paper-plane me-2"></i>Apliciraj na oglas
+                                </button>
+                            </form>
                         }
                     </div>
                 </div>
