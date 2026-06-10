@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Domain.Models;
+using PopravkaBa.Web.Models.ViewModels;
 
 namespace PopravkaBa.Web.Controllers
 {
@@ -307,7 +308,61 @@ namespace PopravkaBa.Web.Controllers
         {
             var oglas = await _facadeService.DajOglasPoId(id);
             if (oglas is null) return NotFound();
-            return View(oglas);
+
+            var trenutniKorisnikId = _userManager.GetUserId(User);
+
+            // Mapiranje ponuda u DTO
+            var ponudeDto = oglas.Ponude?.Select(p => new PonudaDto
+            {
+                PonudaId      = p.ID,
+                IzvrsilacId   = p.IzvrsilacID,
+                IzvrsilacIme  = p.Izvrsilac?.DisplayName ?? "—",
+                IzvrsilacSlika = p.Izvrsilac?.Slika,
+                IzvrsilacKategorija = p.Izvrsilac?.Kategorije?
+                    .FirstOrDefault()?.Kategorija?.Naziv,
+                Verificiran   = false, // TODO: uvesti Verificiran flag na IzvrsilacUsluge
+                Cijena        = p.Izvrsilac?.MinCijenaUsluge,
+                ProsjecnaOcjena = (decimal)(p.Izvrsilac?.ProsjecnaOcjena ?? 0),
+                BrojRecenzija = p.Izvrsilac?.BrojRecenzija ?? 0,
+                DatumPocetka  = p.DatumPocetkaUsluge,
+                DatumKraja    = p.DatumOcekivanogZavrsetka,
+                StatusPonude  = p.StatusPonude
+            }).ToList() ?? new List<PonudaDto>();
+
+            // Prosječna cijena ponuda (samo oni koji imaju cijenu)
+            var cijeneKojePostoje = ponudeDto.Where(p => p.Cijena.HasValue).Select(p => (decimal)p.Cijena!.Value).ToList();
+            decimal? prosjecnaCijena = cijeneKojePostoje.Any() ? cijeneKojePostoje.Average() : null;
+
+            // Izračunaj razliku od prosjeka za svaku ponudu
+            if (prosjecnaCijena.HasValue)
+            {
+                foreach (var p in ponudeDto.Where(p => p.Cijena.HasValue))
+                    p.RazlikaOdProsjeka = (decimal)p.Cijena!.Value - prosjecnaCijena.Value;
+            }
+
+            var vm = new OglasUslugeDetaljiViewModel
+            {
+                OglasId       = oglas.OglasID,
+                Naslov        = oglas.Naslov,
+                Opis          = oglas.Opis,
+                DatumObjave   = oglas.DatumObjave,
+                StatusOglasa  = oglas.StatusOglasa,
+                Lokacija      = oglas.Mjesto?.Naziv,
+                MinBudzet     = oglas.MinBudzet,
+                MaxBudzet     = oglas.MaxBudzet,
+                Kategorije    = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "").Where(n => n != "").ToList() ?? new(),
+                VlasnikId     = oglas.VlasnikOglasaID,
+                VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
+                VlasnikSlika  = oglas.VlasnikOglasa?.Slika,
+                Ponude        = ponudeDto,
+                ProsjecnaCijenaPonude = prosjecnaCijena,
+                JeVlasnik     = trenutniKorisnikId == oglas.VlasnikOglasaID,
+                MozeApplicirati = (User.IsInRole("Majstor") || User.IsInRole("Firma"))
+                                  && trenutniKorisnikId != oglas.VlasnikOglasaID,
+                VecApplicirao  = oglas.Ponude?.Any(p => p.IzvrsilacID == trenutniKorisnikId) ?? false
+            };
+
+            return View(vm);
         }
 
         public async Task<IActionResult> ObjaviOglas()

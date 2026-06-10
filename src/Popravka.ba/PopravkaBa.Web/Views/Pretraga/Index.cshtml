@@ -371,7 +371,7 @@
                         {
                             foreach (var izv in Model.Rezultat.Izvrsioci)
                             {
-                                <a class="result-card result-card--izvrsilac" href="#">
+                                <a class="result-card result-card--izvrsilac" href="/Profil/@izv.Id">
                                     <div class="result-card-main">
                                         <div class="izv-avatar">
                                             @if (!string.IsNullOrEmpty(izv.Slika))
@@ -434,7 +434,7 @@
                         {
                             foreach (var oglas in Model.Rezultat.OglasiUsluga)
                             {
-                                <a class="result-card result-card--oglas" href="#">
+                                <a class="result-card result-card--oglas" asp-controller="OglasUsluge" asp-action="Detalji" asp-route-id="@oglas.Id">
                                     <div class="oglas-card-header">
                                         <div class="oglas-card-body">
                                             <h3 class="oglas-naslov">@oglas.Naslov</h3>
@@ -485,7 +485,7 @@
                         {
                             foreach (var oglas in Model.Rezultat.OglasiRadnihMjesta)
                             {
-                                <a class="result-card result-card--oglas" href="#">
+                                <a class="result-card result-card--oglas" asp-controller="OglasRadnoMjesto" asp-action="Detalji" asp-route-id="@oglas.Id">
                                     <div class="oglas-card-header">
                                         <div class="oglas-card-body">
                                             <h3 class="oglas-naslov">@oglas.Naslov</h3>

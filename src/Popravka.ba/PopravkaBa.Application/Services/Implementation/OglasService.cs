@@ -151,10 +151,7 @@ namespace PopravkaBa.Application.Services
         {
             _repo = repo;
         }
-        public Task<OglasUsluge?> DajOglasPoId(int id)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<OglasUsluge?> DajOglasPoId(int id) => await _repo.DajPoIdAsync(id);
 
         public Task<IEnumerable<OglasUsluge>> DajSveOglase()
         {

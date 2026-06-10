@@ -1,5 +1,308 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model PopravkaBa.Web.Models.ViewModels.OglasUslugeDetaljiViewModel
+@using PopravkaBa.Domain.Enums
 @{
+    ViewData["Title"] = Model.Naslov + " – Popravka.ba";
+
+    Func<DateTime, string> relativnoVrijeme = (DateTime d) =>
+    {
+        var diff = DateTime.UtcNow - d.ToUniversalTime();
+        if (diff.TotalMinutes < 60) return $"Prije {(int)diff.TotalMinutes} min.";
+        if (diff.TotalHours < 24) return $"Prije {(int)diff.TotalHours}h.";
+        return $"Prije {(int)diff.TotalDays} dana";
+    };
+
+    Func<decimal, string> ocjenaStars = (decimal ocjena) =>
+    {
+        int pune = (int)Math.Round(ocjena);
+        var sb = new System.Text.StringBuilder();
+        for (int i = 1; i <= 5; i++) sb.Append(i <= pune ? "★" : "☆");
+        return sb.ToString();
+    };
 }
+
+<div class="container mt-4 mb-5">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Početna</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Pretraga" asp-action="Index" asp-route-AktivniTab="Oglasi za popravke">Oglasi za popravke</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Naslov</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- Lijeva kolona: detalji oglasa -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+
+                    <!-- Naslov i status -->
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h1 class="h3 fw-bold mb-0">@Model.Naslov</h1>
+                        <span class="badge @(Model.StatusOglasa == Status.Aktivan ? "bg-success" : "bg-secondary") ms-3">
+                            @(Model.StatusOglasa == Status.Aktivan ? "Aktivan" : "Neaktivan")
+                        </span>
+                    </div>
+
+                    <!-- Meta info -->
+                    <div class="d-flex flex-wrap gap-3 text-muted small mb-3">
+                        <span><i class="fa-solid fa-location-dot me-1"></i>@(Model.Lokacija ?? "—")</span>
+                        <span><i class="fa-regular fa-clock me-1"></i>@relativnoVrijeme(Model.DatumObjave)</span>
+                        <span><i class="fa-solid fa-list-check me-1"></i>@Model.Ponude.Count @(Model.Ponude.Count == 1 ? "ponuda" : "ponude")</span>
+                    </div>
+
+                    <!-- Kategorije -->
+                    @if (Model.Kategorije.Any())
+                    {
+                        <div class="mb-3">
+                            @foreach (var kat in Model.Kategorije)
+                            {
+                                <span class="badge bg-primary-subtle text-primary me-1">@kat</span>
+                            }
+                        </div>
+                    }
+
+                    <!-- Budžet -->
+                    <div class="alert alert-info py-2 mb-3">
+                        <i class="fa-solid fa-coins me-2"></i>
+                        <strong>Budžet:</strong> @Model.MinBudzet – @Model.MaxBudzet KM
+                    </div>
+
+                    <!-- Opis -->
+                    @if (!string.IsNullOrEmpty(Model.Opis))
+                    {
+                        <hr />
+                        <h5 class="fw-semibold">Opis</h5>
+                        <p class="mb-0" style="white-space: pre-line;">@Model.Opis</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Ponude -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fa-solid fa-handshake me-2 text-primary"></i>
+                        Ponude (@Model.Ponude.Count)
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (!Model.Ponude.Any())
+                    {
+                        <div class="p-4 text-center text-muted">
+                            <i class="fa-solid fa-inbox fa-2x mb-2 d-block"></i>
+                            Još nema ponuda za ovaj oglas.
+                        </div>
+                    }
+                    else
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var ponuda in Model.Ponude)
+                            {
+                                <li class="list-group-item p-3">
+                                    <div class="d-flex align-items-start gap-3">
+
+                                        <!-- Avatar -->
+                                        <a href="/Profil/@ponuda.IzvrsilacId" class="flex-shrink-0">
+                                            @if (!string.IsNullOrEmpty(ponuda.IzvrsilacSlika))
+                                            {
+                                                <img src="@ponuda.IzvrsilacSlika" alt="@ponuda.IzvrsilacIme"
+                                                     class="rounded-circle" style="width:52px;height:52px;object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <span class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center"
+                                                      style="width:52px;height:52px;font-size:1.6rem;color:#6c757d;">
+                                                    <i class="fa-solid fa-circle-user"></i>
+                                                </span>
+                                            }
+                                        </a>
+
+                                        <!-- Podaci -->
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                                                <div>
+                                                    <a href="/Profil/@ponuda.IzvrsilacId" class="fw-semibold text-decoration-none text-body">
+                                                        @ponuda.IzvrsilacIme
+                                                    </a>
+                                                    @if (!string.IsNullOrEmpty(ponuda.IzvrsilacKategorija))
+                                                    {
+                                                        <span class="badge bg-primary-subtle text-primary ms-2 small">@ponuda.IzvrsilacKategorija</span>
+                                                    }
+                                                </div>
+
+                                                <!-- Cijena -->
+                                                @if (ponuda.Cijena.HasValue)
+                                                {
+                                                    <div class="text-end">
+                                                        <span class="fw-bold fs-5">@ponuda.Cijena KM/h</span>
+                                                        @if (ponuda.RazlikaOdProsjeka.HasValue && ponuda.RazlikaOdProsjeka.Value != 0)
+                                                        {
+                                                            var razlika = ponuda.RazlikaOdProsjeka.Value;
+                                                            <br />
+                                                            <small class="@(razlika < 0 ? "text-success" : "text-danger")">
+                                                                @(razlika < 0 ? $"{Math.Abs(razlika):F0} KM ispod prosjeka" : $"{razlika:F0} KM iznad prosjeka")
+                                                            </small>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <!-- Ocjena -->
+                                            <div class="d-flex align-items-center gap-2 my-1 small text-muted">
+                                                <span class="izv-stars text-warning">@ocjenaStars(ponuda.ProsjecnaOcjena)</span>
+                                                <span>@ponuda.ProsjecnaOcjena.ToString("F1") (@ponuda.BrojRecenzija recenzija)</span>
+                                            </div>
+
+                                            <!-- Datumi -->
+                                            <div class="small text-muted">
+                                                <i class="fa-regular fa-calendar-check me-1"></i>
+                                                Početak: @ponuda.DatumPocetka.ToString("dd.MM.yyyy")
+                                                @if (ponuda.DatumKraja.HasValue)
+                                                {
+                                                    <span class="ms-2">
+                                                        <i class="fa-regular fa-calendar-xmark me-1"></i>
+                                                        Kraj: @ponuda.DatumKraja.Value.ToString("dd.MM.yyyy")
+                                                    </span>
+                                                }
+                                            </div>
+
+                                            <!-- Akcije vlasnika -->
+                                            @if (Model.JeVlasnik && ponuda.StatusPonude == Status.NaCekanju)
+                                            {
+                                                <div class="mt-2 d-flex gap-2">
+                                                    <form asp-controller="PonudaUsluge" asp-action="Prihvati" method="post" onsubmit="return confirm('Prihvatiti ponudu?');">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="ponudaId" value="@ponuda.PonudaId" />
+                                                        <input type="hidden" name="oglasId" value="@Model.OglasId" />
+                                                        <button type="submit" class="btn btn-success btn-sm">
+                                                            <i class="fa-solid fa-check me-1"></i>Prihvati
+                                                        </button>
+                                                    </form>
+                                                    <form asp-controller="PonudaUsluge" asp-action="Odbij" method="post" onsubmit="return confirm('Odbiti ponudu?');">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="ponudaId" value="@ponuda.PonudaId" />
+                                                        <input type="hidden" name="oglasId" value="@Model.OglasId" />
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                            <i class="fa-solid fa-xmark me-1"></i>Odbij
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            }
+                                            @if (ponuda.StatusPonude != Status.NaCekanju)
+                                            {
+                                                <span class="badge @(ponuda.StatusPonude == Status.Prihvaceno ? "bg-success" : "bg-danger") mt-1">
+                                                    @(ponuda.StatusPonude == Status.Prihvaceno ? "Prihvaćena" : "Odbijena")
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Desna kolona: sidebar -->
+        <div class="col-lg-4">
+
+            <!-- Vlasnik oglasa -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-3">
+                    <h6 class="fw-semibold text-muted mb-3 text-uppercase" style="font-size:0.75rem;letter-spacing:.05em;">Naručilac</h6>
+                    <a href="/Profil/@Model.VlasnikId" class="d-flex align-items-center gap-3 text-decoration-none text-body">
+                        @if (!string.IsNullOrEmpty(Model.VlasnikSlika))
+                        {
+                            <img src="@Model.VlasnikSlika" alt="@Model.VlasnikDisplayName"
+                                 class="rounded-circle" style="width:48px;height:48px;object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <span class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center flex-shrink-0"
+                                  style="width:48px;height:48px;font-size:1.5rem;color:#6c757d;">
+                                <i class="fa-solid fa-circle-user"></i>
+                            </span>
+                        }
+                        <span class="fw-semibold">@Model.VlasnikDisplayName</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- CTA: pošalji ponudu -->
+            @if (Model.MozeApplicirati)
+            {
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-3">
+                        @if (Model.VecApplicirao)
+                        {
+                            <div class="alert alert-secondary mb-0 py-2 text-center">
+                                <i class="fa-solid fa-circle-check me-1"></i>Već ste poslali ponudu.
+                            </div>
+                        }
+                        else
+                        {
+                            <h6 class="fw-semibold mb-3">Pošalji ponudu</h6>
+                            <form asp-controller="PonudaUsluge" asp-action="PosaljiPonudu" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="OglasUslugeID" value="@Model.OglasId" />
+                                <div class="mb-2">
+                                    <label class="form-label small fw-medium">Datum početka</label>
+                                    <input type="date" name="DatumPocetkaUsluge" class="form-control form-control-sm" required
+                                           min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small fw-medium">Očekivani završetak</label>
+                                    <input type="date" name="DatumOcekivanogZavrsetka" class="form-control form-control-sm" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-medium">Poruka <span class="text-muted">(opcionalno)</span></label>
+                                    <textarea name="Poruka" class="form-control form-control-sm" rows="3" maxlength="500"
+                                              placeholder="Kratko se predstavite..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fa-solid fa-paper-plane me-2"></i>Pošalji ponudu
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Vlasnik: uredi/obriši -->
+            @if (Model.JeVlasnik)
+            {
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-3 d-flex flex-column gap-2">
+                        <a asp-controller="OglasUsluge" asp-action="UrediOglas" asp-route-id="@Model.OglasId"
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fa-solid fa-pen-to-square me-1"></i>Uredi oglas
+                        </a>
+                        <a asp-controller="OglasUsluge" asp-action="ObrisiOglas" asp-route-id="@Model.OglasId"
+                           class="btn btn-outline-danger btn-sm">
+                            <i class="fa-solid fa-trash me-1"></i>Obriši oglas
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

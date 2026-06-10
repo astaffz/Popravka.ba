@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PopravkaBa.Application.Services.Interface;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using PopravkaBa.Application.DTOs;
+using PopravkaBa.Application.Services.Interface;
+using PopravkaBa.Domain.Models;
 
 namespace PopravkaBa.Web.Controllers
 {
@@ -8,12 +11,18 @@ namespace PopravkaBa.Web.Controllers
     {
         private readonly IPonudaUslugeService _ponudaUslugeService;
         private readonly IOglasUslugeService _oglasUslugeService;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<PonudaUslugeController> _logger;
 
-        public PonudaUslugeController(IPonudaUslugeService ponudaUslugeService, IOglasUslugeService oglasUslugeService,ILogger<PonudaUslugeController> logger)
+        public PonudaUslugeController(
+            IPonudaUslugeService ponudaUslugeService,
+            IOglasUslugeService oglasUslugeService,
+            UserManager<ApplicationUser> userManager,
+            ILogger<PonudaUslugeController> logger)
         {
             _ponudaUslugeService = ponudaUslugeService;
             _oglasUslugeService = oglasUslugeService;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -36,8 +45,31 @@ namespace PopravkaBa.Web.Controllers
         {
             if (!ModelState.IsValid) return View(dto);
             // treba doraditi metodu
-
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Majstor,Firma")]
+        public async Task<IActionResult> PosaljiPonudu(KreirajPonudaUslugeDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Molimo popunite sva obavezna polja.";
+                return RedirectToAction("Detalji", "OglasUsluge", new { id = dto.OglasUslugeID });
+            }
+            try
+            {
+                var izvrsilacId = _userManager.GetUserId(User)!;
+                await _ponudaUslugeService.PosaljiPonudu(dto, izvrsilacId);
+                TempData["Success"] = "Ponuda je uspješno poslana.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri slanju ponude.");
+                TempData["Error"] = "Došlo je do greške pri slanju ponude.";
+            }
+            return RedirectToAction("Detalji", "OglasUsluge", new { id = dto.OglasUslugeID });
         }
 
         //trenutno nema u dijagramu opcija uređivanja prijave pa nisam dodao
@@ -57,36 +89,38 @@ namespace PopravkaBa.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> PrihvatiPonudu(int ponudaId)
-        {
-            //ovdje ubaciti provjeru da prijava pripada klijentu
-            return View();
-        }
-
-        [HttpPost, ActionName("PrihvatiPonudu")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> PrihvacenaPonuda(int ponudaId)
+        public async Task<IActionResult> Prihvati(int ponudaId, int oglasId)
         {
-            //await _ponudaUslugeService.PrihvatiPonudu(ponudaId);
-            // treba doraditi metodu
-
-            return View();
-        }
-
-        public async Task<IActionResult> OdbijPonudu(int ponudaId)
-        {
-            //ovdje ubaciti provjeru da prijava pripada klijentu
-            return View();
+            try
+            {
+                await _ponudaUslugeService.PrihvatiPonudu(ponudaId);
+                TempData["Success"] = "Ponuda je prihvaćena.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri prihvatanju ponude {PonudaId}.", ponudaId);
+                TempData["Error"] = "Greška pri prihvatanju ponude.";
+            }
+            return RedirectToAction("Detalji", "OglasUsluge", new { id = oglasId });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> OdbijenaPonuda(int ponudaId)
+        public async Task<IActionResult> Odbij(int ponudaId, int oglasId)
         {
-            //await _ponudaUslugeService.OdbijPonudu(ponudaId);
-            // treba doraditi metodu
-
-            return View();
+            try
+            {
+                await _ponudaUslugeService.OdbijPonudu(ponudaId);
+                TempData["Success"] = "Ponuda je odbijena.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri odbijanju ponude {PonudaId}.", ponudaId);
+                TempData["Error"] = "Greška pri odbijanju ponude.";
+            }
+            return RedirectToAction("Detalji", "OglasUsluge", new { id = oglasId });
         }
     }
 }

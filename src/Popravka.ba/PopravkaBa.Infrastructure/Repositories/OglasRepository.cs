@@ -105,13 +105,18 @@ namespace PopravkaBa.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<OglasUsluge?> DajPoIdAsync(int id) => 
+        public async Task<OglasUsluge?> DajPoIdAsync(int id) =>
             await _context.OglasiUsluga
             .Include(o => o.VlasnikOglasa)
             .Include(o => o.Mjesto)
             .Include(o => o.Kategorije)
+                .ThenInclude(ok => ok.Kategorija)
             .Include(o => o.Notifikacije)
             .Include(o => o.Ponude)
+                .ThenInclude(p => p.Izvrsilac)
+                    .ThenInclude(izv => izv.Kategorije)
+                        .ThenInclude(ik => ik.Kategorija)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(o => o.OglasID == id);
 
         public async Task<IEnumerable<OglasUsluge>> DajSveAsync() => 

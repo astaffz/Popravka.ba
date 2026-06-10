@@ -6,18 +6,19 @@ namespace PopravkaBa.Application.DTOs
     // Čist DTO, samo podaci koji se prikazuju
     public class PonudaDto
     {
-        public int IzvrsilacId { get; set; }
+        public int PonudaId { get; set; }
+        public string IzvrsilacId { get; set; }
         public string IzvrsilacIme { get; set; }
         public string? IzvrsilacSlika { get; set; }
         public string? IzvrsilacKategorija { get; set; }
         public bool Verificiran { get; set; }
-        public TipIsplate TipCijene { get; set; }
-        public decimal Cijena { get; set; }
-        public double ProsjecnaOcjena { get; set; }
+        public int? Cijena { get; set; }
+        public decimal ProsjecnaOcjena { get; set; }
         public int BrojRecenzija { get; set; }
         public DateTime DatumPocetka { get; set; }
         public DateTime? DatumKraja { get; set; }
         public decimal? RazlikaOdProsjeka { get; set; }
+        public Status StatusPonude { get; set; }
     }
     public class KreirajPonudaUslugeDto
     {
