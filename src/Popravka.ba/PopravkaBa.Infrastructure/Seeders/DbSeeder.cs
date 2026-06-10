@@ -515,13 +515,13 @@ public class DbSeeder
             minCijena: 22, ocjena: 4.3m, zavrsenih: 33);
 
         await SeedMajstoraAsync(
-    email: "nedim.suljic@popravka.ba", username: "nedimsuljic",
-    ime: "Nedim", prezime: "Suljić",
-    opis: "Majstor za parkete, laminat i vinil podove. Precizna ugradnja i sanacija oštećenja.",
-    password: "Majstor#1234",
-    kategorije: new[] { "Parketarski radovi", "Postavljanje laminata" },
-    mjesta: new[] { "Sarajevo", "Hadžići", "Ilidža" },
-    minCijena: 28, ocjena: 4.7m, zavrsenih: 41);
+            email: "nedim.suljic@popravka.ba", username: "nedimsuljic",
+            ime: "Nedim", prezime: "Suljić",
+            opis: "Majstor za parkete, laminat i vinil podove. Precizna ugradnja i sanacija oštećenja.",
+            password: "Majstor#1234",
+            kategorije: new[] { "Parketarski radovi", "Postavljanje laminata i podova" },
+            mjesta: new[] { "Sarajevo", "Hadžići", "Ilidža" },
+            minCijena: 28, ocjena: 4.7m, zavrsenih: 41);
 
         await SeedMajstoraAsync(
             email: "adem.beslic@popravka.ba", username: "adembeslic",
@@ -532,21 +532,21 @@ public class DbSeeder
             mjesta: new[] { "Bihać", "Cazin", "Velika Kladuša" },
             minCijena: 18, ocjena: 4.4m, zavrsenih: 29);
 
-        await SeedMajstoraAsync(
+        /*await SeedMajstoraAsync(
             email: "kenan.mesic@popravka.ba", username: "kenanmesic",
             ime: "Kenan", prezime: "Mešić",
             opis: "Iskusan zavarivač za metalne konstrukcije, ograde i nadstrešnice.",
             password: "Majstor#1234",
             kategorije: new[] { "Zavarivački radovi", "Metalne konstrukcije" },
             mjesta: new[] { "Tuzla", "Srebrenik", "Gradačac" },
-            minCijena: 35, ocjena: 4.8m, zavrsenih: 48);
+            minCijena: 35, ocjena: 4.8m, zavrsenih: 48);*/
 
         await SeedMajstoraAsync(
             email: "jasmin.kurtic@popravka.ba", username: "jasminkurtic",
             ime: "Jasmin", prezime: "Kurtić",
             opis: "Servis i održavanje računarske opreme, mreža i kancelarijske elektronike.",
             password: "Majstor#1234",
-            kategorije: new[] { "IT podrška", "Servis računara" },
+            kategorije: new[] { "Servis računara" },
             mjesta: new[] { "Zenica", "Travnik" },
             minCijena: 20, ocjena: 4.5m, zavrsenih: 67);
 
@@ -555,7 +555,7 @@ public class DbSeeder
             ime: "Samir", prezime: "Zukić",
             opis: "Majstor za krovove, oluke i limarske radove svih vrsta.",
             password: "Majstor#1234",
-            kategorije: new[] { "Krovopokrivački radovi", "Limarski radovi" },
+            kategorije: new[] { "Krovopokrivanje" },
             mjesta: new[] { "Mostar", "Čapljina", "Stolac" },
             minCijena: 40, ocjena: 4.6m, zavrsenih: 58);
 
@@ -564,7 +564,7 @@ public class DbSeeder
             ime: "Amir", prezime: "Hasić",
             opis: "Profesionalno čišćenje dimnjaka, peći i ventilacionih sistema.",
             password: "Majstor#1234",
-            kategorije: new[] { "Dimnjačarske usluge" },
+            kategorije: new[] { "Dimnjačarski radovi" },
             mjesta: new[] { "Bugojno", "Donji Vakuf", "Gornji Vakuf" },
             minCijena: 17, ocjena: 4.2m, zavrsenih: 24);
 
@@ -573,7 +573,7 @@ public class DbSeeder
             ime: "Eldar", prezime: "Šarić",
             opis: "Specijalista za ugradnju i servis automatskih kapija i rampi.",
             password: "Majstor#1234",
-            kategorije: new[] { "Automatske kapije", "Elektroinstalacije" },
+            kategorije: new[] { "Elektroinstalacije" },
             mjesta: new[] { "Sarajevo", "Visoko" },
             minCijena: 45, ocjena: 4.9m, zavrsenih: 73);
 
@@ -582,7 +582,7 @@ public class DbSeeder
             ime: "Alen", prezime: "Pašić",
             opis: "Moler, dekorater i stručnjak za dekorativne tehnike zidova.",
             password: "Majstor#1234",
-            kategorije: new[] { "Moleraj i farbanje", "Dekorativni zidovi" },
+            kategorije: new[] { "Moleraj i farbanje"},
             mjesta: new[] { "Brčko", "Bijeljina" },
             minCijena: 21, ocjena: 4.3m, zavrsenih: 37);
 
@@ -639,7 +639,7 @@ public class DbSeeder
             email: "office@cistdom.ba", username: "cistdom",
             nazivFirme: "Čist Dom",
             opis: "Profesionalno čišćenje stanova, poslovnih prostora i građevinskih objekata.",
-            kategorije: new[] { "Čišćenje objekata" },
+            kategorije: new[] { "Čišćenje stanova i kuća", "Čišćenje poslovnih prostora" },
             mjesta: new[] { "Sarajevo", "Ilidža", "Vogošća", "Hadžići" },
             minCijena: 25, ocjena: 4.3m, zavrsenih: 132);
 
@@ -656,7 +656,7 @@ public class DbSeeder
             nazivFirme: "Klima Servis Plus",
             opis: "Montaža, održavanje i servis klima uređaja i ventilacionih sistema.",
             kategorije: new[] { "Servis klima uređaja", "Klimatizacija" },
-            mjesta: new[] { "Banja Luka", "Prijedor", "Gradiška" },
+            mjesta: new[] { "Banja Luka", "Prijedor", "Bosanska Gradiška" },
             minCijena: 35, ocjena: 4.4m, zavrsenih: 95);
 
         await SeedFirmuAsync(
