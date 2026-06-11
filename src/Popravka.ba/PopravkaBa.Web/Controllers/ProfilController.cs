@@ -40,6 +40,9 @@ namespace PopravkaBa.Web.Controllers
             var uloge = await _userManager.GetRolesAsync(korisnik);
             var uloga = uloge.FirstOrDefault() ?? "Korisnik";
 
+            // Admins don't have public profiles
+            if (uloga == "Administrator") return NotFound();
+
             var vm = new ProfilViewModel
             {
                 UserId = korisnik.Id,
