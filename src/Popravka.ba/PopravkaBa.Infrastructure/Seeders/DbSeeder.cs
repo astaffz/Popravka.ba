@@ -109,6 +109,7 @@ public class DbSeeder
             new() { Naziv = "Postavljanje tapeta",                      NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
             new() { Naziv = "Staklarski radovi",                        NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
             new() { Naziv = "Bravarski radovi",                         NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
+            new() { Naziv = "Metalne konstrukcije",                     NadkategorijaID = nadkategorije["Građevinski radovi"].ID },
 
             // Instalacije
             new() { Naziv = "Vodoinstalaterske usluge",                 NadkategorijaID = nadkategorije["Instalacije"].ID },

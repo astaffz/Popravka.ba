@@ -57,7 +57,7 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Početna</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Pretraga" asp-action="Index">Pretraga</a></li>
+            <li class="breadcrumb-item"><a href="/Profil/@Model.VlasnikUsername">Profil izvršioca</a></li>
             <li class="breadcrumb-item active" aria-current="page">@Model.Naslov</li>
         </ol>
     </nav>
