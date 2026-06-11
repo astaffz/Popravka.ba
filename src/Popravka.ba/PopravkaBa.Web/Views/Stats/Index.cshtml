@@ -191,6 +191,12 @@
         padding: 2rem 1.25rem 3rem;
     }
 
+    @media (max-width: 640px) {
+        .stat-page {
+            padding: 1.5rem 1rem 2rem;
+        }
+    }
+
     .stat-header {
         margin-bottom: 1.25rem;
     }
@@ -202,10 +208,22 @@
         margin: 0;
     }
 
+    @media (max-width: 640px) {
+        .stat-naslov {
+            font-size: 1.5rem;
+        }
+    }
+
     .stat-podnaslov {
         color: #6b7280;
         font-size: .95rem;
         margin: .35rem 0 0;
+    }
+
+    @media (max-width: 640px) {
+        .stat-podnaslov {
+            font-size: .9rem;
+        }
     }
 
     .stat-azurirano {
@@ -229,6 +247,14 @@
         padding: .65rem 0;
     }
 
+    @media (max-width: 640px) {
+        .stat-filter-row {
+            flex-direction: column;
+            gap: .5rem;
+            padding: .5rem 0;
+        }
+    }
+
     .stat-filter-label {
         flex-shrink: 0;
         width: 86px;
@@ -237,6 +263,13 @@
         font-weight: 700;
         letter-spacing: .04em;
         color: #6b7280;
+    }
+
+    @media (max-width: 640px) {
+        .stat-filter-label {
+            width: auto;
+            padding-top: 0;
+        }
     }
 
     .stat-pills {
@@ -257,6 +290,13 @@
         transition: background .12s ease, border-color .12s ease;
     }
 
+    @media (max-width: 640px) {
+        .stat-pill {
+            padding: .35rem .7rem;
+            font-size: .8rem;
+        }
+    }
+
         .stat-pill:hover {
             background: #f6f9ff;
             border-color: #bfdbfe;
@@ -274,16 +314,39 @@
         border: 1px solid #eef0f2;
         border-radius: 12px;
         overflow: hidden;
+        overflow-x: auto;
+    }
+
+    @media (max-width: 640px) {
+        .stat-table-wrap {
+            margin-top: .6rem;
+        }
     }
 
     .stat-table {
         width: 100%;
         border-collapse: collapse;
+        display: block;
+        overflow-x: auto;
+    }
+
+    @media (max-width: 640px) {
+        .stat-table {
+            font-size: .85rem;
+        }
     }
 
         .stat-table thead th {
             text-align: left;
             padding: .9rem 1.1rem;
+        }
+
+        @media (max-width: 640px) {
+            .stat-table thead th {
+                padding: .6rem .8rem;
+                font-size: .75rem;
+            }
+        }
             font-size: .72rem;
             font-weight: 700;
             letter-spacing: .04em;

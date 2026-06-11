@@ -442,6 +442,11 @@
         padding: 1.5rem 1rem 3rem;
         font-family: var(--font-body, 'Plus Jakarta Sans'), sans-serif;
     }
+    @@media (max-width: 640px) {
+        .profil-page {
+            padding: 1rem 0.75rem 2rem;
+        }
+    }
 
     /* ===== Hero (izvršilac) ===== */
     .profil-hero-card {
@@ -464,6 +469,12 @@
         margin-top: -42px;
         flex-wrap: wrap;
     }
+    @@media (max-width: 640px) {
+        .profil-hero-main {
+            margin-top: -30px;
+            gap: .8rem;
+        }
+    }
 
     .profil-avatar {
         width: 96px; height: 96px;
@@ -474,6 +485,13 @@
         flex-shrink: 0;
         box-shadow: 0 1px 4px rgba(0,0,0,.12);
     }
+    @@media (max-width: 640px) {
+        .profil-avatar {
+            width: 72px;
+            height: 72px;
+            border-width: 3px;
+        }
+    }
     .profil-avatar--fallback {
         display: inline-flex;
         align-items: center;
@@ -482,8 +500,21 @@
         font-size: 2.6rem;
     }
     .profil-avatar--sm { width: 72px; height: 72px; font-size: 2rem; }
+    @@media (max-width: 640px) {
+        .profil-avatar--sm {
+            width: 56px;
+            height: 56px;
+            font-size: 1.5rem;
+        }
+    }
 
     .profil-hero-info { padding-top: 50px; flex: 1; min-width: 220px; }
+    @@media (max-width: 640px) {
+        .profil-hero-info {
+            padding-top: 0;
+            min-width: 100%;
+        }
+    }
     .profil-hero-info h1 {
         font-size: 1.45rem;
         font-weight: 800;
@@ -493,8 +524,18 @@
         align-items: center;
         gap: .45rem;
     }
+    @@media (max-width: 640px) {
+        .profil-hero-info h1 {
+            font-size: 1.2rem;
+        }
+    }
     .profil-verified { color: #374151; font-size: 1.1rem; }
     .profil-zanimanje { margin: 0; color: var(--text-muted, #6b7280); font-size: .95rem; }
+    @@media (max-width: 640px) {
+        .profil-zanimanje {
+            font-size: .9rem;
+        }
+    }
     .profil-lokacija { margin: .2rem 0 0; color: var(--text-muted, #6b7280); font-size: .875rem; }
 
     .profil-hero-akcije {
@@ -534,6 +575,13 @@
         border-top: 1px solid #f0f1f3;
         flex-wrap: wrap;
     }
+    @@media (max-width: 640px) {
+        .profil-stats {
+            gap: 1.5rem;
+            padding-top: .8rem;
+            margin-top: .8rem;
+        }
+    }
     .profil-stat { display: flex; flex-direction: column; }
     .profil-stat-value {
         font-size: 1.25rem;
@@ -543,10 +591,20 @@
         align-items: center;
         gap: .3rem;
     }
+    @@media (max-width: 640px) {
+        .profil-stat-value {
+            font-size: 1.1rem;
+        }
+    }
     .profil-stat-value--blue { color: var(--brand-blue, #1e6fe0); }
     .profil-stat-value--green { color: #16a34a; }
     .profil-star { color: var(--brand-blue, #1e6fe0); font-size: 1rem; }
     .profil-stat-label { font-size: .78rem; color: var(--text-muted, #6b7280); }
+    @@media (max-width: 640px) {
+        .profil-stat-label {
+            font-size: .75rem;
+        }
+    }
 
     /* ===== Grid + cards ===== */
     .profil-grid {
@@ -718,8 +776,26 @@
         margin-bottom: 1.75rem;
         box-shadow: 0 1px 4px rgba(0,0,0,.05);
     }
+    @@media (max-width: 640px) {
+        .profil-klijent-header {
+            padding: 1rem 1rem;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
     .profil-klijent-info { display: flex; align-items: center; gap: 1.1rem; }
+    @@media (max-width: 640px) {
+        .profil-klijent-info {
+            width: 100%;
+            gap: .8rem;
+        }
+    }
     .profil-klijent-ime { font-size: 1.3rem; font-weight: 800; margin: 0 0 .25rem; color: var(--text-primary, #1f2937); }
+    @@media (max-width: 640px) {
+        .profil-klijent-ime {
+            font-size: 1.1rem;
+        }
+    }
     .profil-klijent-meta {
         display: flex;
         gap: 1.1rem;
@@ -727,22 +803,72 @@
         color: var(--text-muted, #6b7280);
         font-size: .85rem;
     }
+    @@media (max-width: 640px) {
+        .profil-klijent-meta {
+            gap: .7rem;
+            font-size: .8rem;
+        }
+    }
     .profil-klijent-stats { display: flex; gap: 2.25rem; text-align: center; }
+    @@media (max-width: 640px) {
+        .profil-klijent-stats {
+            gap: 1.5rem;
+        }
+    }
     .profil-klijent-stats .profil-stat { align-items: center; }
+    .profil-klijent-akcije {
+        display: flex;
+        gap: .6rem;
+        flex-shrink: 0;
+    }
+    @@media (max-width: 640px) {
+        .profil-klijent-akcije {
+            width: 100%;
+        }
+        .profil-klijent-akcije .profil-btn {
+            width: 100%;
+        }
+    }
 
     .profil-moji-head {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    @@media (max-width: 640px) {
+        .profil-moji-head {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
     .profil-moji-head h2 { font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-primary, #1f2937); }
+    @@media (max-width: 640px) {
+        .profil-moji-head h2 {
+            font-size: 1.1rem;
+        }
+    }
+    .profil-moji-head .profil-btn {
+        width: auto;
+    }
+    @@media (max-width: 640px) {
+        .profil-moji-head .profil-btn {
+            width: 100%;
+        }
+    }
 
     .profil-tabs {
         display: flex;
         gap: 1.5rem;
         border-bottom: 1px solid var(--border-light, #e5e7eb);
         margin-bottom: 1.25rem;
+    }
+    @@media (max-width: 640px) {
+        .profil-tabs {
+            gap: 1rem;
+        }
     }
     .profil-tab {
         background: none;
@@ -754,8 +880,19 @@
         color: var(--text-muted, #6b7280);
         cursor: pointer;
     }
+    @@media (max-width: 640px) {
+        .profil-tab {
+            font-size: .85rem;
+            padding: .4rem 0 .55rem;
+        }
+    }
     .profil-tab.active { color: var(--brand-blue, #1e6fe0); border-bottom-color: var(--brand-blue, #1e6fe0); }
     .profil-tab-broj { font-size: .8rem; margin-left: .25rem; }
+    @@media (max-width: 640px) {
+        .profil-tab-broj {
+            font-size: .75rem;
+        }
+    }
 
     /* ===== Kartica oglasa (klijent) ===== */
     .moj-oglas-card {
@@ -766,11 +903,22 @@
         overflow: hidden;
         box-shadow: 0 1px 4px rgba(0,0,0,.05);
     }
+    @@media (max-width: 640px) {
+        .moj-oglas-card {
+            margin-bottom: .8rem;
+        }
+    }
     .moj-oglas-body {
         display: flex;
         gap: 1rem;
         padding: 1.1rem 1.4rem;
         align-items: flex-start;
+    }
+    @@media (max-width: 640px) {
+        .moj-oglas-body {
+            gap: .8rem;
+            padding: .9rem 1rem;
+        }
     }
     .moj-oglas-thumb {
         width: 64px; height: 64px;
@@ -782,6 +930,13 @@
         color: #9db1d6;
         font-size: 1.25rem;
         flex-shrink: 0;
+    }
+    @@media (max-width: 640px) {
+        .moj-oglas-thumb {
+            width: 50px;
+            height: 50px;
+            font-size: 1rem;
+        }
     }
     .moj-oglas-info { flex: 1; min-width: 0; }
     .moj-oglas-naslov {
@@ -831,8 +986,32 @@
         border-top: 1px solid #f0f1f3;
         flex-wrap: wrap;
     }
+    @@media (max-width: 640px) {
+        .moj-oglas-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: .6rem;
+            padding: .6rem 1rem;
+        }
+    }
     .moj-oglas-ponude { color: var(--text-muted, #6b7280); font-size: .85rem; }
+    @@media (max-width: 640px) {
+        .moj-oglas-ponude {
+            font-size: .8rem;
+        }
+    }
     .moj-oglas-akcije { display: flex; gap: .5rem; flex-wrap: wrap; }
+    @@media (max-width: 640px) {
+        .moj-oglas-akcije {
+            width: 100%;
+            gap: .4rem;
+        }
+        .moj-oglas-akcije .moj-oglas-btn {
+            flex: 1;
+            font-size: .8rem;
+            padding: .3rem .6rem;
+        }
+    }
     .moj-oglas-btn {
         padding: .38rem .95rem;
         border-radius: 8px;
@@ -875,6 +1054,13 @@
         flex-wrap: wrap;
         box-shadow: 0 1px 4px rgba(0,0,0,.05);
     }
+    @@media (max-width: 640px) {
+        .profil-klijent-stats-header {
+            padding: 1rem 1rem;
+            gap: 1.5rem;
+            justify-content: space-around;
+        }
+    }
     .profil-klijent-stats-header .profil-stat { text-align: center; align-items: center; }
 
     .profil-javni-oglasi-header {
@@ -904,6 +1090,12 @@
         flex-direction: column;
         gap: .8rem;
     }
+    @@media (max-width: 640px) {
+        .profil-javni-oglas-kartica {
+            padding: .9rem 1rem;
+            gap: .6rem;
+        }
+    }
     .profil-javni-oglas-kartica:hover {
         border-color: var(--brand-blue, #1e6fe0);
         box-shadow: 0 2px 10px rgba(30,111,224,.08);
@@ -915,12 +1107,23 @@
         align-items: flex-start;
         gap: 1rem;
     }
+    @@media (max-width: 640px) {
+        .profil-javni-oglas-header-kartica {
+            flex-direction: column;
+            gap: .5rem;
+        }
+    }
 
     .profil-javni-oglas-naslov {
         color: var(--text-primary, #1f2937);
         font-weight: 700;
         font-size: 1rem;
         flex: 1;
+    }
+    @@media (max-width: 640px) {
+        .profil-javni-oglas-naslov {
+            font-size: .95rem;
+        }
     }
 
     .profil-javni-oglas-status {
@@ -947,6 +1150,12 @@
         font-size: .85rem;
         align-items: center;
     }
+    @@media (max-width: 640px) {
+        .profil-javni-oglas-info {
+            gap: .8rem;
+            font-size: .8rem;
+        }
+    }
     .profil-javni-oglas-lokacija,
     .profil-javni-oglas-datum,
     .profil-javni-oglas-kategorija {
@@ -962,11 +1171,23 @@
         gap: 1rem;
         flex-wrap: wrap;
     }
+    @@media (max-width: 640px) {
+        .profil-javni-oglas-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: .6rem;
+        }
+    }
 
     .profil-javni-oglas-budzet {
         color: var(--brand-blue, #1e6fe0);
         font-weight: 700;
         font-size: .95rem;
+    }
+    @@media (max-width: 640px) {
+        .profil-javni-oglas-budzet {
+            font-size: .9rem;
+        }
     }
 
     .profil-javni-oglas-ponude {
@@ -976,6 +1197,11 @@
         color: var(--text-muted, #6b7280);
         font-size: .85rem;
         font-weight: 600;
+    }
+    @@media (max-width: 640px) {
+        .profil-javni-oglas-ponude {
+            font-size: .8rem;
+        }
     }
 </style>
 
