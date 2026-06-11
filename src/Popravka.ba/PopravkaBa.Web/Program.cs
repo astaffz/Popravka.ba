@@ -93,6 +93,8 @@ builder.Services.AddScoped<IOglasRadnoMjestoService, OglasRadnoMjestoService>();
 builder.Services.AddScoped<IOglasRadnoMjestoRepository, OglasRadnoMjestoRepository>();
 builder.Services.AddScoped<IUvjetOglasaRepository, UvjetOglasaRepository>();
 builder.Services.AddScoped<IUvjetOglasaService, UvjetOglasaService>();
+builder.Services.AddScoped<IVozackeDozvoleRepository, VozackeDozvoleRepository>();
+builder.Services.AddScoped<IVozackeDozvoleService, VozackeDozvoleService>();
 
 builder.Services.AddScoped<IOglasUslugeService, OglasUslugeService>();
 builder.Services.AddScoped<IOglasUslugeRepository, OglasUslugeRepository>();

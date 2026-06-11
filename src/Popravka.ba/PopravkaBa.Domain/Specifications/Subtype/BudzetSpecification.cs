@@ -21,8 +21,15 @@ namespace PopravkaBa.Domain.Specifications.Subtype
         }
 
         public override Expression<Func<OglasUsluge, bool>> ToExpression()
-            => oglas => oglas.MinBudzet <= _filterDo &&
+        {
+            if (_filterOd > _filterDo)
+            {
+                return oglas => false;
+            }
+
+            return oglas => oglas.MinBudzet <= _filterDo &&
                         oglas.MaxBudzet >= _filterOd;
+        }
     }
 
     public class PlataSpecification : BaseSpecification<OglasRadnoMjesto>
@@ -37,7 +44,12 @@ namespace PopravkaBa.Domain.Specifications.Subtype
         }
 
         public override Expression<Func<OglasRadnoMjesto, bool>> ToExpression()
-            => oglas => oglas.MinPrihod <= _filterDo &&
+        {
+            if(_filterOd > _filterDo)
+                return oglas => oglas.MinPrihod < 0 && oglas.MaxPrihod < 0;
+
+            return oglas => oglas.MinPrihod <= _filterDo &&
                         oglas.MaxPrihod >= _filterOd;
+        }
     }
 }

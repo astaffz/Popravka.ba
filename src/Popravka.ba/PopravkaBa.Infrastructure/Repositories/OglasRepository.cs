@@ -69,12 +69,14 @@ namespace PopravkaBa.Infrastructure.Repositories
             oglas.DatumObjave = DateTime.UtcNow;
             await _context.OglasiMajstora.AddAsync(oglas);
             await _context.SaveChangesAsync();
+            await AzurirajMinCijenuVlasnikaAsync(oglas.VlasnikOglasaID);
         }
 
         public async Task UrediAsync(OglasMajstora oglas)
         {
             _context.OglasiMajstora.Update(oglas);
             await _context.SaveChangesAsync();
+            await AzurirajMinCijenuVlasnikaAsync(oglas.VlasnikOglasaID);
         }
 
         public async Task ObrisiAsync(int id)
@@ -82,9 +84,32 @@ namespace PopravkaBa.Infrastructure.Repositories
             var oglas = await _context.OglasiMajstora.FindAsync(id);
             if (oglas is not null)
             {
+                var vlasnikId = oglas.VlasnikOglasaID;
                 _context.OglasiMajstora.Remove(oglas);
                 await _context.SaveChangesAsync();
+                await AzurirajMinCijenuVlasnikaAsync(vlasnikId);
             }
+        }
+
+        // Sinkronizuje pretraživu cijenu izvršioca (MinCijenaUsluge) sa najnižom
+        // cijenom njegovih aktivnih oglasa. Oglasi sa MinCijena = 0 ("Po dogovoru")
+        // se ne računaju. Ako nema aktivnih oglasa sa cijenom, vrijednost je null.
+        private async Task AzurirajMinCijenuVlasnikaAsync(string vlasnikId)
+        {
+            var vlasnik = await _context.ApplicationUsers
+                .OfType<IzvrsilacUsluge>()
+                .FirstOrDefaultAsync(u => u.Id == vlasnikId);
+            if (vlasnik is null) return;
+
+            var minCijena = await _context.OglasiMajstora
+                .Where(o => o.VlasnikOglasaID == vlasnikId
+                         && o.StatusOglasa == Domain.Enums.Status.Aktivan
+                         && o.MinCijena > 0)
+                .Select(o => (double?)o.MinCijena)
+                .MinAsync();
+
+            vlasnik.MinCijenaUsluge = minCijena.HasValue ? (int)Math.Round(minCijena.Value) : null;
+            await _context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<OglasMajstora>> IzvrsiPretraguTekstaAsync(string pretraga)

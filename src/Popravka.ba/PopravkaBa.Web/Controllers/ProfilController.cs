@@ -99,7 +99,7 @@ namespace PopravkaBa.Web.Controllers
 
             var oglasi = await _oglasMajstoraFacade.DajSveOglase();
             vm.OglasiMajstora = oglasi
-                .Where(o => o.VlasnikOglasaID == korisnikId)
+                .Where(o => o.VlasnikOglasaID == korisnikId && o.StatusOglasa == Status.Aktivan)
                 .Select(o => new ProfilOglasMajstoraItem
                 {
                     OglasId = o.OglasID,

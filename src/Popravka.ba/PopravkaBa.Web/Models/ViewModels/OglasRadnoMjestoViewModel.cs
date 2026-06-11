@@ -18,6 +18,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public string? Slika { get; set; }
         public List<string> Kategorije { get; set; } = new();
         public List<string> Uvjeti { get; set; } = new();
+        public List<VozackaDozvola> VozackeDozvole { get; set; } = new();
 
         // Vlasnik oglasa
         public string VlasnikId { get; set; }

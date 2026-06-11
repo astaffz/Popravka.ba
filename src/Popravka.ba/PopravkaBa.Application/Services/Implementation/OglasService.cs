@@ -94,8 +94,8 @@ namespace PopravkaBa.Application.Services
                 MjestoID = dto.MjestoID,
                 BrojIzvrsilaca = dto.BrojIzvrsilaca,
                 VrstaZaposlenja = dto.VrstaZaposlenja,
-                MinPrihod = dto.MinPrihod,
-                MaxPrihod = dto.MaxPrihod,
+                MinPrihod = dto.MinPrihod ?? 0,
+                MaxPrihod = dto.MaxPrihod ?? 0,
                 TipIsplate = dto.TipIsplate,
                 Slika = dto.Slika,
                 DatumObjave = DateTime.UtcNow,
@@ -139,8 +139,8 @@ namespace PopravkaBa.Application.Services
             oglas.MjestoID = dto.MjestoID;
             oglas.BrojIzvrsilaca = dto.BrojIzvrsilaca;
             oglas.VrstaZaposlenja = dto.VrstaZaposlenja;
-            oglas.MinPrihod = dto.MinPrihod;
-            oglas.MaxPrihod = dto.MaxPrihod;
+            oglas.MinPrihod = dto.MinPrihod ?? 0;
+            oglas.MaxPrihod = dto.MaxPrihod ?? 0;
             oglas.TipIsplate = dto.TipIsplate;
             if (dto.Slika is not null)
                 oglas.Slika = dto.Slika;

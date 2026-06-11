@@ -159,6 +159,21 @@
                         </div>
                     }
 
+                    @if (Model.VozackeDozvole.Any())
+                    {
+                        <div class="card bg-light border-0 p-3 mb-3">
+                            <h6 class="fw-semibold mb-2 text-uppercase small">Tražene vozačke dozvole</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var vd in Model.VozackeDozvole)
+                                {
+                                    <span class="badge bg-secondary">
+                                        <i class="fa-solid fa-id-card me-1"></i>@(vd == VozackaDozvola.Sve ? "Sve kategorije" : vd.ToString())
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+
                     <div class="alert alert-info py-2 mb-0">
                         <i class="fa-solid fa-money-bill-wave me-2"></i>
                         <strong>Prihod:</strong> @Model.MinPrihod.ToString("N0") – @Model.MaxPrihod.ToString("N0") KM@(tipIsplateLabel(Model.TipIsplate))

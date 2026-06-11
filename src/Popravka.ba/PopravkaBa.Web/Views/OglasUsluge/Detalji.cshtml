@@ -324,13 +324,13 @@
                                 <input type="hidden" name="OglasUslugeID" value="@Model.OglasId" />
                                 <div class="mb-2">
                                     <label class="form-label small fw-medium">Datum početka</label>
-                                    <input type="text" name="DatumPocetkaUsluge" class="form-control form-control-sm"
-                                           placeholder="dd/mm/yyyy" required />
+                                    <input type="date" name="DatumPocetkaUsluge" lang="en-GB" data-date-format="dd/mm/yyyy"
+                                           class="form-control form-control-sm" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
                                 </div>
                                 <div class="mb-2">
                                     <label class="form-label small fw-medium">Očekivani završetak <span class="text-muted">(opcionalno)</span></label>
-                                    <input type="text" name="DatumOcekivanogZavrsetka" class="form-control form-control-sm"
-                                           placeholder="dd/mm/yyyy" />
+                                    <input type="date" name="DatumOcekivanogZavrsetka" lang="en-GB" data-date-format="dd/mm/yyyy"
+                                           class="form-control form-control-sm" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
                                 </div>
                                 <div class="row g-2 mb-2">
                                     <div class="col-6">

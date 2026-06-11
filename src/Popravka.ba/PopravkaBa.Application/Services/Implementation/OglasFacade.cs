@@ -17,7 +17,7 @@ namespace PopravkaBa.Application.Services
 
         public async Task<IEnumerable<OglasMajstora>> DajSveOglase()
             => await _oglasService.DajSveOglase();
-
+       
         public async Task<OglasMajstora?> DajOglasPoId(int id)
             => await _oglasService.DajOglasPoId(id);
 
@@ -53,13 +53,14 @@ namespace PopravkaBa.Application.Services
         private readonly IOglasRadnoMjestoService _oglasService;
         private readonly IKategorijaService _kategorijaService;
         private readonly IUvjetOglasaService _uvjetiService;
-       // private readonly IVozackeDozvoleService _vozackeDozvoleService; TODO: Dodati vozacke dozvole service u OglasRadnoMjestoFacade
+        private readonly IVozackeDozvoleService _vozackeDozvoleService;
 
-        public OglasRadnoMjestoFacade(IOglasRadnoMjestoService oglasService, IKategorijaService kategorijaService, IUvjetOglasaService uvjetiService)
+        public OglasRadnoMjestoFacade(IOglasRadnoMjestoService oglasService, IKategorijaService kategorijaService, IUvjetOglasaService uvjetiService, IVozackeDozvoleService vozackeDozvoleService)
         {
             _oglasService = oglasService;
             _kategorijaService = kategorijaService;
             _uvjetiService = uvjetiService;
+            _vozackeDozvoleService = vozackeDozvoleService;
         }
 
         public async Task<IEnumerable<OglasRadnoMjesto?>> DajSveOglase()
@@ -82,6 +83,7 @@ namespace PopravkaBa.Application.Services
             var oglasId = await _oglasService.ObjaviOglas(dto, vlasnikId);
             await _kategorijaService.DodajKategorijeOglasu(oglasId, dto.KategorijeID);
             await _uvjetiService.DodajUvjeteOglasu(oglasId, dto.Uvjeti);
+            await _vozackeDozvoleService.DodajVozackeDozvoleOglasu(oglasId, dto.VozackeDozvole);
             return oglasId;
         }
 
@@ -90,6 +92,7 @@ namespace PopravkaBa.Application.Services
             await _oglasService.UrediOglas(dto);
             await _kategorijaService.AzurirajKategorijeOglasa(dto.OglasID, dto.KategorijeID);
             await _uvjetiService.AzurirajUvjeteOglasa(dto.OglasID, dto.Uvjeti);
+            await _vozackeDozvoleService.AzurirajVozackeDozvoleOglasa(dto.OglasID, dto.VozackeDozvole);
         }
 
         public async Task ObrisiOglas(int oglasId)

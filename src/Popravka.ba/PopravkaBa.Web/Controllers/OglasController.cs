@@ -326,6 +326,7 @@ namespace PopravkaBa.Web.Controllers
                 Kategorije = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
                                        .Where(n => n != "").ToList() ?? new(),
                 Uvjeti = oglas.Uvjeti?.Select(u => u.TekstUvjeta).ToList() ?? new(),
+                VozackeDozvole = oglas.VozackeDozvole?.Select(v => v.VozackaDozvola).ToList() ?? new(),
                 VlasnikId = oglas.VlasnikOglasaID,
                 VlasnikUsername = vlasnik?.UserName ?? oglas.VlasnikOglasaID,
                 VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
@@ -397,6 +398,7 @@ namespace PopravkaBa.Web.Controllers
                 TipIsplate = oglas.TipIsplate,
                 Slika = oglas.Slika,
                 Uvjeti = oglas.Uvjeti?.Select(u => u.TekstUvjeta).ToList() ?? new(),
+                VozackeDozvole = oglas.VozackeDozvole?.Select(v => v.VozackaDozvola).ToList() ?? new(),
                 KategorijeID = oglas.Kategorije?.Select(k => k.KategorijaID).ToList() ?? new()
             };
 
