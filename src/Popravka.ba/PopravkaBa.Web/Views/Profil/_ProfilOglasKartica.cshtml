@@ -5,7 +5,7 @@
     {
         Status.Aktivan => "Aktivan",
         Status.Neaktivan => "Zatvoren",
-        Status.Isporuceno => "Zavr┼íen",
+        Status.Isporuceno => "Završen",
         _ => Model.Status.ToString()
     };
     string statusKlasa = Model.Status switch
@@ -46,7 +46,7 @@
             {
                 <a asp-controller="OglasUsluge" asp-action="UrediOglas" asp-route-id="@Model.OglasId" class="moj-oglas-btn">Uredi</a>
             }
-            <a asp-controller="OglasUsluge" asp-action="ObrisiOglas" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--crveni">Obri┼íi</a>
+            <a asp-controller="OglasUsluge" asp-action="ObrisiOglas" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--crveni">Obriši</a>
         </div>
     </div>
 </div>

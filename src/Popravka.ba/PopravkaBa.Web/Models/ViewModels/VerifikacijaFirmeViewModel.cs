@@ -9,13 +9,13 @@ namespace PopravkaBa.Web.Models.ViewModels
         public string NazivFirme { get; set; }
 
         [Required(ErrorMessage = "JIB je obavezan.")]
-        [RegularExpression(@"^\d{13}$", ErrorMessage = "JIB mora imati ta─ìno 13 cifara.")]
+        [RegularExpression(@"^\d{13}$", ErrorMessage = "JIB mora imati tačno 13 cifara.")]
         public string JIB { get; set; }
 
         [RegularExpression(@"^[A-Za-z]{0,2}\d{12}$", ErrorMessage = "Unesite validan PDV broj.")]
         public string? PDVBroj { get; set; }
 
-        [Required(ErrorMessage = "Sjedi┼íte firme je obavezno.")]
+        [Required(ErrorMessage = "Sjedište firme je obavezno.")]
         public string SjedisteFirme { get; set; }
 
         [Required(ErrorMessage = "Kontakt telefon je obavezan.")]
@@ -49,7 +49,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public IFormFile? LicencaFajl { get; set; }
         public IFormFile? LogoFajl { get; set; }
 
-        [Range(typeof(bool), "true", "true", ErrorMessage = "Morate potvrditi ta─ìnost podataka i saglasnost s uvjetima.")]
+        [Range(typeof(bool), "true", "true", ErrorMessage = "Morate potvrditi tačnost podataka i saglasnost s uvjetima.")]
         public bool Potvrda { get; set; }
     }
 }

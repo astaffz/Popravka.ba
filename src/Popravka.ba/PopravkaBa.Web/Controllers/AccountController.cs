@@ -385,7 +385,7 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> ResetLozinke(string? token)
         {
             if (string.IsNullOrEmpty(token))
-                return StatusCode(404);
+                return NotFound();
 
             var (status, _, _) = await _verifikacijaService.ValidirajResetTokenAsync(token);
             if (status != Status.Aktivan)

@@ -68,11 +68,11 @@ namespace PopravkaBa.Web.Controllers
             var zahtjev = await _verifikacijaService.ObradiZahtjevAsync(verifikacioniId, odobri);
             if (zahtjev is null)
             {
-                TempData["Greska"] = "Zahtjev za verifikaciju nije prona─æen ili je ve─ç obra─æen.";
+                TempData["Greska"] = "Zahtjev za verifikaciju nije pronađen ili je već obrađen.";
                 return RedirectToAction(nameof(Index));
             }
 
-            // Obavijesti firmu o ishodu; neuspjeh slanja ne ru┼íi obradu
+            // Obavijesti firmu o ishodu; neuspjeh slanja ne ruši obradu
             try
             {
                 await _emailSender.PosaljiEmailAsync(zahtjev, zaAdmina: false);
@@ -97,7 +97,7 @@ namespace PopravkaBa.Web.Controllers
             var recenzija = await _recenzijaRepo.DajPoIdAsync(recenzijaId);
             if (recenzija is null)
             {
-                TempData["Greska"] = "Recenzija nije prona─æena.";
+                TempData["Greska"] = "Recenzija nije pronađena.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -113,7 +113,7 @@ namespace PopravkaBa.Web.Controllers
             var recenzija = await _recenzijaRepo.DajPoIdAsync(recenzijaId);
             if (recenzija is null)
             {
-                TempData["Greska"] = "Recenzija nije prona─æena.";
+                TempData["Greska"] = "Recenzija nije pronađena.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -121,7 +121,7 @@ namespace PopravkaBa.Web.Controllers
             recenzija.Prijavljena = false;
             await _recenzijaRepo.SacuvajAsync(recenzija);
 
-            TempData["Uspjeh"] = "Prijava recenzije je odba─ìena, recenzija ostaje objavljena.";
+            TempData["Uspjeh"] = "Prijava recenzije je odbačena, recenzija ostaje objavljena.";
             return RedirectToAction(nameof(Index));
         }
     }

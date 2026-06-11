@@ -47,14 +47,39 @@ namespace PopravkaBa.Infrastructure.BackgroundServices
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            var sada = DateTime.UtcNow;
+            var granica = DateTime.UtcNow.AddDays(-10);
 
-            var obrisano = await context.OglasiMajstora
-                .Where(t => t.StatusOglasa == Domain.Enums.Status.Neaktivan)
-                .ExecuteDeleteAsync(ct);
+           
+            var oglasiBezPonudaIliNeaktivni = await context.OglasiUsluga
+                .Where(o => o.DatumObjave <= granica && !o.Ponude.Any() || o.StatusOglasa == Domain.Enums.Status.Neaktivan)
+                .Select(o => new
+                {
+                    Oglas = o,
+                    o.Naslov,
+                    Email = o.VlasnikOglasa.Email,
+                    Ime = o.VlasnikOglasa.DisplayName
+                })
+                .ToListAsync(ct);
 
-            if (obrisano > 0)
-                _logger.LogInformation("Asinhroni job izvršen: Obrisano {Broj} verifikacijskih tokena.", obrisano);
+            var oglasiPoslaBezPrijavaIliNeaktivni = await context.OglasiRadnogMjesta
+                .Where(o => o.DatumObjave <= granica && !o.Prijave.Any() || o.StatusOglasa == Domain.Enums.Status.Neaktivan )
+                 .Select(o => new
+                 {
+                     Oglas = o,
+                     o.Naslov,                 
+                     Email = o.VlasnikOglasa.Email, 
+                     Ime = o.VlasnikOglasa.DisplayName
+                 })
+                .ToListAsync(ct);
+
+
+            if (oglasiBezPonudaIliNeaktivni.Count + oglasiPoslaBezPrijavaIliNeaktivni.Count == 0)
+                return;
+
+            context.OglasiUsluga.RemoveRange(oglasiBezPonudaIliNeaktivni.Select(o => o.Oglas));
+          
+
+            _logger.LogInformation("Asinhroni job izvršen: Obrisano Bro} oglasa.");
         }
     }
 

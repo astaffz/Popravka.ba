@@ -62,7 +62,7 @@ builder.Services.AddRateLimiter(options =>
     // Login rate limiter
     options.AddPolicy("auth", httpContext =>
     RateLimitPartition.GetFixedWindowLimiter(
-        // Particijski rate limiter, vr┼íi rate limit po IP adresi umjesto globalno za sve korisnike
+        // Particijski rate limiter, vrši rate limit po IP adresi umjesto globalno za sve korisnike
         partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
         factory: _ => new FixedWindowRateLimiterOptions
         {
@@ -152,13 +152,14 @@ builder.Services.AddScoped<IVerifikacijaFirmeRepository, VerifikacijaFirmeReposi
 
 builder.Services.AddHostedService<VerifikacijskiTokenCleanupJob>();
 builder.Services.AddHostedService<MjesecnaStatistikaJob>();
+// builder.Services.AddHostedService<NeaktivniOglasiCleanupJob>();
 builder.Services.AddScoped<DbSeeder>();
 
 
 
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
-    // Ostavljeno za odre─æivanje trajanja sesije, ako je korisnik oti┼íao/korisniku obrisan nalog
+    // Ostavljeno za određivanje trajanja sesije, ako je korisnik otišao/korisniku obrisan nalog
     options.ValidationInterval = TimeSpan.FromMinutes(15);
 });
 
@@ -180,7 +181,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
     app.UseExceptionHandler("/Home/Error");
-    app.UseStatusCodePagesWithReExecute("/greska/{0}"); // Ne bi trebalo biti ovdje kad bi se pu┼ítao u production
+    app.UseStatusCodePagesWithReExecute("/greska/{0}"); // Ne bi trebalo biti ovdje kad bi se puštao u production
 }
 else
 {

@@ -77,7 +77,7 @@ namespace PopravkaBa.Web.Controllers
             if (firma.AdminVerificirao || zadnji?.StatusVerifikacije == Status.NaCekanju)
                 return RedirectToAction(nameof(Index));
 
-            ValidirajDokument(vm.RjesenjeFajl, nameof(vm.RjesenjeFajl), "Rje┼íenje o registraciji", obavezno: true);
+            ValidirajDokument(vm.RjesenjeFajl, nameof(vm.RjesenjeFajl), "Rješenje o registraciji", obavezno: true);
             ValidirajDokument(vm.PoreznoUvjerenjeFajl, nameof(vm.PoreznoUvjerenjeFajl), "Uvjerenje o poreznoj registraciji", obavezno: true);
             ValidirajDokument(vm.LicencaFajl, nameof(vm.LicencaFajl), "Licenca / certifikat djelatnosti", obavezno: false);
             ValidirajLogo(vm.LogoFajl, nameof(vm.LogoFajl));
@@ -96,8 +96,13 @@ namespace PopravkaBa.Web.Controllers
             if (vm.LicencaFajl is { Length: > 0 })
                 licenca = await SpremiPrivatniDokumentAsync(vm.LicencaFajl, "licenca", ct);
 
-            await using var logoStream = vm.LogoFajl!.OpenReadStream();
-            var logo = await _storage.SpremiPublic(logoStream, vm.LogoFajl.ContentType, ct);
+            // Logo je opcionalan — firma već ima sliku sa registracije.
+            string? logo = null;
+            if (vm.LogoFajl is { Length: > 0 })
+            {
+                await using var logoStream = vm.LogoFajl.OpenReadStream();
+                logo = await _storage.SpremiPublic(logoStream, vm.LogoFajl.ContentType, ct);
+            }
 
             var dto = new PodnesiVerifikacijuDto
             {
@@ -123,11 +128,11 @@ namespace PopravkaBa.Web.Controllers
             var adminEmail = _config["SeedData:AdminEmail"];
             var zahtjev = await _verifikacijaService.PodnesiZahtjevAsync(dto, firma.Id, adminEmail);
 
-            zahtjev.Rjesenje = _storage.GetSignedURL(zahtjev.Rjesenje, TimeSpan.FromDays(14));
-            zahtjev.PoreznoUvjerenje = _storage.GetSignedURL(zahtjev.PoreznoUvjerenje, TimeSpan.FromDays(14));
+            zahtjev.Rjesenje = _storage.GetSignedURL(zahtjev.Rjesenje, TimeSpan.FromDays(7));
+            zahtjev.PoreznoUvjerenje = _storage.GetSignedURL(zahtjev.PoreznoUvjerenje, TimeSpan.FromDays(7));
             zahtjev.LicencaDjelatnosti = string.IsNullOrEmpty(zahtjev.LicencaDjelatnosti)
                 ? null
-                : _storage.GetSignedURL(zahtjev.LicencaDjelatnosti, TimeSpan.FromDays(14));
+                : _storage.GetSignedURL(zahtjev.LicencaDjelatnosti, TimeSpan.FromDays(7));
             try
             {
 
@@ -138,7 +143,7 @@ namespace PopravkaBa.Web.Controllers
                 _logger.LogError(ex, "Slanje emaila adminu za verifikaciju firme ID: {FirmaId} nije uspjelo.", firma.Id);
             }
 
-            TempData["Uspjeh"] = "Zahtjev za verifikaciju je uspje┼íno poslan. Odgovor ─çete dobiti na e-mail.";
+            TempData["Uspjeh"] = "Zahtjev za verifikaciju je uspješno poslan. Odgovor ćete dobiti na e-mail.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -155,22 +160,20 @@ namespace PopravkaBa.Web.Controllers
             if (!DozvoljeniDokumenti.Contains(ekstenzija))
                 ModelState.AddModelError(kljuc, $"{naziv}: dozvoljeni formati su PDF, JPG i PNG.");
             else if (fajl.Length > MaxDokumentVelicina)
-                ModelState.AddModelError(kljuc, $"{naziv}: maksimalna veli─ìina je 10MB.");
+                ModelState.AddModelError(kljuc, $"{naziv}: maksimalna veličina je 10MB.");
         }
 
         private void ValidirajLogo(IFormFile? fajl, string kljuc)
         {
+            // Logo je opcionalan — validiramo samo ako je priložen.
             if (fajl is null || fajl.Length == 0)
-            {
-                ModelState.AddModelError(kljuc, "Logo firme je obavezan.");
                 return;
-            }
 
             var ekstenzija = Path.GetExtension(fajl.FileName).ToLowerInvariant();
             if (!DozvoljeniLogotipi.Contains(ekstenzija))
                 ModelState.AddModelError(kljuc, "Logo: dozvoljeni formati su JPG i PNG.");
             else if (fajl.Length > MaxLogoVelicina)
-                ModelState.AddModelError(kljuc, "Logo: maksimalna veli─ìina je 5MB.");
+                ModelState.AddModelError(kljuc, "Logo: maksimalna veličina je 5MB.");
         }
 
         private async Task<string> SpremiPrivatniDokumentAsync(IFormFile fajl, string prefiks, CancellationToken ct)

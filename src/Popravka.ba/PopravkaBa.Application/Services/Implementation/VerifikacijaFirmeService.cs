@@ -40,7 +40,7 @@ namespace PopravkaBa.Application.Services.Implementation
                 Rjesenje = dto.Rjesenje,
                 PoreznoUvjerenje = dto.PoreznoUvjerenje,
                 LicencaDjelatnosti = dto.LicencaDjelatnosti,
-                Logotip = dto.Logotip
+                Logotip = dto.Logotip ?? string.Empty
             };
 
 
@@ -62,17 +62,20 @@ namespace PopravkaBa.Application.Services.Implementation
 
             if (zahtjev.Firma is not null)
             {
-                zahtjev.ObradiVerifikaciju(odobri);
                 if (odobri)
                 {
                     zahtjev.Firma.Ime = zahtjev.OdgovornaOsobaIme;
                     zahtjev.Firma.Prezime = zahtjev.OdgovornaOsobaPrezime;
-                    zahtjev.Firma.AdminVerificirao = odobri;
+                    zahtjev.Firma.AdminVerificirao = true;
 
                     zahtjev.Firma.NazivFirme = zahtjev.NazivFirme;
                     zahtjev.Firma.WebStranica = zahtjev.WebStranica;
                     zahtjev.Firma.PhoneNumber = zahtjev.KontaktTelefon;
-                    zahtjev.Firma.Slika = zahtjev.Logotip;
+
+                    // Logo je opcionalan — firma već ima sliku sa registracije.
+                    // Ažuriraj sliku samo ako je u zahtjevu priložen novi logo.
+                    if (!string.IsNullOrEmpty(zahtjev.Logotip))
+                        zahtjev.Firma.Slika = zahtjev.Logotip;
                 }
                 zahtjev.Firma.OsvjeziStatusAktivnosti();
             }

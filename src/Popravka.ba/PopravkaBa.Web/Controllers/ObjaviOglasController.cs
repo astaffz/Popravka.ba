@@ -40,7 +40,7 @@ namespace PopravkaBa.Web.Controllers
             _logger = logger;
         }
 
-        // Vra─ça javni URL ako je slika validna; null ako nema slike; baca poruku kroz ModelState ako je nevalidna.
+        // Vraća javni URL ako je slika validna; null ako nema slike; baca poruku kroz ModelState ako je nevalidna.
         private async Task<string?> UploadSlikeAsync(IFormFile? slika, CancellationToken ct)
         {
             if (slika is not { Length: > 0 }) return null;
@@ -53,7 +53,7 @@ namespace PopravkaBa.Web.Controllers
             }
             if (slika.Length > MaxSlikaVelicina)
             {
-                ModelState.AddModelError("Slika", "Slika ne smije biti ve─ça od 5MB.");
+                ModelState.AddModelError("Slika", "Slika ne smije biti veća od 5MB.");
                 return null;
             }
 
@@ -83,13 +83,13 @@ namespace PopravkaBa.Web.Controllers
             {
                 var vlasnikId = _userManager.GetUserId(User)!;
                 var oglasId = await _uslugeService.ObjaviOglas(dto, vlasnikId);
-                TempData["Success"] = "Oglas usluge je uspje┼íno objavljen.";
+                TempData["Success"] = "Oglas usluge je uspješno objavljen.";
                 return RedirectToAction("Detalji", "OglasUsluge", new { id = oglasId });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Gre┼íka pri kreiranju oglasa usluge.");
-                TempData["Error"] = "Gre┼íka pri objavi oglasa.";
+                _logger.LogError(ex, "Greška pri kreiranju oglasa usluge.");
+                TempData["Error"] = "Greška pri objavi oglasa.";
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "usluge";
                 return View("Index");
@@ -111,13 +111,13 @@ namespace PopravkaBa.Web.Controllers
             {
                 var vlasnikId = _userManager.GetUserId(User)!;
                 var oglasId = await _majstoraService.ObjaviOglas(dto, vlasnikId);
-                TempData["Success"] = "Oglas majstora je uspje┼íno objavljen.";
+                TempData["Success"] = "Oglas majstora je uspješno objavljen.";
                 return RedirectToAction("Detalji", "OglasMajstora", new { id = oglasId });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Gre┼íka pri kreiranju oglasa majstora.");
-                TempData["Error"] = "Gre┼íka pri objavi oglasa.";
+                _logger.LogError(ex, "Greška pri kreiranju oglasa majstora.");
+                TempData["Error"] = "Greška pri objavi oglasa.";
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "majstora";
                 return View("Index");
@@ -144,13 +144,13 @@ namespace PopravkaBa.Web.Controllers
             {
                 var vlasnikId = _userManager.GetUserId(User)!;
                 var oglasId = await _radnoMjestoService.ObjaviOglas(dto, vlasnikId);
-                TempData["Success"] = "Oglas radnog mjesta je uspje┼íno objavljen.";
+                TempData["Success"] = "Oglas radnog mjesta je uspješno objavljen.";
                 return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = oglasId });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Gre┼íka pri kreiranju oglasa radnog mjesta.");
-                TempData["Error"] = "Gre┼íka pri objavi oglasa.";
+                _logger.LogError(ex, "Greška pri kreiranju oglasa radnog mjesta.");
+                TempData["Error"] = "Greška pri objavi oglasa.";
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "radnomjesto";
                 return View("Index");

@@ -162,7 +162,7 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(o => o.Notifikacije)
                 .Include(o => o.Ponude)
                 .OrderByDescending(o => o.DatumObjave)
-                // TODO: Dodati logiku za zavr┼íen oglas i dodati WHERE uslov da se ne prikazuju zavr┼íeni oglasi
+                // TODO: Dodati logiku za završen oglas i dodati WHERE uslov da se ne prikazuju završeni oglasi
                 .Where(o => o.StatusOglasa == Domain.Enums.Status.Aktivan)
                 .Take(topN)
                 .ToListAsync();

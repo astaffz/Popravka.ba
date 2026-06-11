@@ -11,8 +11,8 @@
     <div class="verif-wrapper">
         <h1 class="verif-title">Verifikacija firme</h1>
         <p class="verif-subtitle">
-            Popunite obrazac i prilo┼╛ite tra┼╛enu dokumentaciju. Va┼í zahtjev ─çe biti pregledan od strane
-            administratora i odgovor ─çete dobiti na e-mail adresu navedenu pri registraciji.
+            Popunite obrazac i priložite traženu dokumentaciju. Vaš zahtjev će biti pregledan od strane
+            administratora i odgovor ćete dobiti na e-mail adresu navedenu pri registraciji.
         </p>
 
         @if (TempData["Uspjeh"] is string uspjeh)
@@ -36,7 +36,7 @@
                 <i class="bi bi-hourglass-split"></i>
                 <span>
                     Vaš zahtjev podnesen <strong>@(((DateTime?)ViewBag.ZadnjiZahtjevDatum)?.ToString("dd.MM.yyyy."))</strong>
-                    je <strong>na ─ìekanju</strong>. Odgovor ─çete dobiti na e-mail.
+                    je <strong>na čekanju</strong>. Odgovor ćete dobiti na e-mail.
                 </span>
             </div>
         }
@@ -45,8 +45,8 @@
             <div class="verif-banner">
                 <i class="bi bi-info-circle"></i>
                 <span>
-                    Verifikacija obi─ìno traje <strong>1ΓÇô3 radna dana</strong>. Verificirane firme dobivaju oznaku i ve─çu vidljivost na
-                    platformi. Svi dokumenti se ─ìuvaju sigurno i koriste isklju─ìivo u svrhu verifikacije.
+                    Verifikacija obično traje <strong>1-3 radna dana</strong>. Verificirane firme dobivaju oznaku i veću vidljivost na
+                    platformi. Svi dokumenti se čuvaju sigurno i koriste isključivo u svrhu verifikacije.
                 </span>
             </div>
 
@@ -176,12 +176,12 @@
                                 <span asp-validation-for="LicencaFajl" class="verif-greska"></span>
                             </div>
                             <div class="verif-field">
-                                <label class="verif-label">Logo firme <em>*</em></label>
+                                <label class="verif-label">Logo firme <small>(opcionalno)</small></label>
                                 <label class="verif-drop" data-drop>
                                     <input asp-for="LogoFajl" type="file" accept=".jpg,.jpeg,.png" hidden />
                                     <i class="bi bi-image"></i>
                                     <span class="verif-drop-text">Kliknite za upload</span>
-                                    <small>JPG, PNG: max 5MB</small>
+                                    <small>JPG, PNG: max 5MB · mijenja sliku firme nakon odobrenja</small>
                                 </label>
                                 <span asp-validation-for="LogoFajl" class="verif-greska"></span>
                             </div>
@@ -432,7 +432,7 @@
 
 @section Scripts {
     <script>
-        // Trim na svim tekstualnim poljima: sprije─ìi vode─çe razmake pri unosu, obre┼╛i pri napu┼ítanju polja.
+        // Trim na svim tekstualnim poljima: spriječi vodeće razmake pri unosu, obre┼╛i pri napuštanju polja.
         document.querySelectorAll('.verif-input').forEach(input => {
             input.addEventListener('input', () => { input.value = input.value.trimStart(); });
             input.addEventListener('blur', () => { input.value = input.value.trim(); });

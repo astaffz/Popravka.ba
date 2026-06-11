@@ -1,17 +1,20 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using System;
 
 #nullable disable
 
 namespace PopravkaBa.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigrationRenderCom : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+
+            migrationBuilder.Sql("DROP TABLE IF EXISTS \"__EFMigrationsHistory\"");
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -35,22 +38,25 @@ namespace PopravkaBa.Infrastructure.Migrations
                     Prezime = table.Column<string>(type: "text", nullable: true),
                     DatumRegistracije = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Slika = table.Column<string>(type: "text", nullable: true),
+                    StatusVerifikacije = table.Column<int>(type: "integer", nullable: false),
                     Discriminator = table.Column<string>(type: "character varying(21)", maxLength: 21, nullable: false),
                     Adresa = table.Column<string>(type: "text", nullable: true),
                     StambeniBroj = table.Column<string>(type: "text", nullable: true),
-                    ProsjecnaOcjena = table.Column<double>(type: "double precision", nullable: true),
+                    ProsjecnaOcjena = table.Column<decimal>(type: "numeric", nullable: true),
                     BrojZavrsenihPoslova = table.Column<int>(type: "integer", nullable: true),
                     Opis = table.Column<string>(type: "text", nullable: true),
+                    MinCijenaUsluge = table.Column<int>(type: "integer", nullable: true),
+                    BrojRecenzija = table.Column<int>(type: "integer", nullable: true),
                     NazivFirme = table.Column<string>(type: "text", nullable: true),
                     MinZaposlenih = table.Column<int>(type: "integer", nullable: true),
                     MaxZaposlenih = table.Column<int>(type: "integer", nullable: true),
-                    StatusVerifikacije = table.Column<int>(type: "integer", nullable: true),
                     OtvorenoOd = table.Column<TimeSpan>(type: "interval", nullable: true),
                     OtvorenoDo = table.Column<TimeSpan>(type: "interval", nullable: true),
                     VelicinaFirme = table.Column<int>(type: "integer", nullable: true),
                     RadnoVrijeme = table.Column<string>(type: "text", nullable: true),
                     WebStranica = table.Column<string>(type: "text", nullable: true),
                     DatumOsnivanja = table.Column<DateOnly>(type: "date", nullable: true),
+                    AdminVerificirao = table.Column<bool>(type: "boolean", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -88,6 +94,33 @@ namespace PopravkaBa.Infrastructure.Migrations
                         column: x => x.NadkategorijaID,
                         principalTable: "Kategorija",
                         principalColumn: "ID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MjesecnaStatistikaKompozicija",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    TipKorisnika = table.Column<int>(type: "integer", nullable: false),
+                    Godina = table.Column<int>(type: "integer", nullable: false),
+                    Mjesec = table.Column<int>(type: "integer", nullable: false),
+                    IzvrsilacID = table.Column<string>(type: "text", nullable: false),
+                    DisplayName = table.Column<string>(type: "text", nullable: false),
+                    Slika = table.Column<string>(type: "text", nullable: true),
+                    KategorijaID = table.Column<int>(type: "integer", nullable: true),
+                    KategorijaNaziv = table.Column<string>(type: "text", nullable: true),
+                    MjestoID = table.Column<int>(type: "integer", nullable: true),
+                    MjestoNaziv = table.Column<string>(type: "text", nullable: true),
+                    ProsjecnaOcjena = table.Column<decimal>(type: "numeric", nullable: false),
+                    BrojPoslova = table.Column<int>(type: "integer", nullable: false),
+                    RangStandardni = table.Column<int>(type: "integer", nullable: false),
+                    VrijemeAzuriranja = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MjesecnaStatistikaKompozicija", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -273,6 +306,8 @@ namespace PopravkaBa.Infrastructure.Migrations
                     FirmaID = table.Column<string>(type: "text", nullable: false),
                     NazivFirme = table.Column<string>(type: "text", nullable: false),
                     StatusVerifikacije = table.Column<int>(type: "integer", nullable: false),
+                    JIB = table.Column<string>(type: "text", nullable: false),
+                    PDVBroj = table.Column<string>(type: "text", nullable: true),
                     SjedisteFirme = table.Column<string>(type: "text", nullable: false),
                     RadnoVrijeme = table.Column<string>(type: "text", nullable: true),
                     WebStranica = table.Column<string>(type: "text", nullable: true),
@@ -295,6 +330,30 @@ namespace PopravkaBa.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_VerifikacijaFirme_AspNetUsers_FirmaID",
                         column: x => x.FirmaID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VerifikacijskiToken",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    KorisnikID = table.Column<string>(type: "text", nullable: false),
+                    TokenHash = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Tip = table.Column<int>(type: "integer", nullable: false),
+                    VrijemeGenerisanja = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    VrijemeIsteka = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    VrijemeKoristenja = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VerifikacijskiToken", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_VerifikacijskiToken_AspNetUsers_KorisnikID",
+                        column: x => x.KorisnikID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -362,7 +421,8 @@ namespace PopravkaBa.Infrastructure.Migrations
                     Opis = table.Column<string>(type: "text", nullable: false),
                     DatumObjave = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     MjestoID = table.Column<int>(type: "integer", nullable: false),
-                    VlasnikOglasaID = table.Column<string>(type: "text", nullable: false)
+                    VlasnikOglasaID = table.Column<string>(type: "text", nullable: false),
+                    StatusOglasa = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -475,7 +535,8 @@ namespace PopravkaBa.Infrastructure.Migrations
                     MinPrihod = table.Column<int>(type: "integer", nullable: false),
                     MaxPrihod = table.Column<int>(type: "integer", nullable: false),
                     TipIsplate = table.Column<int>(type: "integer", nullable: false),
-                    BrojPrijava = table.Column<int>(type: "integer", nullable: false)
+                    MinIskustvo = table.Column<int>(type: "integer", nullable: false),
+                    Slika = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -494,8 +555,7 @@ namespace PopravkaBa.Infrastructure.Migrations
                 {
                     OglasID = table.Column<int>(type: "integer", nullable: false),
                     MinBudzet = table.Column<int>(type: "integer", nullable: false),
-                    MaxBudzet = table.Column<int>(type: "integer", nullable: false),
-                    BrojPrijava = table.Column<int>(type: "integer", nullable: false)
+                    MaxBudzet = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -604,7 +664,11 @@ namespace PopravkaBa.Infrastructure.Migrations
                     DatumSlanja = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DatumPocetkaUsluge = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DatumOcekivanogZavrsetka = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    StatusPonude = table.Column<int>(type: "integer", nullable: false)
+                    DatumIzvrsavanjaUsluge = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    StatusPonude = table.Column<int>(type: "integer", nullable: false),
+                    Cijena = table.Column<int>(type: "integer", nullable: true),
+                    TipIsplate = table.Column<int>(type: "integer", nullable: false),
+                    Poruka = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -690,6 +754,11 @@ namespace PopravkaBa.Infrastructure.Migrations
                 column: "OglasID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Oglas_DatumObjave",
+                table: "Oglas",
+                column: "DatumObjave");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Oglas_MjestoID",
                 table: "Oglas",
                 column: "MjestoID");
@@ -758,6 +827,22 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "IX_VerifikacijaFirme_FirmaID",
                 table: "VerifikacijaFirme",
                 column: "FirmaID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VerifikacijskiToken_KorisnikID_Tip_VrijemeGenerisanja",
+                table: "VerifikacijskiToken",
+                columns: new[] { "KorisnikID", "Tip", "VrijemeGenerisanja" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VerifikacijskiToken_TokenHash",
+                table: "VerifikacijskiToken",
+                column: "TokenHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VerifikacijskiToken_VrijemeIsteka",
+                table: "VerifikacijskiToken",
+                column: "VrijemeIsteka");
         }
 
         /// <inheritdoc />
@@ -791,6 +876,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                 name: "KorisnikMjesto");
 
             migrationBuilder.DropTable(
+                name: "MjesecnaStatistikaKompozicija");
+
+            migrationBuilder.DropTable(
                 name: "OglasKategorija");
 
             migrationBuilder.DropTable(
@@ -813,6 +901,9 @@ namespace PopravkaBa.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "UvjetOglasa");
+
+            migrationBuilder.DropTable(
+                name: "VerifikacijskiToken");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

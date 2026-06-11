@@ -29,7 +29,7 @@
     <!-- ===== ─îekaju na verifikaciju ===== -->
     <div class="admin-card">
         <div class="admin-card-head">
-            <h2>─îekaju na verifikaciju (@Model.ZahtjeviVerifikacije.Count)</h2>
+            <h2>Čekaju na verifikaciju (@Model.ZahtjeviVerifikacije.Count)</h2>
             @if (Model.ZahtjeviVerifikacije.Count > PrikazanoOdmah)
             {
                 <button type="button" class="admin-btn admin-btn--svijetli" data-prikazi-sve="verifikacije">Prika┼╛i sve</button>
@@ -93,7 +93,7 @@
         }
         else
         {
-            <p class="admin-prazno">Nema zahtjeva koji ─ìekaju verifikaciju.</p>
+            <p class="admin-prazno">Nema zahtjeva koji čekaju verifikaciju.</p>
         }
     </div>
 
@@ -103,7 +103,7 @@
             <h2>Prijavljene recenzije (@Model.PrijavljeneRecenzije.Count)</h2>
             @if (Model.PrijavljeneRecenzije.Count > PrikazanoOdmah)
             {
-                <button type="button" class="admin-btn admin-btn--svijetli" data-prikazi-sve="recenzije">Prika┼╛i sve</button>
+                <button type="button" class="admin-btn admin-btn--svijetli" data-prikazi-sve="recenzije">Prikaži sve</button>
             }
         </div>
 
@@ -134,7 +134,7 @@
                                 }
                                 else
                                 {
-                                    <span>ΓÇö</span>
+                                    <span>-</span>
                                 }
                             </td>
                             <td class="admin-datum">@PrijeVremena(r.DatumPrijave)</td>
