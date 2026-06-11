@@ -23,1317 +23,1324 @@ namespace PopravkaBa.Infrastructure.Migrations
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
+                b.Property<string>("ConcurrencyStamp")
+                    .IsConcurrencyToken()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("Name")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("NormalizedName")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
+                b.HasIndex("NormalizedName")
+                    .IsUnique()
+                    .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles", (string)null);
-                });
+                b.ToTable("AspNetRoles", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                b.Property<string>("ClaimType")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                b.Property<string>("ClaimValue")
+                    .HasColumnType("text");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("RoleId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
+                b.ToTable("AspNetRoleClaims", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                b.Property<string>("ClaimType")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                b.Property<string>("ClaimValue")
+                    .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
+                b.ToTable("AspNetUserClaims", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("LoginProvider")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
+                b.Property<string>("ProviderKey")
+                    .HasColumnType("text");
 
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
+                b.Property<string>("ProviderDisplayName")
+                    .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("LoginProvider", "ProviderKey");
+                b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
+                b.ToTable("AspNetUserLogins", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("UserId")
+                    .HasColumnType("text");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("text");
+                b.Property<string>("RoleId")
+                    .HasColumnType("text");
 
-                    b.HasKey("UserId", "RoleId");
+                b.HasKey("UserId", "RoleId");
 
-                    b.HasIndex("RoleId");
+                b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
-                });
+                b.ToTable("AspNetUserRoles", (string)null);
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("UserId")
+                    .HasColumnType("text");
 
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                b.Property<string>("LoginProvider")
+                    .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
+                b.Property<string>("Name")
+                    .HasColumnType("text");
 
-                    b.Property<string>("Value")
-                        .HasColumnType("text");
+                b.Property<string>("Value")
+                    .HasColumnType("text");
 
-                    b.HasKey("UserId", "LoginProvider", "Name");
+                b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
+                b.ToTable("AspNetUserTokens", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.ApplicationUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("text");
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
+                b.Property<int>("AccessFailedCount")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text");
+                b.Property<string>("ConcurrencyStamp")
+                    .IsConcurrencyToken()
+                    .HasColumnType("text");
 
-                    b.Property<DateTime>("DatumRegistracije")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("DatumRegistracije")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("character varying(21)");
+                b.Property<string>("Discriminator")
+                    .IsRequired()
+                    .HasMaxLength(21)
+                    .HasColumnType("character varying(21)");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("Email")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
+                b.Property<bool>("EmailConfirmed")
+                    .HasColumnType("boolean");
 
-                    b.Property<string>("Ime")
-                        .HasColumnType("text");
+                b.Property<string>("Ime")
+                    .HasColumnType("text");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean");
+                b.Property<bool>("LockoutEnabled")
+                    .HasColumnType("boolean");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTimeOffset?>("LockoutEnd")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("NormalizedEmail")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("NormalizedUserName")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
+                b.Property<string>("PasswordHash")
+                    .HasColumnType("text");
 
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                b.Property<string>("PhoneNumber")
+                    .HasColumnType("text");
 
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean");
+                b.Property<bool>("PhoneNumberConfirmed")
+                    .HasColumnType("boolean");
 
-                    b.Property<string>("Prezime")
-                        .HasColumnType("text");
+                b.Property<string>("Prezime")
+                    .HasColumnType("text");
 
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
+                b.Property<string>("SecurityStamp")
+                    .HasColumnType("text");
 
-                    b.Property<string>("Slika")
-                        .HasColumnType("text");
+                b.Property<string>("Slika")
+                    .HasColumnType("text");
 
-                    b.Property<int>("StatusVerifikacije")
-                        .HasColumnType("integer");
+                b.Property<int>("StatusVerifikacije")
+                    .HasColumnType("integer");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
+                b.Property<bool>("TwoFactorEnabled")
+                    .HasColumnType("boolean");
 
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                b.Property<string>("UserName")
+                    .HasMaxLength(256)
+                    .HasColumnType("character varying(256)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
+                b.HasIndex("NormalizedEmail")
+                    .HasDatabaseName("EmailIndex");
 
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
+                b.HasIndex("NormalizedUserName")
+                    .IsUnique()
+                    .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                b.ToTable("AspNetUsers", (string)null);
 
-                    b.HasDiscriminator().HasValue("ApplicationUser");
+                b.HasDiscriminator().HasValue("ApplicationUser");
 
-                    b.UseTphMappingStrategy();
-                });
+                b.UseTphMappingStrategy();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.IzvrsilacKategorija", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("IzvrsilacID")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("IzvrsilacID")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("KategorijaID")
-                        .HasColumnType("integer");
+                b.Property<int>("KategorijaID")
+                    .HasColumnType("integer");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("IzvrsilacID");
+                b.HasIndex("IzvrsilacID");
 
-                    b.HasIndex("KategorijaID");
+                b.HasIndex("KategorijaID");
 
-                    b.ToTable("IzvrsilacKategorija", (string)null);
-                });
+                b.ToTable("IzvrsilacKategorija", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Kategorija", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("NadkategorijaID")
-                        .HasColumnType("integer");
+                b.Property<int?>("NadkategorijaID")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Naziv")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Naziv")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("NadkategorijaID");
+                b.HasIndex("NadkategorijaID");
 
-                    b.ToTable("Kategorija", (string)null);
-                });
+                b.ToTable("Kategorija", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.KorisnikMjesto", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("KorisnikID")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("KorisnikID")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("MjestoID")
-                        .HasColumnType("integer");
+                b.Property<int>("MjestoID")
+                    .HasColumnType("integer");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("KorisnikID");
+                b.HasIndex("KorisnikID");
 
-                    b.HasIndex("MjestoID");
+                b.HasIndex("MjestoID");
 
-                    b.ToTable("KorisnikMjesto", (string)null);
-                });
+                b.ToTable("KorisnikMjesto", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.MjesecnaStatistikaKompozicija", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("BrojPoslova")
-                        .HasColumnType("integer");
+                b.Property<int>("BrojPoslova")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("DisplayName")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("Godina")
-                        .HasColumnType("integer");
+                b.Property<int>("Godina")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("IzvrsilacID")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("IzvrsilacID")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int?>("KategorijaID")
-                        .HasColumnType("integer");
+                b.Property<int?>("KategorijaID")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("KategorijaNaziv")
-                        .HasColumnType("text");
+                b.Property<string>("KategorijaNaziv")
+                    .HasColumnType("text");
 
-                    b.Property<int>("Mjesec")
-                        .HasColumnType("integer");
+                b.Property<int>("Mjesec")
+                    .HasColumnType("integer");
 
-                    b.Property<int?>("MjestoID")
-                        .HasColumnType("integer");
+                b.Property<int?>("MjestoID")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("MjestoNaziv")
-                        .HasColumnType("text");
+                b.Property<string>("MjestoNaziv")
+                    .HasColumnType("text");
 
-                    b.Property<decimal>("ProsjecnaOcjena")
-                        .HasColumnType("numeric");
+                b.Property<decimal>("ProsjecnaOcjena")
+                    .HasColumnType("numeric");
 
-                    b.Property<int>("RangStandardni")
-                        .HasColumnType("integer");
+                b.Property<int>("RangStandardni")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Slika")
-                        .HasColumnType("text");
+                b.Property<string>("Slika")
+                    .HasColumnType("text");
 
-                    b.Property<int>("TipKorisnika")
-                        .HasColumnType("integer");
+                b.Property<int>("TipKorisnika")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Username")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<DateTime>("VrijemeAzuriranja")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("VrijemeAzuriranja")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.ToTable("MjesecnaStatistikaKompozicija", (string)null);
-                });
+                b.ToTable("MjesecnaStatistikaKompozicija", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Mjesto", b =>
-                {
-                    b.Property<int>("MjestoID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("MjestoID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MjestoID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MjestoID"));
 
-                    b.Property<int>("Kanton")
-                        .HasColumnType("integer");
+                b.Property<int>("Kanton")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Naziv")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Naziv")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("MjestoID");
+                b.HasKey("MjestoID");
 
-                    b.ToTable("Mjesto", (string)null);
-                });
+                b.ToTable("Mjesto", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.NotifikacijaOglas", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<DateTime>("DatumSlanja")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("DatumSlanja")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("OglasID")
-                        .HasColumnType("integer");
+                b.Property<int>("OglasID")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Tekst")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Tekst")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("OglasID");
+                b.HasIndex("OglasID");
 
-                    b.ToTable("NotifikacijaOglas");
+                b.ToTable("NotifikacijaOglas");
 
-                    b.UseTptMappingStrategy();
-                });
+                b.UseTptMappingStrategy();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Oglas", b =>
-                {
-                    b.Property<int>("OglasID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("OglasID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OglasID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OglasID"));
 
-                    b.Property<DateTime>("DatumObjave")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("DatumObjave")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("MjestoID")
-                        .HasColumnType("integer");
+                b.Property<int>("MjestoID")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Naslov")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Naslov")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Opis")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Opis")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("StatusOglasa")
-                        .HasColumnType("integer");
+                b.Property<int>("StatusOglasa")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("VlasnikOglasaID")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("VlasnikOglasaID")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("OglasID");
+                b.HasKey("OglasID");
 
-                    b.HasIndex("DatumObjave");
+                b.HasIndex("DatumObjave");
 
-                    b.HasIndex("MjestoID");
+                b.HasIndex("MjestoID");
 
-                    b.HasIndex("VlasnikOglasaID");
+                b.HasIndex("VlasnikOglasaID");
 
-                    b.ToTable("Oglas");
+                b.ToTable("Oglas");
 
-                    b.UseTptMappingStrategy();
-                });
+                b.UseTptMappingStrategy();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasKategorija", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("KategorijaID")
-                        .HasColumnType("integer");
+                b.Property<int>("KategorijaID")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("OglasID")
-                        .HasColumnType("integer");
+                b.Property<int>("OglasID")
+                    .HasColumnType("integer");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("KategorijaID");
+                b.HasIndex("KategorijaID");
 
-                    b.HasIndex("OglasID");
+                b.HasIndex("OglasID");
 
-                    b.ToTable("OglasKategorija", (string)null);
-                });
+                b.ToTable("OglasKategorija", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasVozackaDozvola", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("OglasID")
-                        .HasColumnType("integer");
+                b.Property<int>("OglasID")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("VozackaDozvola")
-                        .HasColumnType("integer");
+                b.Property<int>("VozackaDozvola")
+                    .HasColumnType("integer");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("OglasID");
+                b.HasIndex("OglasID");
 
-                    b.ToTable("OglasVozackaDozvola", (string)null);
-                });
+                b.ToTable("OglasVozackaDozvola", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.PonudaUsluge", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("Cijena")
-                        .HasColumnType("integer");
+                b.Property<int?>("Cijena")
+                    .HasColumnType("integer");
 
-                    b.Property<DateTime?>("DatumIzvrsavanjaUsluge")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime?>("DatumIzvrsavanjaUsluge")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("DatumOcekivanogZavrsetka")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime?>("DatumOcekivanogZavrsetka")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DatumPocetkaUsluge")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("DatumPocetkaUsluge")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DatumSlanja")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("DatumSlanja")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("IzvrsilacID")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("IzvrsilacID")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("OglasUslugeID")
-                        .HasColumnType("integer");
+                b.Property<int>("OglasUslugeID")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Poruka")
-                        .HasColumnType("text");
+                b.Property<string>("Poruka")
+                    .HasColumnType("text");
 
-                    b.Property<int>("StatusPonude")
-                        .HasColumnType("integer");
+                b.Property<int>("StatusPonude")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("TipIsplate")
-                        .HasColumnType("integer");
+                b.Property<int>("TipIsplate")
+                    .HasColumnType("integer");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("IzvrsilacID");
+                b.HasIndex("IzvrsilacID");
 
-                    b.HasIndex("OglasUslugeID");
+                b.HasIndex("OglasUslugeID");
 
-                    b.ToTable("PonudaUsluge", (string)null);
-                });
+                b.ToTable("PonudaUsluge", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.PortfolioSlika", b =>
-                {
-                    b.Property<int>("PortfolioSlikaID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("PortfolioSlikaID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PortfolioSlikaID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PortfolioSlikaID"));
 
-                    b.Property<string>("IzvrsilacID")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("IzvrsilacID")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Opis")
-                        .HasColumnType("text");
+                b.Property<string>("Opis")
+                    .HasColumnType("text");
 
-                    b.Property<string>("URL")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("URL")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("PortfolioSlikaID");
+                b.HasKey("PortfolioSlikaID");
 
-                    b.HasIndex("IzvrsilacID");
+                b.HasIndex("IzvrsilacID");
 
-                    b.ToTable("PortfolioSlika", (string)null);
-                });
+                b.ToTable("PortfolioSlika", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.PrijavaRadnoMjesto", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("MajstorID")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("MajstorID")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("OglasID")
-                        .HasColumnType("integer");
+                b.Property<int>("OglasID")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("StatusPrijave")
-                        .HasColumnType("integer");
+                b.Property<int>("StatusPrijave")
+                    .HasColumnType("integer");
 
-                    b.Property<DateTime>("VrijemePrijave")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("VrijemePrijave")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("MajstorID");
+                b.HasIndex("MajstorID");
 
-                    b.HasIndex("OglasID");
+                b.HasIndex("OglasID");
 
-                    b.ToTable("PrijavaRadnoMjesto", (string)null);
-                });
+                b.ToTable("PrijavaRadnoMjesto", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Recenzija", b =>
+            {
+                b.Property<int>("RecenzijaID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
+
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RecenzijaID"));
+
+                b.Property<DateTime?>("DatumPrijave")
+                    .HasColumnType("timestamp with time zone");
+
+                b.Property<DateTime>("DatumRecenzije")
+                    .HasColumnType("timestamp with time zone");
+
+                b.Property<string>("IzvrsilacID")
+                    .IsRequired()
+                    .HasColumnType("text");
+
+                b.Property<string>("KlijentID")
+                    .IsRequired()
+                    .HasColumnType("text");
+
+                b.Property<string>("Komentar")
+                    .IsRequired()
+                    .HasColumnType("text");
+
+                b.Property<int>("Ocjena")
+                    .HasColumnType("integer");
+
+                b.Property<bool>("Prijavljena")
+                    .HasColumnType("boolean");
+
+                b.Property<string>("RazlogPrijave")
+                    .HasColumnType("text");
+
+                b.Property<int?>("StatusPrijave")
+                    .HasColumnType("integer");
+
+                b.HasKey("RecenzijaID");
+
+                b.HasIndex("IzvrsilacID");
+
+                b.HasIndex("KlijentID");
+
+                b.ToTable("Recenzija", null, t =>
                 {
-                    b.Property<int>("RecenzijaID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RecenzijaID"));
-
-                    b.Property<DateTime?>("DatumPrijave")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("DatumRecenzije")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("IzvrsilacID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("KlijentID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Komentar")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Ocjena")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("Prijavljena")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("RazlogPrijave")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("StatusPrijave")
-                        .HasColumnType("integer");
-
-                    b.HasKey("RecenzijaID");
-
-                    b.HasIndex("IzvrsilacID");
-
-                    b.HasIndex("KlijentID");
-
-                    b.ToTable("Recenzija", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_Recenzija_Ocjena", "\"Ocjena\" >= 1 AND \"Ocjena\" <= 5");
-                        });
+                    t.HasCheckConstraint("CK_Recenzija_Ocjena", "\"Ocjena\" >= 1 AND \"Ocjena\" <= 5");
                 });
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.UvjetOglasa", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("OglasID")
-                        .HasColumnType("integer");
+                b.Property<int>("OglasID")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("TekstUvjeta")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("TekstUvjeta")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("OglasID");
+                b.HasIndex("OglasID");
 
-                    b.ToTable("UvjetOglasa", (string)null);
-                });
+                b.ToTable("UvjetOglasa", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.VerifikacijaFirme", b =>
-                {
-                    b.Property<int>("VerifikacioniID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("VerifikacioniID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VerifikacioniID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VerifikacioniID"));
 
-                    b.Property<DateTime?>("DatumObrade")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime?>("DatumObrade")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DatumPodnosenja")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("DatumPodnosenja")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("FirmaID")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("FirmaID")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("KontaktTelefon")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("JIB")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("LicencaDjelatnosti")
-                        .HasColumnType("text");
+                b.Property<string>("KontaktTelefon")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("Logotip")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("LicencaDjelatnosti")
+                    .HasColumnType("text");
 
-                    b.Property<string>("NazivFirme")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Logotip")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("OdgovornaOsobaEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("NazivFirme")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("OdgovornaOsobaIme")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("OdgovornaOsobaEmail")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("OdgovornaOsobaPozicija")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("OdgovornaOsobaIme")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("OdgovornaOsobaPrezime")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("OdgovornaOsobaPozicija")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("OdgovornaOsobaTelefon")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("OdgovornaOsobaPrezime")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("PoreznoUvjerenje")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("OdgovornaOsobaTelefon")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("RadnoVrijeme")
-                        .HasColumnType("text");
+                b.Property<string>("PDVBroj")
+                    .HasColumnType("text");
 
-                    b.Property<string>("Rjesenje")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("PoreznoUvjerenje")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("SjedisteFirme")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("RadnoVrijeme")
+                    .HasColumnType("text");
 
-                    b.Property<int>("StatusVerifikacije")
-                        .HasColumnType("integer");
+                b.Property<string>("Rjesenje")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<string>("WebStranica")
-                        .HasColumnType("text");
+                b.Property<string>("SjedisteFirme")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.HasKey("VerifikacioniID");
+                b.Property<int>("StatusVerifikacije")
+                    .HasColumnType("integer");
 
-                    b.HasIndex("FirmaID");
+                b.Property<string>("WebStranica")
+                    .HasColumnType("text");
 
-                    b.ToTable("VerifikacijaFirme");
+                b.HasKey("VerifikacioniID");
 
-                    b.UseTptMappingStrategy();
-                });
+                b.HasIndex("FirmaID");
+
+                b.ToTable("VerifikacijaFirme");
+
+                b.UseTptMappingStrategy();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.VerifikacijskiToken", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+            {
+                b.Property<int>("ID")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("KorisnikID")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("KorisnikID")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("Tip")
-                        .HasColumnType("integer");
+                b.Property<int>("Tip")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
+                b.Property<string>("TokenHash")
+                    .IsRequired()
+                    .HasMaxLength(64)
+                    .HasColumnType("character varying(64)");
 
-                    b.Property<DateTime>("VrijemeGenerisanja")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("VrijemeGenerisanja")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("VrijemeIsteka")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime>("VrijemeIsteka")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("VrijemeKoristenja")
-                        .HasColumnType("timestamp with time zone");
+                b.Property<DateTime?>("VrijemeKoristenja")
+                    .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("ID");
+                b.HasKey("ID");
 
-                    b.HasIndex("TokenHash")
-                        .IsUnique();
+                b.HasIndex("TokenHash")
+                    .IsUnique();
 
-                    b.HasIndex("VrijemeIsteka");
+                b.HasIndex("VrijemeIsteka");
 
-                    b.HasIndex("KorisnikID", "Tip", "VrijemeGenerisanja");
+                b.HasIndex("KorisnikID", "Tip", "VrijemeGenerisanja");
 
-                    b.ToTable("VerifikacijskiToken", (string)null);
-                });
+                b.ToTable("VerifikacijskiToken", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Administrator", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.ApplicationUser");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.ApplicationUser");
 
-                    b.HasDiscriminator().HasValue("Administrator");
-                });
+                b.HasDiscriminator().HasValue("Administrator");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.IzvrsilacUsluge", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.ApplicationUser");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.ApplicationUser");
 
-                    b.Property<string>("Adresa")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("Adresa")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<int>("BrojRecenzija")
-                        .HasColumnType("integer");
+                b.Property<int>("BrojRecenzija")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("BrojZavrsenihPoslova")
-                        .HasColumnType("integer");
+                b.Property<int>("BrojZavrsenihPoslova")
+                    .HasColumnType("integer");
 
-                    b.Property<int?>("MinCijenaUsluge")
-                        .HasColumnType("integer");
+                b.Property<int?>("MinCijenaUsluge")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Opis")
-                        .HasColumnType("text");
+                b.Property<string>("Opis")
+                    .HasColumnType("text");
 
-                    b.Property<decimal>("ProsjecnaOcjena")
-                        .HasColumnType("numeric");
+                b.Property<decimal>("ProsjecnaOcjena")
+                    .HasColumnType("numeric");
 
-                    b.Property<string>("StambeniBroj")
-                        .HasColumnType("text");
+                b.Property<string>("StambeniBroj")
+                    .HasColumnType("text");
 
-                    b.HasDiscriminator().HasValue("IzvrsilacUsluge");
-                });
+                b.HasDiscriminator().HasValue("IzvrsilacUsluge");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Klijent", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.ApplicationUser");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.ApplicationUser");
 
-                    b.HasDiscriminator().HasValue("Klijent");
-                });
+                b.HasDiscriminator().HasValue("Klijent");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.EmailNotifikacijaOglas", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.NotifikacijaOglas");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.NotifikacijaOglas");
 
-                    b.Property<string>("EmailPrimalac")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("EmailPrimalac")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.ToTable("EmailNotifikacijaOglasa", (string)null);
-                });
+                b.ToTable("EmailNotifikacijaOglasa", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasMajstora", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.Oglas");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.Oglas");
 
-                    b.Property<double>("MinCijena")
-                        .HasColumnType("double precision");
+                b.Property<double>("MinCijena")
+                    .HasColumnType("double precision");
 
-                    b.Property<int>("TipIsplate")
-                        .HasColumnType("integer");
+                b.Property<int>("TipIsplate")
+                    .HasColumnType("integer");
 
-                    b.ToTable("OglasMajstora", (string)null);
-                });
+                b.ToTable("OglasMajstora", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasRadnoMjesto", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.Oglas");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.Oglas");
 
-                    b.Property<int>("BrojIzvrsilaca")
-                        .HasColumnType("integer");
+                b.Property<int>("BrojIzvrsilaca")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("MaxPrihod")
-                        .HasColumnType("integer");
+                b.Property<int>("MaxPrihod")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("MinIskustvo")
-                        .HasColumnType("integer");
+                b.Property<int>("MinIskustvo")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("MinPrihod")
-                        .HasColumnType("integer");
+                b.Property<int>("MinPrihod")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("Slika")
-                        .HasColumnType("text");
+                b.Property<string>("Slika")
+                    .HasColumnType("text");
 
-                    b.Property<int>("TipIsplate")
-                        .HasColumnType("integer");
+                b.Property<int>("TipIsplate")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("VrstaZaposlenja")
-                        .HasColumnType("integer");
+                b.Property<int>("VrstaZaposlenja")
+                    .HasColumnType("integer");
 
-                    b.ToTable("OglasRadnoMjesto", (string)null);
-                });
+                b.ToTable("OglasRadnoMjesto", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasUsluge", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.Oglas");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.Oglas");
 
-                    b.Property<int>("MaxBudzet")
-                        .HasColumnType("integer");
+                b.Property<int>("MaxBudzet")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("MinBudzet")
-                        .HasColumnType("integer");
+                b.Property<int>("MinBudzet")
+                    .HasColumnType("integer");
 
-                    b.ToTable("OglasUsluge", (string)null);
-                });
+                b.ToTable("OglasUsluge", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.EmailVerifikacijaFirme", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.VerifikacijaFirme");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.VerifikacijaFirme");
 
-                    b.Property<string>("AdminEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("AdminEmail")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.ToTable("EmailVerifikacijaFirme", (string)null);
-                });
+                b.ToTable("EmailVerifikacijaFirme", (string)null);
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Firma", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.IzvrsilacUsluge");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.IzvrsilacUsluge");
 
-                    b.Property<bool>("AdminVerificirao")
-                        .HasColumnType("boolean");
+                b.Property<bool>("AdminVerificirao")
+                    .HasColumnType("boolean");
 
-                    b.Property<DateOnly?>("DatumOsnivanja")
-                        .HasColumnType("date");
+                b.Property<DateOnly?>("DatumOsnivanja")
+                    .HasColumnType("date");
 
-                    b.Property<int>("MaxZaposlenih")
-                        .HasColumnType("integer");
+                b.Property<int>("MaxZaposlenih")
+                    .HasColumnType("integer");
 
-                    b.Property<int>("MinZaposlenih")
-                        .HasColumnType("integer");
+                b.Property<int>("MinZaposlenih")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("NazivFirme")
-                        .IsRequired()
-                        .HasColumnType("text");
+                b.Property<string>("NazivFirme")
+                    .IsRequired()
+                    .HasColumnType("text");
 
-                    b.Property<TimeSpan?>("OtvorenoDo")
-                        .HasColumnType("interval");
+                b.Property<TimeSpan?>("OtvorenoDo")
+                    .HasColumnType("interval");
 
-                    b.Property<TimeSpan?>("OtvorenoOd")
-                        .HasColumnType("interval");
+                b.Property<TimeSpan?>("OtvorenoOd")
+                    .HasColumnType("interval");
 
-                    b.Property<string>("RadnoVrijeme")
-                        .HasColumnType("text");
+                b.Property<string>("RadnoVrijeme")
+                    .HasColumnType("text");
 
-                    b.Property<int>("VelicinaFirme")
-                        .HasColumnType("integer");
+                b.Property<int>("VelicinaFirme")
+                    .HasColumnType("integer");
 
-                    b.Property<string>("WebStranica")
-                        .HasColumnType("text");
+                b.Property<string>("WebStranica")
+                    .HasColumnType("text");
 
-                    b.HasDiscriminator().HasValue("Firma");
-                });
+                b.HasDiscriminator().HasValue("Firma");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Majstor", b =>
-                {
-                    b.HasBaseType("PopravkaBa.Domain.Models.IzvrsilacUsluge");
+            {
+                b.HasBaseType("PopravkaBa.Domain.Models.IzvrsilacUsluge");
 
-                    b.HasDiscriminator().HasValue("Majstor");
-                });
+                b.HasDiscriminator().HasValue("Majstor");
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    .WithMany()
+                    .HasForeignKey("RoleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    .WithMany()
+                    .HasForeignKey("RoleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", null)
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.IzvrsilacKategorija", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.IzvrsilacUsluge", "Izvrsilac")
-                        .WithMany("Kategorije")
-                        .HasForeignKey("IzvrsilacID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.IzvrsilacUsluge", "Izvrsilac")
+                    .WithMany("Kategorije")
+                    .HasForeignKey("IzvrsilacID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("PopravkaBa.Domain.Models.Kategorija", "Kategorija")
-                        .WithMany()
-                        .HasForeignKey("KategorijaID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("PopravkaBa.Domain.Models.Kategorija", "Kategorija")
+                    .WithMany()
+                    .HasForeignKey("KategorijaID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Izvrsilac");
+                b.Navigation("Izvrsilac");
 
-                    b.Navigation("Kategorija");
-                });
+                b.Navigation("Kategorija");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Kategorija", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.Kategorija", "Nadkategorija")
-                        .WithMany("Potkategorije")
-                        .HasForeignKey("NadkategorijaID");
+            {
+                b.HasOne("PopravkaBa.Domain.Models.Kategorija", "Nadkategorija")
+                    .WithMany("Potkategorije")
+                    .HasForeignKey("NadkategorijaID");
 
-                    b.Navigation("Nadkategorija");
-                });
+                b.Navigation("Nadkategorija");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.KorisnikMjesto", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "Korisnik")
-                        .WithMany("Mjesta")
-                        .HasForeignKey("KorisnikID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "Korisnik")
+                    .WithMany("Mjesta")
+                    .HasForeignKey("KorisnikID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("PopravkaBa.Domain.Models.Mjesto", "Mjesto")
-                        .WithMany()
-                        .HasForeignKey("MjestoID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("PopravkaBa.Domain.Models.Mjesto", "Mjesto")
+                    .WithMany()
+                    .HasForeignKey("MjestoID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Korisnik");
+                b.Navigation("Korisnik");
 
-                    b.Navigation("Mjesto");
-                });
+                b.Navigation("Mjesto");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.NotifikacijaOglas", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.Oglas", "Oglas")
-                        .WithMany("Notifikacije")
-                        .HasForeignKey("OglasID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.Oglas", "Oglas")
+                    .WithMany("Notifikacije")
+                    .HasForeignKey("OglasID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Oglas");
-                });
+                b.Navigation("Oglas");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Oglas", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.Mjesto", "Mjesto")
-                        .WithMany()
-                        .HasForeignKey("MjestoID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.Mjesto", "Mjesto")
+                    .WithMany()
+                    .HasForeignKey("MjestoID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "VlasnikOglasa")
-                        .WithMany("Oglasi")
-                        .HasForeignKey("VlasnikOglasaID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "VlasnikOglasa")
+                    .WithMany("Oglasi")
+                    .HasForeignKey("VlasnikOglasaID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Mjesto");
+                b.Navigation("Mjesto");
 
-                    b.Navigation("VlasnikOglasa");
-                });
+                b.Navigation("VlasnikOglasa");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasKategorija", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.Kategorija", "Kategorija")
-                        .WithMany()
-                        .HasForeignKey("KategorijaID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.Kategorija", "Kategorija")
+                    .WithMany()
+                    .HasForeignKey("KategorijaID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("PopravkaBa.Domain.Models.Oglas", "Oglas")
-                        .WithMany("Kategorije")
-                        .HasForeignKey("OglasID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("PopravkaBa.Domain.Models.Oglas", "Oglas")
+                    .WithMany("Kategorije")
+                    .HasForeignKey("OglasID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Kategorija");
+                b.Navigation("Kategorija");
 
-                    b.Navigation("Oglas");
-                });
+                b.Navigation("Oglas");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasVozackaDozvola", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.OglasRadnoMjesto", "Oglas")
-                        .WithMany("VozackeDozvole")
-                        .HasForeignKey("OglasID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.OglasRadnoMjesto", "Oglas")
+                    .WithMany("VozackeDozvole")
+                    .HasForeignKey("OglasID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Oglas");
-                });
+                b.Navigation("Oglas");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.PonudaUsluge", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.IzvrsilacUsluge", "Izvrsilac")
-                        .WithMany("Ponude")
-                        .HasForeignKey("IzvrsilacID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.IzvrsilacUsluge", "Izvrsilac")
+                    .WithMany("Ponude")
+                    .HasForeignKey("IzvrsilacID")
+                    .OnDelete(DeleteBehavior.NoAction)
+                    .IsRequired();
 
-                    b.HasOne("PopravkaBa.Domain.Models.OglasUsluge", "OglasUsluge")
-                        .WithMany("Ponude")
-                        .HasForeignKey("OglasUslugeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("PopravkaBa.Domain.Models.OglasUsluge", "OglasUsluge")
+                    .WithMany("Ponude")
+                    .HasForeignKey("OglasUslugeID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Izvrsilac");
+                b.Navigation("Izvrsilac");
 
-                    b.Navigation("OglasUsluge");
-                });
+                b.Navigation("OglasUsluge");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.PortfolioSlika", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.IzvrsilacUsluge", "Izvrsilac")
-                        .WithMany("SlikePortfolija")
-                        .HasForeignKey("IzvrsilacID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.IzvrsilacUsluge", "Izvrsilac")
+                    .WithMany("SlikePortfolija")
+                    .HasForeignKey("IzvrsilacID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Izvrsilac");
-                });
+                b.Navigation("Izvrsilac");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.PrijavaRadnoMjesto", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.Majstor", "Majstor")
-                        .WithMany("PrijaveZaRadnoMjesto")
-                        .HasForeignKey("MajstorID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.Majstor", "Majstor")
+                    .WithMany("PrijaveZaRadnoMjesto")
+                    .HasForeignKey("MajstorID")
+                    .OnDelete(DeleteBehavior.NoAction)
+                    .IsRequired();
 
-                    b.HasOne("PopravkaBa.Domain.Models.OglasRadnoMjesto", "OglasRadnoMjesto")
-                        .WithMany("Prijave")
-                        .HasForeignKey("OglasID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                b.HasOne("PopravkaBa.Domain.Models.OglasRadnoMjesto", "OglasRadnoMjesto")
+                    .WithMany("Prijave")
+                    .HasForeignKey("OglasID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Majstor");
+                b.Navigation("Majstor");
 
-                    b.Navigation("OglasRadnoMjesto");
-                });
+                b.Navigation("OglasRadnoMjesto");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Recenzija", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.IzvrsilacUsluge", "Izvrsilac")
-                        .WithMany("Recenzije")
-                        .HasForeignKey("IzvrsilacID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.IzvrsilacUsluge", "Izvrsilac")
+                    .WithMany("Recenzije")
+                    .HasForeignKey("IzvrsilacID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("PopravkaBa.Domain.Models.Klijent", "Klijent")
-                        .WithMany("Recenzije")
-                        .HasForeignKey("KlijentID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                b.HasOne("PopravkaBa.Domain.Models.Klijent", "Klijent")
+                    .WithMany("Recenzije")
+                    .HasForeignKey("KlijentID")
+                    .OnDelete(DeleteBehavior.NoAction)
+                    .IsRequired();
 
-                    b.Navigation("Izvrsilac");
+                b.Navigation("Izvrsilac");
 
-                    b.Navigation("Klijent");
-                });
+                b.Navigation("Klijent");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.UvjetOglasa", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.OglasRadnoMjesto", "Oglas")
-                        .WithMany("Uvjeti")
-                        .HasForeignKey("OglasID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.OglasRadnoMjesto", "Oglas")
+                    .WithMany("Uvjeti")
+                    .HasForeignKey("OglasID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Oglas");
-                });
+                b.Navigation("Oglas");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.VerifikacijaFirme", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.Firma", "Firma")
-                        .WithMany("ZahtjeviVerifikacije")
-                        .HasForeignKey("FirmaID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.Firma", "Firma")
+                    .WithMany("ZahtjeviVerifikacije")
+                    .HasForeignKey("FirmaID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Firma");
-                });
+                b.Navigation("Firma");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.VerifikacijskiToken", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "Korisnik")
-                        .WithMany("Tokeni")
-                        .HasForeignKey("KorisnikID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            {
+                b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "Korisnik")
+                    .WithMany("Tokeni")
+                    .HasForeignKey("KorisnikID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.Navigation("Korisnik");
-                });
+                b.Navigation("Korisnik");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.EmailNotifikacijaOglas", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.NotifikacijaOglas", null)
-                        .WithOne()
-                        .HasForeignKey("PopravkaBa.Domain.Models.EmailNotifikacijaOglas", "ID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("PopravkaBa.Domain.Models.NotifikacijaOglas", null)
+                    .WithOne()
+                    .HasForeignKey("PopravkaBa.Domain.Models.EmailNotifikacijaOglas", "ID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasMajstora", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.Oglas", null)
-                        .WithOne()
-                        .HasForeignKey("PopravkaBa.Domain.Models.OglasMajstora", "OglasID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("PopravkaBa.Domain.Models.Oglas", null)
+                    .WithOne()
+                    .HasForeignKey("PopravkaBa.Domain.Models.OglasMajstora", "OglasID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasRadnoMjesto", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.Oglas", null)
-                        .WithOne()
-                        .HasForeignKey("PopravkaBa.Domain.Models.OglasRadnoMjesto", "OglasID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("PopravkaBa.Domain.Models.Oglas", null)
+                    .WithOne()
+                    .HasForeignKey("PopravkaBa.Domain.Models.OglasRadnoMjesto", "OglasID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasUsluge", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.Oglas", null)
-                        .WithOne()
-                        .HasForeignKey("PopravkaBa.Domain.Models.OglasUsluge", "OglasID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("PopravkaBa.Domain.Models.Oglas", null)
+                    .WithOne()
+                    .HasForeignKey("PopravkaBa.Domain.Models.OglasUsluge", "OglasID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.EmailVerifikacijaFirme", b =>
-                {
-                    b.HasOne("PopravkaBa.Domain.Models.VerifikacijaFirme", null)
-                        .WithOne()
-                        .HasForeignKey("PopravkaBa.Domain.Models.EmailVerifikacijaFirme", "VerifikacioniID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+            {
+                b.HasOne("PopravkaBa.Domain.Models.VerifikacijaFirme", null)
+                    .WithOne()
+                    .HasForeignKey("PopravkaBa.Domain.Models.EmailVerifikacijaFirme", "VerifikacioniID")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("Mjesta");
+            {
+                b.Navigation("Mjesta");
 
-                    b.Navigation("Oglasi");
+                b.Navigation("Oglasi");
 
-                    b.Navigation("Tokeni");
-                });
+                b.Navigation("Tokeni");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Kategorija", b =>
-                {
-                    b.Navigation("Potkategorije");
-                });
+            {
+                b.Navigation("Potkategorije");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Oglas", b =>
-                {
-                    b.Navigation("Kategorije");
+            {
+                b.Navigation("Kategorije");
 
-                    b.Navigation("Notifikacije");
-                });
+                b.Navigation("Notifikacije");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.IzvrsilacUsluge", b =>
-                {
-                    b.Navigation("Kategorije");
+            {
+                b.Navigation("Kategorije");
 
-                    b.Navigation("Ponude");
+                b.Navigation("Ponude");
 
-                    b.Navigation("Recenzije");
+                b.Navigation("Recenzije");
 
-                    b.Navigation("SlikePortfolija");
-                });
+                b.Navigation("SlikePortfolija");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Klijent", b =>
-                {
-                    b.Navigation("Recenzije");
-                });
+            {
+                b.Navigation("Recenzije");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasRadnoMjesto", b =>
-                {
-                    b.Navigation("Prijave");
+            {
+                b.Navigation("Prijave");
 
-                    b.Navigation("Uvjeti");
+                b.Navigation("Uvjeti");
 
-                    b.Navigation("VozackeDozvole");
-                });
+                b.Navigation("VozackeDozvole");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasUsluge", b =>
-                {
-                    b.Navigation("Ponude");
-                });
+            {
+                b.Navigation("Ponude");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Firma", b =>
-                {
-                    b.Navigation("ZahtjeviVerifikacije");
-                });
+            {
+                b.Navigation("ZahtjeviVerifikacije");
+            });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Majstor", b =>
-                {
-                    b.Navigation("PrijaveZaRadnoMjesto");
-                });
+            {
+                b.Navigation("PrijaveZaRadnoMjesto");
+            });
 #pragma warning restore 612, 618
         }
     }

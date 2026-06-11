@@ -25,7 +25,7 @@
                 <div class="alert alert-wadrning d-flex justify-content-between align-items-center mb-0 rounded-0" role="alert">
                     <span>
                         Vaš email je uspješno potvrđen, no da biste imali potpun pristup platformi potrebno je proći i
-                        <a asp-controller="Profil" asp-action="Index" class="alert-link">dodatni korak verifikacije</a>.
+                        <a asp-controller="Profil" asp-route-username=@user.UserName  asp-action="Index" class="alert-link">dodatni korak verifikacije</a>.
                     </span>
                 </div>
             }

@@ -38,7 +38,7 @@ namespace PopravkaBa.Infrastructure.Repositories
         {
             _context = context;
         }
-        
+
 
         public async Task<IEnumerable<OglasMajstora>> DajSveAsync()
             => await _context.OglasiMajstora
@@ -119,7 +119,7 @@ namespace PopravkaBa.Infrastructure.Repositories
             .AsSplitQuery()
             .FirstOrDefaultAsync(o => o.OglasID == id);
 
-        public async Task<IEnumerable<OglasUsluge>> DajSveAsync() => 
+        public async Task<IEnumerable<OglasUsluge>> DajSveAsync() =>
             await _context.OglasiUsluga
             .Include(o => o.VlasnikOglasa)
             .Include(o => o.Mjesto)
@@ -132,7 +132,7 @@ namespace PopravkaBa.Infrastructure.Repositories
         ISpecification<OglasUsluge> spec, int stranica, int stavkiPoStranici)
         {
             // Include Ponude so that BrojPrijava (= Ponude.Count) is correctly populated.
-            // VlasnikOglasa→Mjesta is NOT needed here (PretragaService only reads SkracenoIme/Slika).
+            // VlasnikOglasaΓåÆMjesta is NOT needed here (PretragaService only reads SkracenoIme/Slika).
             var query = _context.OglasiUsluga
                 .Include(o => o.VlasnikOglasa)
                 .Include(o => o.Mjesto)
@@ -162,7 +162,7 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(o => o.Notifikacije)
                 .Include(o => o.Ponude)
                 .OrderByDescending(o => o.DatumObjave)
-                // TODO: Dodati logiku za završen oglas i dodati WHERE uslov da se ne prikazuju završeni oglasi
+                // TODO: Dodati logiku za zavr┼íen oglas i dodati WHERE uslov da se ne prikazuju zavr┼íeni oglasi
                 .Where(o => o.StatusOglasa == Domain.Enums.Status.Aktivan)
                 .Take(topN)
                 .ToListAsync();
@@ -202,8 +202,8 @@ namespace PopravkaBa.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        // TODO: Dodati WHERE uslov kada obrazložimo logiku za izvršen oglas
-        public async Task<int> DajBrojZavrsenih() => 
+
+        public async Task<int> DajBrojZavrsenih() =>
             await _context.OglasiUsluga
                 .Where(o => o.StatusOglasa == Domain.Enums.Status.Isporuceno)
                 .CountAsync();
@@ -252,12 +252,11 @@ namespace PopravkaBa.Infrastructure.Repositories
         public async Task<StraniceniRezultat<OglasRadnoMjesto>> PronadjiAsync(
             ISpecification<OglasRadnoMjesto> spec, int stranica, int stavkiPoStranici)
         {
-            // PretragaService only reads VlasnikOglasa.DisplayName and .Slika — no need for Mjesta.
             var query = _context.OglasiRadnogMjesta
-                .Include(o => o.VlasnikOglasa)
-                .Include(o => o.Mjesto)
-                .Where(spec.ToExpression())
-                .AsNoTracking();
+                 .Include(o => o.VlasnikOglasa)
+                 .Include(o => o.Mjesto)
+                 .Where(spec.ToExpression())
+                 .AsNoTracking();
 
             var ukupno = await query.CountAsync();
 
@@ -308,7 +307,7 @@ namespace PopravkaBa.Infrastructure.Repositories
         public async Task ObrisiAsync(int id)
         {
             var oglas = await _context.OglasiRadnogMjesta.FindAsync(id);
-            if (oglas is not null) 
+            if (oglas is not null)
             {
                 _context.OglasiRadnogMjesta.Remove(oglas);
                 await _context.SaveChangesAsync();

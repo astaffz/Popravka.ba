@@ -1,5 +1,456 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model PopravkaBa.Web.Models.ViewModels.VerifikacijaFirmeViewModel
 @{
+    ViewData["Title"] = "Verifikacija firme - Popravka.ba";
+    bool verificirana = ViewBag.Verificirana == true;
+    bool naCekanju = ViewBag.ZahtjevNaCekanju == true;
+}
+
+<div class="verif-page">
+    <a asp-controller="Home" asp-action="Index" class="verif-back">&lt;- Povratak</a>
+
+    <div class="verif-wrapper">
+        <h1 class="verif-title">Verifikacija firme</h1>
+        <p class="verif-subtitle">
+            Popunite obrazac i prilo┼╛ite tra┼╛enu dokumentaciju. Va┼í zahtjev ─çe biti pregledan od strane
+            administratora i odgovor ─çete dobiti na e-mail adresu navedenu pri registraciji.
+        </p>
+
+        @if (TempData["Uspjeh"] is string uspjeh)
+        {
+            <div class="verif-banner verif-banner--success">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>@uspjeh</span>
+            </div>
+        }
+
+        @if (verificirana)
+        {
+            <div class="verif-banner verif-banner--success">
+                <i class="bi bi-patch-check-fill"></i>
+                <span>Vaša firma je već <strong>verificirana</strong>. Nije potrebno podnositi novi zahtjev.</span>
+            </div>
+        }
+        else if (naCekanju)
+        {
+            <div class="verif-banner">
+                <i class="bi bi-hourglass-split"></i>
+                <span>
+                    Vaš zahtjev podnesen <strong>@(((DateTime?)ViewBag.ZadnjiZahtjevDatum)?.ToString("dd.MM.yyyy."))</strong>
+                    je <strong>na ─ìekanju</strong>. Odgovor ─çete dobiti na e-mail.
+                </span>
+            </div>
+        }
+        else
+        {
+            <div class="verif-banner">
+                <i class="bi bi-info-circle"></i>
+                <span>
+                    Verifikacija obi─ìno traje <strong>1ΓÇô3 radna dana</strong>. Verificirane firme dobivaju oznaku i ve─çu vidljivost na
+                    platformi. Svi dokumenti se ─ìuvaju sigurno i koriste isklju─ìivo u svrhu verifikacije.
+                </span>
+            </div>
+
+            <form asp-controller="Verification" asp-action="Index" method="post" enctype="multipart/form-data" novalidate>
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="verif-validation-summary"></div>
+
+                <!-- 1. Podaci o firmi -->
+                <div class="verif-card">
+                    <div class="verif-card-header">
+                        <span class="verif-step">1</span>
+                        <h2>Podaci o firmi</h2>
+                    </div>
+                    <div class="verif-card-body">
+                        <div class="verif-field">
+                            <label asp-for="NazivFirme" class="verif-label">Naziv firme <em>*</em></label>
+                            <input asp-for="NazivFirme" class="verif-input" placeholder="npr. SaniChampi d.o.o." />
+                            <span asp-validation-for="NazivFirme" class="verif-greska"></span>
+                        </div>
+                        <div class="verif-row-2">
+                            <div class="verif-field">
+                                <label asp-for="JIB" class="verif-label">JIB (Jedinstveni identifikacijski broj) <em>*</em></label>
+                                <input asp-for="JIB" class="verif-input" placeholder="npr. 4201234560001" />
+                                <span asp-validation-for="JIB" class="verif-greska"></span>
+                            </div>
+                            <div class="verif-field">
+                                <label asp-for="PDVBroj" class="verif-label">PDV broj <small>(ako je primjenjivo)</small></label>
+                                <input asp-for="PDVBroj" class="verif-input" placeholder="npr. BA201234560001" />
+                                <span asp-validation-for="PDVBroj" class="verif-greska"></span>
+                            </div>
+                        </div>
+                        <div class="verif-field">
+                            <label asp-for="SjedisteFirme" class="verif-label">SjediŠíte firme <em>*</em></label>
+                            <input asp-for="SjedisteFirme" class="verif-input" placeholder="npr. Maršala Tita 14, 75000 Tuzla, BiH" />
+                            <span asp-validation-for="SjedisteFirme" class="verif-greska"></span>
+                        </div>
+                        <div class="verif-row-2">
+                            <div class="verif-field">
+                                <label asp-for="KontaktTelefon" class="verif-label">Kontakt telefon <em>*</em></label>
+                                <input asp-for="KontaktTelefon" class="verif-input" placeholder="+387 35 000 000" />
+                                <span asp-validation-for="KontaktTelefon" class="verif-greska"></span>
+                            </div>
+                            <div class="verif-field">
+                                <label asp-for="WebStranica" class="verif-label">Web stranica <small>(opcionalno)</small></label>
+                                <input asp-for="WebStranica" class="verif-input" placeholder="https://sanichampidoo.ba" />
+                                <span asp-validation-for="WebStranica" class="verif-greska"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Odgovorna osoba -->
+                <div class="verif-card">
+                    <div class="verif-card-header">
+                        <span class="verif-step">2</span>
+                        <h2>Odgovorna osoba</h2>
+                    </div>
+                    <div class="verif-card-body">
+                        <div class="verif-row-2">
+                            <div class="verif-field">
+                                <label asp-for="OdgovornaOsobaIme" class="verif-label">Ime <em>*</em></label>
+                                <input asp-for="OdgovornaOsobaIme" class="verif-input" placeholder="npr. Amir" />
+                                <span asp-validation-for="OdgovornaOsobaIme" class="verif-greska"></span>
+                            </div>
+                            <div class="verif-field">
+                                <label asp-for="OdgovornaOsobaPrezime" class="verif-label">Prezime <em>*</em></label>
+                                <input asp-for="OdgovornaOsobaPrezime" class="verif-input" placeholder="npr. Džafić jr." />
+                                <span asp-validation-for="OdgovornaOsobaPrezime" class="verif-greska"></span>
+                            </div>
+                        </div>
+                        <div class="verif-row-2">
+                            <div class="verif-field">
+                                <label asp-for="OdgovornaOsobaPozicija" class="verif-label">Pozicija <em>*</em></label>
+                                <input asp-for="OdgovornaOsobaPozicija" class="verif-input" placeholder="npr. Direktor, Vlasnik" />
+                                <span asp-validation-for="OdgovornaOsobaPozicija" class="verif-greska"></span>
+                            </div>
+                            <div class="verif-field">
+                                <label asp-for="OdgovornaOsobaTelefon" class="verif-label">Mobilni telefon <em>*</em></label>
+                                <input asp-for="OdgovornaOsobaTelefon" class="verif-input" placeholder="+387 61 000 000" />
+                                <span asp-validation-for="OdgovornaOsobaTelefon" class="verif-greska"></span>
+                            </div>
+                        </div>
+                        <div class="verif-field">
+                            <label asp-for="OdgovornaOsobaEmail" class="verif-label">E-mail <em>*</em></label>
+                            <input asp-for="OdgovornaOsobaEmail" class="verif-input" placeholder="amir@sanichampidoo.ba" />
+                            <span asp-validation-for="OdgovornaOsobaEmail" class="verif-greska"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Dokumentacija -->
+                <div class="verif-card">
+                    <div class="verif-card-header">
+                        <span class="verif-step">3</span>
+                        <h2>Dokumentacija</h2>
+                    </div>
+                    <div class="verif-card-body">
+                        <div class="verif-row-2">
+                            <div class="verif-field">
+                                <label class="verif-label">Rješenje o registraciji <em>*</em></label>
+                                <label class="verif-drop" data-drop>
+                                    <input asp-for="RjesenjeFajl" type="file" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                                    <i class="bi bi-upload"></i>
+                                    <span class="verif-drop-text">Kliknite za upload</span>
+                                    <small>PDF, JPG, PNG: max 10MB</small>
+                                </label>
+                                <span asp-validation-for="RjesenjeFajl" class="verif-greska"></span>
+                            </div>
+                            <div class="verif-field">
+                                <label class="verif-label">Uvjerenje o poreznoj registraciji <em>*</em></label>
+                                <label class="verif-drop" data-drop>
+                                    <input asp-for="PoreznoUvjerenjeFajl" type="file" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                                    <i class="bi bi-upload"></i>
+                                    <span class="verif-drop-text">Kliknite za upload</span>
+                                    <small>PDF, JPG, PNG: max 10MB</small>
+                                </label>
+                                <span asp-validation-for="PoreznoUvjerenjeFajl" class="verif-greska"></span>
+                            </div>
+                            <div class="verif-field">
+                                <label class="verif-label">Licenca / certifikat djelatnosti <small>(opcionalno)</small></label>
+                                <label class="verif-drop" data-drop>
+                                    <input asp-for="LicencaFajl" type="file" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                                    <i class="bi bi-upload"></i>
+                                    <span class="verif-drop-text">Kliknite za upload</span>
+                                    <small>PDF, JPG, PNG: max 10MB</small>
+                                </label>
+                                <span asp-validation-for="LicencaFajl" class="verif-greska"></span>
+                            </div>
+                            <div class="verif-field">
+                                <label class="verif-label">Logo firme <em>*</em></label>
+                                <label class="verif-drop" data-drop>
+                                    <input asp-for="LogoFajl" type="file" accept=".jpg,.jpeg,.png" hidden />
+                                    <i class="bi bi-image"></i>
+                                    <span class="verif-drop-text">Kliknite za upload</span>
+                                    <small>JPG, PNG: max 5MB</small>
+                                </label>
+                                <span asp-validation-for="LogoFajl" class="verif-greska"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Potvrda + akcije -->
+                <div class="verif-card verif-footer-card">
+                    <label class="verif-check">
+                        <input asp-for="Potvrda" type="checkbox" />
+                        <span>
+                            Potvrđujem da su svi navedeni podaci i dokumenti tačni te da sam ovlašten/a nastupati u ime firme.
+                        
+                        </span>
+                    </label>
+                    <span asp-validation-for="Potvrda" class="verif-greska"></span>
+
+                    <div class="verif-actions">
+                        <a asp-controller="Home" asp-action="Index" class="verif-btn-odustani">Odustani</a>
+                        <button type="submit" class="verif-btn-posalji">
+                            <i class="bi bi-send"></i> Pošalji zahtjev
+                        </button>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+<style>
+    .verif-page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 3rem;
+    }
+
+    .verif-back {
+        display: inline-block;
+        color: var(--brand-blue, #1e6fe0);
+        font-weight: 600;
+        text-decoration: none;
+        margin-bottom: 1rem;
+    }
+    .verif-back:hover { text-decoration: underline; }
+
+    .verif-wrapper {
+        max-width: 780px;
+        margin: 0 auto;
+        background: #f8f9fb;
+        border-radius: 12px;
+        padding: 2rem 2rem 2.5rem;
+    }
+
+    .verif-title {
+        font-family: var(--font-heading, 'Poppins'), sans-serif;
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--brand-blue, #1e6fe0);
+        margin-bottom: .4rem;
+    }
+    .verif-subtitle {
+        color: var(--text-secondary, #4b5563);
+        font-size: .95rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .verif-banner {
+        display: flex;
+        gap: .65rem;
+        align-items: flex-start;
+        background: #eaf1fc;
+        border: 1px solid #c8dbf7;
+        border-radius: 10px;
+        padding: .85rem 1rem;
+        font-size: .9rem;
+        color: #1e3a8a;
+        margin-bottom: 1.5rem;
+    }
+    .verif-banner .bi { font-size: 1.05rem; flex-shrink: 0; margin-top: .1rem; }
+    .verif-banner--success {
+        background: #ecfdf5;
+        border-color: #a7f3d0;
+        color: #065f46;
+    }
+
+    .verif-validation-summary ul { list-style: none; margin: 0 0 1rem; padding: 0; }
+    .verif-validation-summary li { color: #dc2626; font-size: .875rem; }
+
+    /* ===== Cards ===== */
+    .verif-card {
+        background: #fff;
+        border: 1px solid var(--border-light, #e5e7eb);
+        border-radius: 12px;
+        margin-bottom: 1.25rem;
+        overflow: hidden;
+    }
+    .verif-card-header {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-light, #e5e7eb);
+        background: #fbfcfe;
+    }
+    .verif-card-header h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-primary, #1f2937);
+    }
+    .verif-step {
+        width: 26px; height: 26px;
+        border-radius: 50%;
+        background: var(--brand-blue, #1e6fe0);
+        color: #fff;
+        font-size: .85rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .verif-card-body { padding: 1.25rem 1.5rem 1.5rem; }
+
+    /* ===== Fields ===== */
+    .verif-field { margin-bottom: 1rem; }
+    .verif-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    @@media (max-width: 575px) {
+        .verif-row-2 { grid-template-columns: 1fr; }
+    }
+
+    .verif-label {
+        display: block;
+        font-size: .85rem;
+        font-weight: 600;
+        color: var(--text-primary, #1f2937);
+        margin-bottom: .35rem;
+    }
+    .verif-label em { color: #dc2626; font-style: normal; }
+    .verif-label small { color: var(--text-muted, #6b7280); font-weight: 400; }
+
+    .verif-input {
+        width: 100%;
+        padding: .55rem .8rem;
+        border: 1px solid var(--border-light, #e5e7eb);
+        border-radius: 8px;
+        font-size: .9rem;
+        font-family: inherit;
+        color: var(--text-primary, #1f2937);
+        outline: none;
+        transition: border-color .15s ease, box-shadow .15s ease;
+        background: #fff;
+    }
+    .verif-input::placeholder { color: #9ca3af; }
+    .verif-input:focus {
+        border-color: var(--brand-blue, #1e6fe0);
+        box-shadow: 0 0 0 3px rgba(30,111,224,.12);
+    }
+
+    .verif-greska {
+        display: block;
+        color: #dc2626;
+        font-size: .78rem;
+        margin-top: .3rem;
+    }
+
+    /* ===== Upload boxes ===== */
+    .verif-drop {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: .3rem;
+        min-height: 130px;
+        border: 1.5px dashed #c3d3ee;
+        border-radius: 10px;
+        background: #fff;
+        color: var(--text-muted, #6b7280);
+        text-align: center;
+        cursor: pointer;
+        padding: 1rem;
+        transition: border-color .15s ease, background .15s ease;
+    }
+    .verif-drop:hover { border-color: var(--brand-blue, #1e6fe0); background: #f6faff; }
+    .verif-drop .bi { font-size: 1.4rem; color: #8aa9d8; }
+    .verif-drop-text { font-size: .875rem; font-weight: 600; }
+    .verif-drop small { font-size: .72rem; }
+    .verif-drop.has-file {
+        border-style: solid;
+        border-color: var(--brand-blue, #1e6fe0);
+        background: #f6faff;
+        color: var(--text-primary, #1f2937);
+    }
+
+    /* ===== Footer card ===== */
+    .verif-footer-card { padding: 1.25rem 1.5rem; }
+    .verif-check {
+        display: flex;
+        gap: .6rem;
+        align-items: flex-start;
+        font-size: .85rem;
+        color: var(--text-secondary, #4b5563);
+        cursor: pointer;
+    }
+    .verif-check input { margin-top: .2rem; flex-shrink: 0; }
+    .verif-check a { color: var(--brand-blue, #1e6fe0); font-weight: 600; text-decoration: none; }
+    .verif-check a:hover { text-decoration: underline; }
+
+    .verif-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: .75rem;
+        margin-top: 1.1rem;
+    }
+    .verif-btn-odustani {
+        padding: .55rem 1.25rem;
+        border: 1px solid var(--border-light, #e5e7eb);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--text-primary, #1f2937);
+        font-weight: 600;
+        font-size: .9rem;
+        text-decoration: none;
+        transition: background .15s ease;
+    }
+    .verif-btn-odustani:hover { background: #f3f4f6; color: var(--text-primary, #1f2937); }
+    .verif-btn-posalji {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        padding: .55rem 1.4rem;
+        border: 0;
+        border-radius: 8px;
+        background: var(--brand-blue, #1e6fe0);
+        color: #fff;
+        font-weight: 700;
+        font-size: .9rem;
+        cursor: pointer;
+        transition: background .15s ease;
+    }
+    .verif-btn-posalji:hover { background: var(--brand-blue-hover, #1a5fc4); }
+</style>
+
+@section Scripts {
+    <script>
+        // Trim na svim tekstualnim poljima: sprije─ìi vode─çe razmake pri unosu, obre┼╛i pri napu┼ítanju polja.
+        document.querySelectorAll('.verif-input').forEach(input => {
+            input.addEventListener('input', () => { input.value = input.value.trimStart(); });
+            input.addEventListener('blur', () => { input.value = input.value.trim(); });
+        });
+
+        document.querySelectorAll('label[data-drop]').forEach(drop => {
+            const input = drop.querySelector('input[type="file"]');
+            const text = drop.querySelector('.verif-drop-text');
+            const original = text.textContent;
+            input.addEventListener('change', () => {
+                if (input.files && input.files.length) {
+                    text.textContent = input.files[0].name;
+                    drop.classList.add('has-file');
+                } else {
+                    text.textContent = original;
+                    drop.classList.remove('has-file');
+                }
+            });
+        });
+    </script>
 }

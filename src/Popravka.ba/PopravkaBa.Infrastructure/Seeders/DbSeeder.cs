@@ -433,7 +433,7 @@ public class DbSeeder
         string adminEmail = _appConfig["SeedData:AdminEmail"];
         string adminUser = _appConfig["SeedData:AdminUsername"];
 
-        if (await _userManager.FindByEmailAsync(adminEmail) == null)
+        if (await _userManager.FindByNameAsync(adminUser) == null)
         {
             var admin = new Administrator
             {
@@ -582,7 +582,7 @@ public class DbSeeder
             ime: "Alen", prezime: "Pašić",
             opis: "Moler, dekorater i stručnjak za dekorativne tehnike zidova.",
             password: "Majstor#1234",
-            kategorije: new[] { "Moleraj i farbanje"},
+            kategorije: new[] { "Moleraj i farbanje" },
             mjesta: new[] { "Brčko", "Bijeljina" },
             minCijena: 21, ocjena: 4.3m, zavrsenih: 37);
 
@@ -1084,10 +1084,10 @@ public class DbSeeder
             var rmKatMapa = new Dictionary<string, string[]>
             {
                 ["Tražimo iskusnog keramičara / moleraja"] = new[] { "Keramičke usluge", "Moleraj i farbanje" },
-                ["Fasader — projektni angažman"]            = new[] { "Fasaderski radovi", "Izolacijski radovi" },
-                ["Elektroinstalater — puno radno vrijeme"]  = new[] { "Elektroinstalacije" },
-                ["Solarni tehničar — praksa / junior"]      = new[] { "Solarni paneli" },
-                ["Vodoinstalater — honorarni angažman"]     = new[] { "Vodoinstalaterske usluge" },
+                ["Fasader — projektni angažman"] = new[] { "Fasaderski radovi", "Izolacijski radovi" },
+                ["Elektroinstalater — puno radno vrijeme"] = new[] { "Elektroinstalacije" },
+                ["Solarni tehničar — praksa / junior"] = new[] { "Solarni paneli" },
+                ["Vodoinstalater — honorarni angažman"] = new[] { "Vodoinstalaterske usluge" },
             };
 
             var rmKat = new List<OglasKategorija>();

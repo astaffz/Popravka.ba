@@ -1,131 +1,757 @@
 @model PopravkaBa.Web.Models.ViewModels.ProfilViewModel
 @using PopravkaBa.Domain.Enums
 @{
-    ViewData["Title"] = Model.DisplayName + " – Profil";
+    ViewData["Title"] = Model.DisplayName + " - Profil";
+    bool jeIzvrsilac = Model.Uloga == "Majstor" || Model.Uloga == "Firma";
+    bool jeKlijent = Model.Uloga == "Klijent";
 
     string tipIsplateLabel(TipIsplate t) => t switch
     {
         TipIsplate.PoSatu      => "/h",
-        TipIsplate.Jednokratno => " fiksno",
+        TipIsplate.Jednokratno => "",
         TipIsplate.Sedmicno    => "/sedm.",
         TipIsplate.Mjesecno    => "/mj.",
         _ => ""
     };
 
-    string ulogaLabel(string u) => u switch
+    string statusLabel(Status s) => s switch
     {
-        "Majstor"       => "Majstor",
-        "Firma"         => "Firma",
-        "Klijent"       => "Klijent",
-        "Administrator" => "Administrator",
-        _               => u
+        Status.Aktivan    => "Aktivan",
+        Status.Neaktivan  => "Zatvoren",
+        Status.Isporuceno => "Završen",
+        _ => s.ToString()
     };
 }
 
-<div class="container mt-4 mb-5">
+<div class="profil-page">
 
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Početna</a></li>
-            <li class="breadcrumb-item active">Profil</li>
-        </ol>
-    </nav>
-
-    <div class="row g-4">
-
-        <!-- Lijeva kolona: avatar + info -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4 text-center">
+    @if (jeIzvrsilac)
+    {
+        <!-- ===================== IZVR┼áILAC (Majstor / Firma) ===================== -->
+        <div class="profil-hero-card">
+            <div class="profil-banner"></div>
+            <div class="profil-hero-body">
+                <div class="profil-hero-main">
                     @if (!string.IsNullOrEmpty(Model.Slika))
                     {
-                        <img src="@Model.Slika" alt="@Model.DisplayName"
-                             class="rounded-circle mb-3" style="width:96px;height:96px;object-fit:cover;" />
+                        <img src="@Model.Slika" alt="@Model.DisplayName" class="profil-avatar" />
                     }
                     else
                     {
-                        <span class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center mx-auto mb-3"
-                              style="width:96px;height:96px;font-size:3rem;color:#6c757d;">
-                            <i class="fa-solid fa-circle-user"></i>
-                        </span>
+                        <span class="profil-avatar profil-avatar--fallback"><i class="bi bi-person-fill"></i></span>
                     }
-                    <h4 class="fw-bold mb-1">@Model.DisplayName</h4>
-                    <p class="text-muted small mb-2">@@@Model.Username</p>
-                    <span class="badge bg-primary-subtle text-primary px-3 py-1">@ulogaLabel(Model.Uloga)</span>
-                    <p class="text-muted small mt-3 mb-0">
-                        <i class="fa-regular fa-calendar me-1"></i>
-                        Član od @Model.DatumRegistracije.ToString("MMMM yyyy.")
-                    </p>
+                    <div class="profil-hero-info">
+                        <h1>
+                            @Model.DisplayName
+                            @if (Model.JeVerificiran)
+                            {
+                                <i class="bi bi-patch-check-fill profil-verified" title="Verificiran nalog"></i>
+                            }
+                        </h1>
+                        @if (!string.IsNullOrEmpty(Model.Zanimanje))
+                        {
+                            <p class="profil-zanimanje">@Model.Zanimanje</p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Lokacija))
+                        {
+                            <p class="profil-lokacija"><i class="bi bi-geo-alt"></i> @Model.Lokacija</p>
+                        }
+                    </div>
+                    <div class="profil-hero-akcije">
+                        @if (Model.JeVlasnik && Model.Uloga == "Firma" && !Model.JeVerificiran)
+                        {
+                            <a asp-controller="Verification" asp-action="Index" class="profil-btn profil-btn--outline">
+                                <i class="bi bi-patch-check"></i> Verifikuj firmu
+                            </a>
+                        }
+                        @if (!Model.JeVlasnik && !string.IsNullOrEmpty(Model.Email))
+                        {
+                            <a href="mailto:@Model.Email" class="profil-btn profil-btn--primary">Kontaktiraj</a>
+                        }
+                    </div>
+                </div>
+                <div class="profil-stats">
+                    <div class="profil-stat">
+                        <span class="profil-stat-value"><i class="bi bi-star-fill profil-star"></i> @Model.ProsjecnaOcjena.ToString("0.0")</span>
+                        <span class="profil-stat-label">Ocjena</span>
+                    </div>
+                    <div class="profil-stat">
+                        <span class="profil-stat-value">@Model.BrojRecenzija</span>
+                        <span class="profil-stat-label">Recenzija</span>
+                    </div>
+                    <div class="profil-stat">
+                        <span class="profil-stat-value">@Model.BrojZavrsenihPoslova</span>
+                        <span class="profil-stat-label">Poslova</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Desna kolona: sadržaj -->
-        <div class="col-lg-8">
+        <div class="profil-grid">
+            <div class="profil-col-main">
 
-            @if ((Model.Uloga == "Majstor" || Model.Uloga == "Firma") && Model.OglasiMajstora.Any())
-            {
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fw-semibold">
-                            <i class="fa-solid fa-briefcase me-2 text-primary"></i>
-                            Oglasi usluga (@Model.OglasiMajstora.Count)
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
+                <div class="profil-card">
+                    <h2 class="profil-card-title">O meni</h2>
+                    @if (!string.IsNullOrWhiteSpace(Model.Opis))
+                    {
+                        <p class="profil-opis">@Model.Opis</p>
+                    }
+                    else
+                    {
+                        <p class="profil-prazno">Korisnik još  nije dodao opis.</p>
+                    }
+                </div>
+
+                <div class="profil-card">
+                    <h2 class="profil-card-title">Vještine i usluge</h2>
+                    @if (Model.Vjestine.Any())
+                    {
+                        <div class="profil-chips">
+                            @foreach (var v in Model.Vjestine)
+                            {
+                                <span class="profil-chip">@v</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="profil-prazno">Nema unesenih vještina.</p>
+                    }
+                </div>
+
+                <div class="profil-card">
+                    <h2 class="profil-card-title">Opći oglas usluga</h2>
+                    @if (Model.OglasiMajstora.Any())
+                    {
+                        <div class="profil-oglasi">
                             @foreach (var oglas in Model.OglasiMajstora)
                             {
-                                <li class="list-group-item p-3">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <a asp-controller="OglasMajstora" asp-action="Detalji" asp-route-id="@oglas.OglasId"
-                                               class="fw-semibold text-decoration-none text-body">@oglas.Naslov</a>
-                                            @if (oglas.Kategorije.Any())
-                                            {
-                                                <div class="mt-1">
-                                                    @foreach (var kat in oglas.Kategorije)
-                                                    {
-                                                        <span class="badge bg-primary-subtle text-primary me-1 small">@kat</span>
-                                                    }
-                                                </div>
-                                            }
+                                <a asp-controller="OglasMajstora" asp-action="Detalji" asp-route-id="@oglas.OglasId" class="profil-oglas">
+                                    <span class="profil-oglas-thumb"><i class="bi bi-image"></i></span>
+                                    <span class="profil-oglas-info">
+                                        <strong>@oglas.Naslov</strong>
+                                        @if (!string.IsNullOrWhiteSpace(oglas.Opis))
+                                        {
+                                            <span class="profil-oglas-opis">@oglas.Opis</span>
+                                        }
+                                        <span class="profil-oglas-meta">
+                                            <span class="profil-oglas-cijena">
+                                                @(oglas.MinCijena > 0 ? $"Od {oglas.MinCijena:F0} KM{tipIsplateLabel(oglas.TipIsplate)}" : "Po dogovoru")
+                                            </span>
                                             @if (!string.IsNullOrEmpty(oglas.Lokacija))
                                             {
-                                                <small class="text-muted"><i class="fa-solid fa-location-dot me-1"></i>@oglas.Lokacija</small>
+                                                <span class="profil-oglas-lokacija"><i class="bi bi-geo-alt"></i> @oglas.Lokacija</span>
                                             }
-                                        </div>
-                                        <div class="text-end ms-3 flex-shrink-0">
-                                            <span class="fw-bold text-primary">
-                                                od @oglas.MinCijena.ToString("F0") KM@(tipIsplateLabel(oglas.TipIsplate))
-                                            </span>
-                                        </div>
-                                    </div>
-                                </li>
+                                        </span>
+                                    </span>
+                                </a>
                             }
-                        </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="profil-prazno">Još nema objavljenih oglasa usluga.</p>
+                    }
+                </div>
+
+                <div class="profil-card">
+                    <div class="profil-card-head">
+                        <h2 class="profil-card-title">Recenzije klijenata</h2>
+                        @if (Model.Recenzije.Any())
+                        {
+                            <a asp-controller="Recenzija" asp-action="Index" asp-route-izvrsilacId="@Model.UserId" class="profil-link">Pogledaj sve ΓÇö</a>
+                        }
+                    </div>
+                    @if (Model.Recenzije.Any())
+                    {
+                        @foreach (var r in Model.Recenzije.Take(3))
+                        {
+                            <div class="profil-recenzija">
+                                <div class="profil-recenzija-head">
+                                    <span class="profil-recenzija-avatar">
+                                        @if (!string.IsNullOrEmpty(r.KlijentSlika))
+                                        {
+                                            <img src="@r.KlijentSlika" alt="@r.KlijentIme" />
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-person-fill"></i>
+                                        }
+                                    </span>
+                                    <div class="profil-recenzija-meta">
+                                        <strong>@r.KlijentIme</strong>
+                                        <small>@r.Datum.ToString("dd.MM.yyyy.")</small>
+                                    </div>
+                                    <div class="profil-recenzija-zvjezdice">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="bi @(i <= r.Ocjena ? "bi-star-fill" : "bi-star")"></i>
+                                        }
+                                    </div>
+                                </div>
+                                <p class="profil-recenzija-tekst">@r.Komentar</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="profil-prazno">Još nema recenzija.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="profil-col-side">
+                <div class="profil-card">
+                    <h2 class="profil-card-title">Portfolio</h2>
+                    <div class="profil-portfolio">
+                        @if (Model.PortfolioSlike.Any())
+                        {
+                            @foreach (var slika in Model.PortfolioSlike)
+                            {
+                                <img src="@slika" alt="Portfolio" class="profil-portfolio-slika" />
+                            }
+                        }
+                        else
+                        {
+                            @for (int i = 0; i < 4; i++)
+                            {
+                                <span class="profil-portfolio-placeholder"><i class="bi bi-image"></i></span>
+                            }
+                        }
                     </div>
                 </div>
+            </div>
+        </div>
+    }
+    else if (jeKlijent && Model.JeVlasnik)
+    {
+        <!-- ===================== KLIJENT (vlasnik) ===================== -->
+        <div class="profil-klijent-header">
+            <div class="profil-klijent-info">
+                @if (!string.IsNullOrEmpty(Model.Slika))
+                {
+                    <img src="@Model.Slika" alt="@Model.DisplayName" class="profil-avatar profil-avatar--sm" />
+                }
+                else
+                {
+                    <span class="profil-avatar profil-avatar--sm profil-avatar--fallback"><i class="bi bi-person-fill"></i></span>
+                }
+                <div>
+                    <h1 class="profil-klijent-ime">@Model.DisplayName</h1>
+                    <div class="profil-klijent-meta">
+                        @if (!string.IsNullOrEmpty(Model.Lokacija))
+                        {
+                            <span><i class="bi bi-geo-alt"></i> @Model.Lokacija</span>
+                        }
+                        <span><i class="bi bi-calendar3"></i> Član od @Model.DatumRegistracije.ToString("MMM yyyy.")</span>
+                        @if (!string.IsNullOrEmpty(Model.Email))
+                        {
+                            <span><i class="bi bi-envelope"></i> @Model.Email</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="profil-klijent-stats">
+                <div class="profil-stat">
+                    <span class="profil-stat-value profil-stat-value--blue">@Model.BrojAktivnihOglasa</span>
+                    <span class="profil-stat-label">Aktivnih</span>
+                </div>
+                <div class="profil-stat">
+                    <span class="profil-stat-value">@Model.BrojZatvorenihOglasa</span>
+                    <span class="profil-stat-label">Zatvorenih</span>
+                </div>
+                <div class="profil-stat">
+                    <span class="profil-stat-value profil-stat-value--green">@Model.BrojZavrsenihOglasa</span>
+                    <span class="profil-stat-label">Zavr┼íenih</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profil-moji-head">
+            <h2>Moji oglasi</h2>
+            <a asp-controller="ObjaviOglas" asp-action="Index" class="profil-btn profil-btn--primary">
+                <i class="bi bi-plus-lg"></i> Novi oglas
+            </a>
+        </div>
+
+        <div class="profil-tabs">
+            <button type="button" class="profil-tab active" data-tab="aktivni">
+                Aktivni <span class="profil-tab-broj">@Model.BrojAktivnihOglasa</span>
+            </button>
+            <button type="button" class="profil-tab" data-tab="zatvoreni">
+                Zatvoreni <span class="profil-tab-broj">@(Model.BrojZatvorenihOglasa + Model.BrojZavrsenihOglasa)</span>
+            </button>
+        </div>
+
+        <div id="panel-aktivni" class="profil-tab-panel">
+            @{
+                var aktivni = Model.OglasiUsluge.Where(o => o.Status == Status.Aktivan).ToList();
             }
-            else if (Model.Uloga == "Majstor" || Model.Uloga == "Firma")
+            @if (aktivni.Any())
             {
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-4 text-center text-muted">
-                        <i class="fa-solid fa-inbox fa-2x mb-2 d-block"></i>
-                        Ovaj korisnik još nema objavljenih oglasa usluga.
-                    </div>
-                </div>
+                @foreach (var oglas in aktivni)
+                {
+                    @await Html.PartialAsync("_ProfilOglasKartica", oglas)
+                }
             }
             else
             {
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body p-4 text-center text-muted">
-                        <i class="fa-solid fa-user fa-2x mb-2 d-block"></i>
-                        Javni dio profila ovog korisnika nije dostupan.
-                    </div>
-                </div>
+                <div class="profil-card profil-prazno-card">Nemate aktivnih oglasa.</div>
             }
-
         </div>
-    </div>
+
+        <div id="panel-zatvoreni" class="profil-tab-panel" style="display:none;">
+            @{
+                var zatvoreni = Model.OglasiUsluge.Where(o => o.Status != Status.Aktivan).ToList();
+            }
+            @if (zatvoreni.Any())
+            {
+                @foreach (var oglas in zatvoreni)
+                {
+                    @await Html.PartialAsync("_ProfilOglasKartica", oglas)
+                }
+            }
+            else
+            {
+                <div class="profil-card profil-prazno-card">Nemate zatvorenih oglasa.</div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- ===================== Ostali / tu─æi klijent profil ===================== -->
+        <div class="profil-card profil-osnovna-kartica">
+            @if (!string.IsNullOrEmpty(Model.Slika))
+            {
+                <img src="@Model.Slika" alt="@Model.DisplayName" class="profil-avatar profil-avatar--sm" />
+            }
+            else
+            {
+                <span class="profil-avatar profil-avatar--sm profil-avatar--fallback"><i class="bi bi-person-fill"></i></span>
+            }
+            <h1 class="profil-klijent-ime">@Model.DisplayName</h1>
+            <p class="profil-prazno">@@@Model.Username ┬╖ ─îlan od @Model.DatumRegistracije.ToString("MMMM yyyy.")</p>
+            <p class="profil-prazno">Javni dio profila ovog korisnika nije dostupan.</p>
+        </div>
+    }
 </div>
+
+<style>
+    .profil-page {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 3rem;
+        font-family: var(--font-body, 'Plus Jakarta Sans'), sans-serif;
+    }
+
+    /* ===== Hero (izvr┼íilac) ===== */
+    .profil-hero-card {
+        background: #fff;
+        border: 1px solid var(--border-light, #e5e7eb);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .profil-banner {
+        height: 150px;
+        background: linear-gradient(110deg, #1e6fe0 0%, #1e3a8a 75%, #16265c 100%);
+    }
+    .profil-hero-body { padding: 0 1.75rem 1.25rem; }
+    .profil-hero-main {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.25rem;
+        margin-top: -42px;
+        flex-wrap: wrap;
+    }
+
+    .profil-avatar {
+        width: 96px; height: 96px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        background: #e5e7eb;
+        flex-shrink: 0;
+        box-shadow: 0 1px 4px rgba(0,0,0,.12);
+    }
+    .profil-avatar--fallback {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 2.6rem;
+    }
+    .profil-avatar--sm { width: 72px; height: 72px; font-size: 2rem; }
+
+    .profil-hero-info { padding-top: 50px; flex: 1; min-width: 220px; }
+    .profil-hero-info h1 {
+        font-size: 1.45rem;
+        font-weight: 800;
+        margin: 0 0 .15rem;
+        color: var(--text-primary, #1f2937);
+        display: flex;
+        align-items: center;
+        gap: .45rem;
+    }
+    .profil-verified { color: #374151; font-size: 1.1rem; }
+    .profil-zanimanje { margin: 0; color: var(--text-muted, #6b7280); font-size: .95rem; }
+    .profil-lokacija { margin: .2rem 0 0; color: var(--text-muted, #6b7280); font-size: .875rem; }
+
+    .profil-hero-akcije {
+        padding-top: 56px;
+        display: flex;
+        gap: .6rem;
+        flex-shrink: 0;
+    }
+
+    .profil-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .5rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: .9rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background .15s ease;
+        border: 0;
+    }
+    .profil-btn--primary { background: var(--brand-blue, #1e6fe0); color: #fff; }
+    .profil-btn--primary:hover { background: var(--brand-blue-hover, #1a5fc4); color: #fff; }
+    .profil-btn--outline {
+        background: #fff;
+        border: 1px solid var(--border-light, #e5e7eb);
+        color: var(--text-primary, #1f2937);
+    }
+    .profil-btn--outline:hover { background: #f3f4f6; color: var(--text-primary, #1f2937); }
+
+    .profil-stats {
+        display: flex;
+        gap: 2.5rem;
+        margin-top: 1.1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f0f1f3;
+        flex-wrap: wrap;
+    }
+    .profil-stat { display: flex; flex-direction: column; }
+    .profil-stat-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-primary, #1f2937);
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+    }
+    .profil-stat-value--blue { color: var(--brand-blue, #1e6fe0); }
+    .profil-stat-value--green { color: #16a34a; }
+    .profil-star { color: var(--brand-blue, #1e6fe0); font-size: 1rem; }
+    .profil-stat-label { font-size: .78rem; color: var(--text-muted, #6b7280); }
+
+    /* ===== Grid + cards ===== */
+    .profil-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    @@media (max-width: 900px) {
+        .profil-grid { grid-template-columns: 1fr; }
+    }
+
+    .profil-card {
+        background: #fff;
+        border: 1px solid var(--border-light, #e5e7eb);
+        border-radius: 12px;
+        padding: 1.4rem 1.6rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .profil-card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: .5rem;
+    }
+    .profil-card-head .profil-card-title { margin-bottom: 0; }
+    .profil-card-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary, #1f2937);
+        margin-bottom: .8rem;
+    }
+    .profil-link {
+        color: var(--brand-blue, #1e6fe0);
+        font-size: .875rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .profil-link:hover { text-decoration: underline; }
+    .profil-opis { color: var(--text-secondary, #4b5563); font-size: .925rem; line-height: 1.65; margin: 0; }
+    .profil-prazno { color: var(--text-muted, #6b7280); font-size: .9rem; margin: 0; }
+    .profil-prazno-card { text-align: center; color: var(--text-muted, #6b7280); }
+
+    /* Chips */
+    .profil-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .profil-chip {
+        padding: .3rem .85rem;
+        border: 1px solid #bfd5f6;
+        border-radius: 999px;
+        background: #f3f8ff;
+        color: var(--brand-blue, #1e6fe0);
+        font-size: .82rem;
+        font-weight: 600;
+    }
+
+    /* Oglasi (izvr┼íilac) */
+    .profil-oglasi { display: flex; flex-direction: column; gap: .9rem; }
+    .profil-oglas {
+        display: flex;
+        gap: 1rem;
+        border: 1px solid var(--border-light, #e5e7eb);
+        border-radius: 10px;
+        padding: .9rem;
+        text-decoration: none;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .profil-oglas:hover { border-color: var(--brand-blue, #1e6fe0); box-shadow: 0 2px 10px rgba(30,111,224,.08); }
+    .profil-oglas-thumb {
+        width: 86px; height: 86px;
+        border-radius: 8px;
+        background: #eef2f9;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #9db1d6;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+    .profil-oglas-info { display: flex; flex-direction: column; gap: .25rem; min-width: 0; flex: 1; }
+    .profil-oglas-info strong { color: var(--text-primary, #1f2937); font-size: .95rem; }
+    .profil-oglas-opis {
+        color: var(--text-muted, #6b7280);
+        font-size: .84rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .profil-oglas-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        gap: 1rem;
+    }
+    .profil-oglas-cijena { color: var(--brand-blue, #1e6fe0); font-weight: 700; font-size: .9rem; }
+    .profil-oglas-lokacija { color: var(--text-muted, #6b7280); font-size: .8rem; }
+
+    /* Recenzije */
+    .profil-recenzija { border-top: 1px solid #f0f1f3; padding: .9rem 0 .2rem; }
+    .profil-recenzija:first-of-type { border-top: 0; }
+    .profil-recenzija-head { display: flex; align-items: center; gap: .65rem; }
+    .profil-recenzija-avatar {
+        width: 38px; height: 38px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .profil-recenzija-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profil-recenzija-meta { display: flex; flex-direction: column; }
+    .profil-recenzija-meta strong { font-size: .9rem; color: var(--text-primary, #1f2937); }
+    .profil-recenzija-meta small { color: var(--text-muted, #6b7280); font-size: .75rem; }
+    .profil-recenzija-zvjezdice { margin-left: auto; color: var(--brand-blue, #1e6fe0); font-size: .85rem; }
+    .profil-recenzija-tekst { margin: .55rem 0 .4rem; color: var(--text-secondary, #4b5563); font-size: .9rem; line-height: 1.55; }
+
+    /* Portfolio */
+    .profil-portfolio { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .profil-portfolio-slika {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .profil-portfolio-placeholder {
+        aspect-ratio: 1;
+        border: 1.5px dashed #ccd9ef;
+        border-radius: 8px;
+        background: #f6f9fe;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #9db1d6;
+        font-size: 1.3rem;
+    }
+
+    /* ===== Klijent ===== */
+    .profil-klijent-header {
+        background: #fff;
+        border: 1px solid var(--border-light, #e5e7eb);
+        border-radius: 12px;
+        padding: 1.4rem 1.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.75rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .profil-klijent-info { display: flex; align-items: center; gap: 1.1rem; }
+    .profil-klijent-ime { font-size: 1.3rem; font-weight: 800; margin: 0 0 .25rem; color: var(--text-primary, #1f2937); }
+    .profil-klijent-meta {
+        display: flex;
+        gap: 1.1rem;
+        flex-wrap: wrap;
+        color: var(--text-muted, #6b7280);
+        font-size: .85rem;
+    }
+    .profil-klijent-stats { display: flex; gap: 2.25rem; text-align: center; }
+    .profil-klijent-stats .profil-stat { align-items: center; }
+
+    .profil-moji-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .profil-moji-head h2 { font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-primary, #1f2937); }
+
+    .profil-tabs {
+        display: flex;
+        gap: 1.5rem;
+        border-bottom: 1px solid var(--border-light, #e5e7eb);
+        margin-bottom: 1.25rem;
+    }
+    .profil-tab {
+        background: none;
+        border: 0;
+        border-bottom: 2.5px solid transparent;
+        padding: .5rem .1rem .65rem;
+        font-weight: 600;
+        font-size: .95rem;
+        color: var(--text-muted, #6b7280);
+        cursor: pointer;
+    }
+    .profil-tab.active { color: var(--brand-blue, #1e6fe0); border-bottom-color: var(--brand-blue, #1e6fe0); }
+    .profil-tab-broj { font-size: .8rem; margin-left: .25rem; }
+
+    /* ===== Kartica oglasa (klijent) ===== */
+    .moj-oglas-card {
+        background: #fff;
+        border: 1px solid var(--border-light, #e5e7eb);
+        border-radius: 12px;
+        margin-bottom: 1.1rem;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .moj-oglas-body {
+        display: flex;
+        gap: 1rem;
+        padding: 1.1rem 1.4rem;
+        align-items: flex-start;
+    }
+    .moj-oglas-thumb {
+        width: 64px; height: 64px;
+        border-radius: 8px;
+        background: #eef2f9;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #9db1d6;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+    .moj-oglas-info { flex: 1; min-width: 0; }
+    .moj-oglas-naslov {
+        color: var(--brand-blue, #1e6fe0);
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+    }
+    .moj-oglas-naslov:hover { text-decoration: underline; }
+    .moj-oglas-meta {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: .35rem;
+        color: var(--text-muted, #6b7280);
+        font-size: .82rem;
+    }
+    .moj-oglas-desno {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: .4rem;
+        flex-shrink: 0;
+    }
+    .oglas-status {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-size: .76rem;
+        font-weight: 600;
+        padding: .2rem .6rem;
+        border-radius: 999px;
+    }
+    .oglas-status .bi { font-size: .5rem; }
+    .oglas-status--aktivan { background: #ecfdf5; color: #16a34a; }
+    .oglas-status--zatvoren { background: #f3f4f6; color: #6b7280; }
+    .oglas-status--zavrsen { background: #eff6ff; color: #1e6fe0; }
+    .moj-oglas-budzet { font-weight: 800; color: var(--text-primary, #1f2937); font-size: .95rem; }
+
+    .moj-oglas-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: .7rem 1.4rem;
+        background: #fafbfc;
+        border-top: 1px solid #f0f1f3;
+        flex-wrap: wrap;
+    }
+    .moj-oglas-ponude { color: var(--text-muted, #6b7280); font-size: .85rem; }
+    .moj-oglas-akcije { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .moj-oglas-btn {
+        padding: .38rem .95rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-light, #e5e7eb);
+        background: #fff;
+        color: var(--text-primary, #1f2937);
+        font-size: .84rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background .15s ease;
+    }
+    .moj-oglas-btn:hover { background: #f3f4f6; color: var(--text-primary, #1f2937); }
+    .moj-oglas-btn--outline {
+        border-color: var(--brand-blue, #1e6fe0);
+        color: var(--brand-blue, #1e6fe0);
+    }
+    .moj-oglas-btn--outline:hover { background: #eff6ff; color: var(--brand-blue, #1e6fe0); }
+    .moj-oglas-btn--crveni {
+        border-color: #fecaca;
+        background: #fef2f2;
+        color: #dc2626;
+    }
+    .moj-oglas-btn--crveni:hover { background: #fee2e2; color: #b91c1c; }
+</style>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.profil-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.profil-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('panel-aktivni').style.display = tab.dataset.tab === 'aktivni' ? '' : 'none';
+                document.getElementById('panel-zatvoreni').style.display = tab.dataset.tab === 'zatvoreni' ? '' : 'none';
+            });
+        });
+    </script>
+}
