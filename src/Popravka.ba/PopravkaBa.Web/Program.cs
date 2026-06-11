@@ -1,3 +1,4 @@
+using Amazon;
 using Amazon.S3;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +35,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     options.Lockout.MaxFailedAccessAttempts = 10;
     options.Lockout.AllowedForNewUsers = true;
- 
+
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = false;
@@ -61,7 +62,7 @@ builder.Services.AddRateLimiter(options =>
     // Login rate limiter
     options.AddPolicy("auth", httpContext =>
     RateLimitPartition.GetFixedWindowLimiter(
-        // Particijski rate limiter, vrši rate limit po IP adresi umjesto globalno za sve korisnike
+        // Particijski rate limiter, vr┼íi rate limit po IP adresi umjesto globalno za sve korisnike
         partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
         factory: _ => new FixedWindowRateLimiterOptions
         {
@@ -78,7 +79,7 @@ builder.Services.AddScoped<IKategorijaService, KategorijaService>();
 builder.Services.AddScoped<IKategorijaRepository, KategorijaRepository>();
 
 builder.Services.AddScoped<IMjestoService, MjestoService>();
-builder.Services.AddScoped<IMjestoRepository,MjestoRepository>();
+builder.Services.AddScoped<IMjestoRepository, MjestoRepository>();
 
 builder.Services.AddScoped<IMjesecnaStatistikaRepository, MjesecnaStatistikaRepository>();
 
@@ -107,6 +108,7 @@ builder.Services.AddScoped<IPonudaUslugeService, PonudaUslugeService>();
 builder.Services.AddScoped<IPrijavaRadnoMjestoRepository, PrijavaRadnoMjestoRepository>();
 builder.Services.AddScoped<IPrijavaOglasService, PrijavaOglasService>();
 builder.Services.AddScoped<IRecenzijaService, RecenzijaService>();
+builder.Services.AddScoped<IRecenzijaRepository, RecenzijaRepository>();
 
 builder.Services.AddScoped<IPretragaStrategy, KlijentStrategy>();
 builder.Services.AddScoped<IPretragaStrategy, MajstorStrategy>();
@@ -135,14 +137,18 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
     return new AmazonS3Client(o.AccessKey, o.SecretKey, new AmazonS3Config
     {
         ServiceURL = $"https://{o.AccountID}.r2.cloudflarestorage.com",
-        ForcePathStyle = true
+        AuthenticationRegion = "auto",
+        ForcePathStyle = true,
+   
     });
 });
-
 builder.Services.AddSingleton<IFileStorage, S3FileStorageAdapter>();
 
 builder.Services.AddScoped<IVerifikacijaEmailaService, VerifikacijaEmailaService>();
 builder.Services.AddScoped<IVerifikacijskiTokenRepository, VerifikacijskiTokenRepository>();
+
+builder.Services.AddScoped<IVerifikacijaFirmeService, VerifikacijaFirmeService>();
+builder.Services.AddScoped<IVerifikacijaFirmeRepository, VerifikacijaFirmeRepository>();
 
 builder.Services.AddHostedService<VerifikacijskiTokenCleanupJob>();
 builder.Services.AddHostedService<MjesecnaStatistikaJob>();
@@ -152,7 +158,7 @@ builder.Services.AddScoped<DbSeeder>();
 
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
-    // Ostavljeno za određivanje trajanja sesije, ako je korisnik otišao/korisniku obrisan nalog
+    // Ostavljeno za odre─æivanje trajanja sesije, ako je korisnik oti┼íao/korisniku obrisan nalog
     options.ValidationInterval = TimeSpan.FromMinutes(15);
 });
 
@@ -165,7 +171,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
-    var seeder =  scope.ServiceProvider.GetRequiredService<DbSeeder>();
+    var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
     await seeder.SeedAsync();
 }
 
@@ -174,7 +180,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
     app.UseExceptionHandler("/Home/Error");
-    app.UseStatusCodePagesWithReExecute("/greska/{0}"); // Ne bi trebalo biti ovdje kad bi se puštao u production
+    app.UseStatusCodePagesWithReExecute("/greska/{0}"); // Ne bi trebalo biti ovdje kad bi se pu┼ítao u production
 }
 else
 {

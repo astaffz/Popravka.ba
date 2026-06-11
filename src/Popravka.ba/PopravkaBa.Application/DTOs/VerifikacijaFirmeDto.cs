@@ -6,23 +6,30 @@ namespace PopravkaBa.Application.DTOs
     public class PodnesiVerifikacijuDto
     {
         [Required(ErrorMessage = "Naziv firme je obavezan.")]
-        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti između x i xmax karaktera.")]
+        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti izme─æu x i xmax karaktera.")]
         public string NazivFirme { get; set; }
 
-        [Required(ErrorMessage = "Sjedište firme je obavezno.")]
-        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti između x i xmax karaktera.")]
+        [Required(ErrorMessage = "JIB je obavezan.")]
+        [RegularExpression(@"^\d{13}$", ErrorMessage = "JIB mora imati ta─ìno 13 cifara.")]
+        public string JIB { get; set; }
+
+        [RegularExpression(@"^[A-Za-z]{0,2}\d{12}$", ErrorMessage = "Unesite validan PDV broj.")]
+        public string? PDVBroj { get; set; }
+
+        [Required(ErrorMessage = "Sjedi┼íte firme je obavezno.")]
+        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti izme─æu x i xmax karaktera.")]
         public string SjedisteFirme { get; set; }
 
         [Required(ErrorMessage = "Kontakt telefon je obavezan.")]
         [Phone(ErrorMessage = "Unesite validan broj telefona.")]
         public string KontaktTelefon { get; set; }
-   
+
         [Required(ErrorMessage = "Ime i prezime odgovorne osobe je obavezno.")]
-        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti između x i xmax karaktera.")]
+        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti izme─æu x i xmax karaktera.")]
         public string OdgovornaOsobaIme { get; set; }
 
         [Required(ErrorMessage = "Ime i prezime odgovorne osobe je obavezno.")]
-        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti između x i xmax karaktera.")]
+        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti izme─æu x i xmax karaktera.")]
         public string OdgovornaOsobaPrezime { get; set; }
 
         [Required(ErrorMessage = "Email odgovorne osobe je obavezan.")]
@@ -36,7 +43,10 @@ namespace PopravkaBa.Application.DTOs
         [Phone(ErrorMessage = "Unesite validan broj telefona.")]
         public string OdgovornaOsobaTelefon { get; set; }
 
-        // File upload paths — set by the service after saving uploaded files
+        // File upload paths ΓÇö set by the service after saving uploaded files
+        [Required(ErrorMessage = "Rje┼íenje o registraciji je obavezno.")]
+        public string Rjesenje { get; set; }
+
         [Required(ErrorMessage = "Porezno uvjerenje je obavezno.")]
         public string PoreznoUvjerenje { get; set; }
 
@@ -62,5 +72,5 @@ namespace PopravkaBa.Application.DTOs
         public string? Napomena { get; set; }
     }
 
- 
+
 }

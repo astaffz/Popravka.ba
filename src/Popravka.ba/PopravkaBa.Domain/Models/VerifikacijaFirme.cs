@@ -15,6 +15,9 @@ namespace PopravkaBa.Domain.Models
         public string NazivFirme { get; set; }
         public Status StatusVerifikacije { get; set; } = Status.NaCekanju;
 
+        public string JIB { get; set; } = string.Empty;
+        public string? PDVBroj { get; set; }
+
         public string SjedisteFirme { get; set; }
         public string? RadnoVrijeme { get; set; }
         public string? WebStranica { get; set; }

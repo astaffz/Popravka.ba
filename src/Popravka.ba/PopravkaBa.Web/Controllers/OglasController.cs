@@ -31,7 +31,7 @@ namespace PopravkaBa.Web.Controllers
         {
             var oglasi = string.IsNullOrWhiteSpace(pretragaTekst) && lokacija == null
                 ? await _facadeService.DajSveOglase()
-                : await _facadeService.PronadjiOglase(pretragaTekst,lokacija);
+                : await _facadeService.PronadjiOglase(pretragaTekst, lokacija);
             // TODO: Prebaciti u ViewModel
             ViewBag.Search = pretragaTekst;
             return View(oglasi);
@@ -48,21 +48,21 @@ namespace PopravkaBa.Web.Controllers
 
             var vm = new OglasMajstoraDetaljiViewModel
             {
-                OglasId      = oglas.OglasID,
-                Naslov       = oglas.Naslov,
-                Opis         = oglas.Opis,
-                DatumObjave  = oglas.DatumObjave,
+                OglasId = oglas.OglasID,
+                Naslov = oglas.Naslov,
+                Opis = oglas.Opis,
+                DatumObjave = oglas.DatumObjave,
                 StatusOglasa = oglas.StatusOglasa,
-                Lokacija     = oglas.Mjesto?.Naziv,
-                MinCijena    = oglas.MinCijena,
-                TipIsplate   = oglas.TipIsplate,
-                Kategorije   = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
+                Lokacija = oglas.Mjesto?.Naziv,
+                MinCijena = oglas.MinCijena,
+                TipIsplate = oglas.TipIsplate,
+                Kategorije = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
                                     .Where(n => n != "").ToList() ?? new(),
-                VlasnikId       = oglas.VlasnikOglasaID,
+                VlasnikId = oglas.VlasnikOglasaID,
                 VlasnikUsername = vlasnik?.UserName ?? oglas.VlasnikOglasaID,
                 VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
                 VlasnikSlika = oglas.VlasnikOglasa?.Slika,
-                JeVlasnik    = trenutniKorisnikId == oglas.VlasnikOglasaID
+                JeVlasnik = trenutniKorisnikId == oglas.VlasnikOglasaID
                                || User.IsInRole("Administrator"),
             };
             return View(vm);
@@ -264,7 +264,7 @@ namespace PopravkaBa.Web.Controllers
             }
 
             await using var s = slika.OpenReadStream();
-            return await _storage.SpremiSlikuPublic(s, slika.ContentType, ct);
+            return await _storage.SpremiPublic(s, slika.ContentType, ct);
         }
 
         [AllowAnonymous]
@@ -295,47 +295,47 @@ namespace PopravkaBa.Web.Controllers
                     var majstorUser = await _userManager.FindByIdAsync(p.MajstorID);
                     prijaveDto.Add(new PrijavaDto
                     {
-                        PrijavaId         = p.ID,
-                        MajstorId         = p.MajstorID,
-                        MajstorUsername   = majstorUser?.UserName ?? p.MajstorID,
-                        MajstorIme        = p.Majstor?.DisplayName ?? "—",
-                        MajstorSlika      = p.Majstor?.Slika,
+                        PrijavaId = p.ID,
+                        MajstorId = p.MajstorID,
+                        MajstorUsername = majstorUser?.UserName ?? p.MajstorID,
+                        MajstorIme = p.Majstor?.DisplayName ?? "—",
+                        MajstorSlika = p.Majstor?.Slika,
                         MajstorKategorija = p.Majstor?.Kategorije?.FirstOrDefault()?.Kategorija?.Naziv,
-                        ProsjecnaOcjena   = (decimal)(p.Majstor?.ProsjecnaOcjena ?? 0),
-                        BrojRecenzija     = p.Majstor?.BrojRecenzija ?? 0,
-                        VrijemePrijave    = p.VrijemePrijave,
-                        StatusPrijave     = p.StatusPrijave
+                        ProsjecnaOcjena = (decimal)(p.Majstor?.ProsjecnaOcjena ?? 0),
+                        BrojRecenzija = p.Majstor?.BrojRecenzija ?? 0,
+                        VrijemePrijave = p.VrijemePrijave,
+                        StatusPrijave = p.StatusPrijave
                     });
                 }
             }
 
             var vm = new OglasRadnoMjestoDetaljiViewModel
             {
-                OglasId          = oglas.OglasID,
-                Naslov           = oglas.Naslov,
-                Opis             = oglas.Opis,
-                DatumObjave      = oglas.DatumObjave,
-                StatusOglasa     = oglas.StatusOglasa,
-                Lokacija         = oglas.Mjesto?.Naziv,
-                MinPrihod        = oglas.MinPrihod,
-                MaxPrihod        = oglas.MaxPrihod,
-                TipIsplate       = oglas.TipIsplate,
-                VrstaZaposlenja  = oglas.VrstaZaposlenja,
-                BrojIzvrsilaca   = oglas.BrojIzvrsilaca,
-                Slika            = oglas.Slika,
-                Kategorije       = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
+                OglasId = oglas.OglasID,
+                Naslov = oglas.Naslov,
+                Opis = oglas.Opis,
+                DatumObjave = oglas.DatumObjave,
+                StatusOglasa = oglas.StatusOglasa,
+                Lokacija = oglas.Mjesto?.Naziv,
+                MinPrihod = oglas.MinPrihod,
+                MaxPrihod = oglas.MaxPrihod,
+                TipIsplate = oglas.TipIsplate,
+                VrstaZaposlenja = oglas.VrstaZaposlenja,
+                BrojIzvrsilaca = oglas.BrojIzvrsilaca,
+                Slika = oglas.Slika,
+                Kategorije = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
                                        .Where(n => n != "").ToList() ?? new(),
-                Uvjeti           = oglas.Uvjeti?.Select(u => u.TekstUvjeta).ToList() ?? new(),
-                VlasnikId        = oglas.VlasnikOglasaID,
-                VlasnikUsername  = vlasnik?.UserName ?? oglas.VlasnikOglasaID,
+                Uvjeti = oglas.Uvjeti?.Select(u => u.TekstUvjeta).ToList() ?? new(),
+                VlasnikId = oglas.VlasnikOglasaID,
+                VlasnikUsername = vlasnik?.UserName ?? oglas.VlasnikOglasaID,
                 VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
-                VlasnikSlika     = oglas.VlasnikOglasa?.Slika,
-                Prijave          = prijaveDto,
-                JeVlasnik        = trenutniKorisnikId == oglas.VlasnikOglasaID
+                VlasnikSlika = oglas.VlasnikOglasa?.Slika,
+                Prijave = prijaveDto,
+                JeVlasnik = trenutniKorisnikId == oglas.VlasnikOglasaID
                                    || User.IsInRole("Administrator"),
-                MozeApplicirati  = User.IsInRole("Majstor")
+                MozeApplicirati = User.IsInRole("Majstor")
                                    && trenutniKorisnikId != oglas.VlasnikOglasaID,
-                VecApplicirao    = oglas.Prijave?.Any(p => p.MajstorID == trenutniKorisnikId) ?? false
+                VecApplicirao = oglas.Prijave?.Any(p => p.MajstorID == trenutniKorisnikId) ?? false
             };
 
             return View(vm);
@@ -548,21 +548,21 @@ namespace PopravkaBa.Web.Controllers
                     var izvUser = await _userManager.FindByIdAsync(p.IzvrsilacID);
                     ponudeDto.Add(new PonudaDto
                     {
-                        PonudaId            = p.ID,
-                        IzvrsilacId         = p.IzvrsilacID,
-                        IzvrsilacUsername   = izvUser?.UserName ?? p.IzvrsilacID,
-                        IzvrsilacIme        = p.Izvrsilac?.DisplayName ?? "—",
-                        IzvrsilacSlika      = p.Izvrsilac?.Slika,
+                        PonudaId = p.ID,
+                        IzvrsilacId = p.IzvrsilacID,
+                        IzvrsilacUsername = izvUser?.UserName ?? p.IzvrsilacID,
+                        IzvrsilacIme = p.Izvrsilac?.DisplayName ?? "—",
+                        IzvrsilacSlika = p.Izvrsilac?.Slika,
                         IzvrsilacKategorija = p.Izvrsilac?.Kategorije?.FirstOrDefault()?.Kategorija?.Naziv,
-                        Verificiran         = false,
-                        Cijena              = p.Cijena,
-                        TipIsplate          = p.TipIsplate,
-                        ProsjecnaOcjena     = (decimal)(p.Izvrsilac?.ProsjecnaOcjena ?? 0),
-                        BrojRecenzija       = p.Izvrsilac?.BrojRecenzija ?? 0,
-                        DatumPocetka        = p.DatumPocetkaUsluge,
-                        DatumKraja          = p.DatumOcekivanogZavrsetka,
-                        StatusPonude        = p.StatusPonude,
-                        Poruka              = p.Poruka
+                        Verificiran = false,
+                        Cijena = p.Cijena,
+                        TipIsplate = p.TipIsplate,
+                        ProsjecnaOcjena = (decimal)(p.Izvrsilac?.ProsjecnaOcjena ?? 0),
+                        BrojRecenzija = p.Izvrsilac?.BrojRecenzija ?? 0,
+                        DatumPocetka = p.DatumPocetkaUsluge,
+                        DatumKraja = p.DatumOcekivanogZavrsetka,
+                        StatusPonude = p.StatusPonude,
+                        Poruka = p.Poruka
                     });
                 }
             }
@@ -581,26 +581,26 @@ namespace PopravkaBa.Web.Controllers
 
             var vm = new OglasUslugeDetaljiViewModel
             {
-                OglasId       = oglas.OglasID,
-                Naslov        = oglas.Naslov,
-                Opis          = oglas.Opis,
-                DatumObjave   = oglas.DatumObjave,
-                StatusOglasa  = oglas.StatusOglasa,
-                Lokacija      = oglas.Mjesto?.Naziv,
-                MinBudzet     = oglas.MinBudzet,
-                MaxBudzet     = oglas.MaxBudzet,
-                Kategorije    = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "").Where(n => n != "").ToList() ?? new(),
-                VlasnikId     = oglas.VlasnikOglasaID,
+                OglasId = oglas.OglasID,
+                Naslov = oglas.Naslov,
+                Opis = oglas.Opis,
+                DatumObjave = oglas.DatumObjave,
+                StatusOglasa = oglas.StatusOglasa,
+                Lokacija = oglas.Mjesto?.Naziv,
+                MinBudzet = oglas.MinBudzet,
+                MaxBudzet = oglas.MaxBudzet,
+                Kategorije = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "").Where(n => n != "").ToList() ?? new(),
+                VlasnikId = oglas.VlasnikOglasaID,
                 VlasnikUsername = vlasnik?.UserName ?? oglas.VlasnikOglasaID,
                 VlasnikDisplayName = oglas.VlasnikOglasa?.DisplayName ?? "—",
-                VlasnikSlika  = oglas.VlasnikOglasa?.Slika,
-                Ponude        = ponudeDto,
+                VlasnikSlika = oglas.VlasnikOglasa?.Slika,
+                Ponude = ponudeDto,
                 ProsjecnaCijenaPonude = prosjecnaCijenaKategorije,
-                JeVlasnik     = trenutniKorisnikId == oglas.VlasnikOglasaID
+                JeVlasnik = trenutniKorisnikId == oglas.VlasnikOglasaID
                                 || User.IsInRole("Administrator"),
                 MozeApplicirati = (User.IsInRole("Majstor") || User.IsInRole("Firma"))
                                   && trenutniKorisnikId != oglas.VlasnikOglasaID,
-                VecApplicirao  = oglas.Ponude?.Any(p => p.IzvrsilacID == trenutniKorisnikId) ?? false
+                VecApplicirao = oglas.Ponude?.Any(p => p.IzvrsilacID == trenutniKorisnikId) ?? false
             };
 
             return View(vm);
