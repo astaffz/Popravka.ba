@@ -118,6 +118,13 @@ namespace PopravkaBa.Web.Controllers
                 TempData["Success"] = "Oglas majstora je uspješno objavljen.";
                 return RedirectToAction("Detalji", "OglasMajstora", new { id = oglasId });
             }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                await UcitajViewBag();
+                ViewBag.AktivniTab = "majstora";
+                return View("Index");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Greška pri kreiranju oglasa majstora.");

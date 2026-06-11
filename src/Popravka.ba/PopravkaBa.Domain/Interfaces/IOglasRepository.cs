@@ -17,6 +17,7 @@ namespace PopravkaBa.Domain.Interfaces
         Task ObrisiAsync(int id);
         Task<IEnumerable<OglasMajstora>> IzvrsiPretraguTekstaAsync(string pretraga);
         Task<IEnumerable<OglasMajstora>> DajNedavneAsync(int topN);
+        Task<int> DajBrojAktivnihZaKorisnikaAsync(string vlasnikId);
     }
 
     public interface IOglasUslugeRepository

@@ -17,7 +17,7 @@ namespace PopravkaBa.Application.Services
 
         public async Task<IEnumerable<OglasMajstora>> DajSveOglase()
             => await _oglasService.DajSveOglase();
-       
+
         public async Task<OglasMajstora?> DajOglasPoId(int id)
             => await _oglasService.DajOglasPoId(id);
 
@@ -31,14 +31,20 @@ namespace PopravkaBa.Application.Services
         {
             var oglasId = await _oglasService.ObjaviOglas(dto, vlasnikId);
             await _kategorijaService.DodajKategorijeOglasu(oglasId, dto.KategorijeID);
+            // Add categories to master's profile if not already present
+            if (dto.KategorijeID?.Any() == true)
+                await _kategorijaService.DodajKategorijeIzvrsiocu(vlasnikId, dto.KategorijeID);
             return oglasId;
         }
 
         public async Task UrediOglas(UrediOglasMajstoraDto dto)
         {
+            var oglas = await _oglasService.DajOglasPoId(dto.OglasID);
             await _oglasService.UrediOglas(dto);
             await _kategorijaService.AzurirajKategorijeOglasa(dto.OglasID, dto.KategorijeID);
-
+            // Add new categories to master's profile if not already present
+            if (oglas != null && dto.KategorijeID?.Any() == true)
+                await _kategorijaService.DodajKategorijeIzvrsiocu(oglas.VlasnikOglasaID, dto.KategorijeID);
         }
 
         public async Task ObrisiOglas(int oglasId)

@@ -7,9 +7,10 @@
     string vrstaZaposlenjaLabel(VrstaZaposlenja v) => v switch
     {
         VrstaZaposlenja.PunoRadnoVrijeme  => "Puno radno vrijeme",
-        VrstaZaposlenja.PolaRadnogVrijema => "Honorarno",
+        VrstaZaposlenja.PolaRadnogVrijema => "Pola radnog vremena",
         VrstaZaposlenja.UgovorDjelo       => "Ugovor o djelu",
-        VrstaZaposlenja.Praksa            => "Sezonski",
+        VrstaZaposlenja.Praksa            => "Praksa",
+        VrstaZaposlenja.Sezonski          => "Sezonski",
         _ => v.ToString()
     };
 }

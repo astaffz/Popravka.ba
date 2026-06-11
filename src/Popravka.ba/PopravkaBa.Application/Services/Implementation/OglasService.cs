@@ -23,6 +23,10 @@ namespace PopravkaBa.Application.Services
 
         public async Task<int> ObjaviOglas(ObjaviOglasMajstoraDto dto, string vlasnikId)
         {
+            var brojAktivnih = await _repo.DajBrojAktivnihZaKorisnikaAsync(vlasnikId);
+            if (brojAktivnih >= 3)
+                throw new InvalidOperationException("Možete imati maksimalno 3 aktivna oglasa usluge istovremeno.");
+
             var oglas = new OglasMajstora
             {
                 Naslov = dto.Naslov,

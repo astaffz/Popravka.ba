@@ -120,6 +120,11 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(o => o.Notifikacije)
                 .Where(o => o.Naslov.Contains(pretraga) || o.Opis.Contains(pretraga))
                 .ToListAsync();
+
+        public async Task<int> DajBrojAktivnihZaKorisnikaAsync(string vlasnikId)
+            => await _context.OglasiMajstora
+                .Where(o => o.VlasnikOglasaID == vlasnikId && o.StatusOglasa == Domain.Enums.Status.Aktivan)
+                .CountAsync();
     }
 
     public class OglasUslugeRepository : IOglasUslugeRepository

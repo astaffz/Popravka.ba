@@ -17,13 +17,19 @@ namespace PopravkaBa.Web.Controllers
         private readonly IMjestoService _mjestoService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<OglasMajstoraController> _logger;
+        private readonly IFileStorage _storage;
 
-        public OglasMajstoraController(IOglasMajstoraFacade facadeService, IMjestoService mjestoService, UserManager<ApplicationUser> userManager, ILogger<OglasMajstoraController> logger)
+        public OglasMajstoraController(
+            IOglasMajstoraFacade facadeService, IMjestoService mjestoService, 
+            UserManager<ApplicationUser> userManager, ILogger<OglasMajstoraController> logger,
+            IFileStorage storage
+            )
         {
             _facadeService = facadeService;
             _mjestoService = mjestoService;
             _userManager = userManager;
             _logger = logger;
+            _storage = storage;
         }
 
         [AllowAnonymous]
@@ -148,7 +154,7 @@ namespace PopravkaBa.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UrediOglas(int id, UrediOglasMajstoraDto dto)
+        public async Task<IActionResult> UrediOglas(int id, UrediOglasMajstoraDto dto, IFormFile? slika, CancellationToken ct = default)
         {
             if (id != dto.OglasID) return BadRequest();
 
@@ -158,6 +164,16 @@ namespace PopravkaBa.Web.Controllers
             {
                 TempData["Error"] = greska;
                 return RedirectToAction(nameof(Detalji), new { id });
+            }
+
+            if (slika != null)
+            {
+                await using var slikaStream = slika.OpenReadStream();
+                dto.Slika = await _storage.SpremiPublic(slikaStream, slika.ContentType, ct) ?? postojeci.Slika;
+            }
+            else
+            {
+                dto.Slika = postojeci.Slika;
             }
 
             if (!ModelState.IsValid)
@@ -512,14 +528,20 @@ namespace PopravkaBa.Web.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IPonudaUslugeService _ponudaUslugeService;
         private readonly ILogger<OglasUslugeController> _logger;
+        private readonly IFileStorage _storage;
 
-        public OglasUslugeController(IOglasUslugeFacade facadeService, IMjestoService mjestoService, UserManager<ApplicationUser> userManager, IPonudaUslugeService ponudaUslugeService, ILogger<OglasUslugeController> logger)
+        public OglasUslugeController(IOglasUslugeFacade facadeService, IMjestoService mjestoService, 
+            UserManager<ApplicationUser> userManager, IPonudaUslugeService ponudaUslugeService, ILogger<OglasUslugeController> logger,
+            IFileStorage storage
+
+            )
         {
             _facadeService = facadeService;
             _mjestoService = mjestoService;
             _userManager = userManager;
             _ponudaUslugeService = ponudaUslugeService;
             _logger = logger;
+            _storage = storage;
         }
 
         [AllowAnonymous]
@@ -689,7 +711,7 @@ namespace PopravkaBa.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UrediOglas(int id, UrediOglasUslugeDto dto)
+        public async Task<IActionResult> UrediOglas(int id, UrediOglasUslugeDto dto, IFormFile? slika, CancellationToken ct = default)
         {
             if (id != dto.OglasID) return BadRequest();
 
@@ -699,6 +721,16 @@ namespace PopravkaBa.Web.Controllers
             {
                 TempData["Error"] = greska;
                 return RedirectToAction(nameof(Detalji), new { id });
+            }
+
+            if (slika != null)
+            {
+                await using var slikaStream = slika.OpenReadStream();
+                dto.Slika = await _storage.SpremiPublic(slikaStream, slika.ContentType, ct) ?? postojeci.Slika;
+            }
+            else
+            {
+                dto.Slika = postojeci.Slika;
             }
 
             if (!ModelState.IsValid)

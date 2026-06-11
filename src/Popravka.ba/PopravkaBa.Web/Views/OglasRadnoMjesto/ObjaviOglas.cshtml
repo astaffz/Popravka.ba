@@ -56,9 +56,10 @@
                                     <label class="form-check-label" for="vz_@vz">
                                         @(vz switch {
                                             VrstaZaposlenja.PunoRadnoVrijeme  => "Stalni radni odnos",
-                                            VrstaZaposlenja.PolaRadnogVrijema => "Honorarno",
+                                            VrstaZaposlenja.PolaRadnogVrijema => "Pola radnog vremena",
                                             VrstaZaposlenja.UgovorDjelo       => "Ugovor o djelu",
-                                            VrstaZaposlenja.Praksa            => "Sezonski",
+                                            VrstaZaposlenja.Praksa            => "Praksa",
+                                            VrstaZaposlenja.Sezonski          => "Sezonski",
                                             _ => vz.ToString()
                                         })
                                     </label>
