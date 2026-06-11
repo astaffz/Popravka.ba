@@ -44,30 +44,40 @@ namespace PopravkaBa.Application.Services.Implementation
             await _prijavaRepo.DodajAsync(prijava);
         }
 
-        public async Task PrihvatiPonudu(int prijavaId)
+        public async Task<bool> PrihvatiPonudu(int prijavaId)
         {
             var prijava = await _prijavaRepo.DajPoIdAsync(prijavaId)
                 ?? throw new KeyNotFoundException($"Prijava {prijavaId} nije pronađena.");
+
+            var oglas = await _oglasRepo.DajPoIdAsync(prijava.OglasID)
+                ?? throw new KeyNotFoundException($"Oglas {prijava.OglasID} nije pronađen.");
 
             // Prihvati ovu prijavu
             prijava.StatusPrijave = Status.Prihvaceno;
             await _prijavaRepo.UrediAsync(prijava);
 
-            // Odbij sve ostale prijave na istom oglasu
-            var ostale = await _prijavaRepo.DajSvePrijaveOglasaAsync(prijava.OglasID);
-            foreach (var p in ostale.Where(p => p.ID != prijavaId && p.StatusPrijave == Status.NaCekanju))
-            {
-                p.StatusPrijave = Status.Odbijeno;
-                await _prijavaRepo.UrediAsync(p);
-            }
+            // Dohvati sve prijave na oglasu
+            var allePrijave = await _prijavaRepo.DajSvePrijaveOglasaAsync(prijava.OglasID);
+            var prihvacenePrijave = allePrijave.Count(p => p.StatusPrijave == Status.Prihvaceno);
 
-            // Označi oglas kao neaktivan (popunjen)
-            var oglas = await _oglasRepo.DajPoIdAsync(prijava.OglasID);
-            if (oglas is not null)
+            // Ako je broj prihvaćenih prijava jednak potrebnom broju izvrsilaca
+            if (prihvacenePrijave >= oglas.BrojIzvrsilaca)
             {
+                // Odbij sve ostale prijave koje su još na čekanju
+                var naCekanju = allePrijave.Where(p => p.ID != prijavaId && p.StatusPrijave == Status.NaCekanju);
+                foreach (var p in naCekanju)
+                {
+                    p.StatusPrijave = Status.Odbijeno;
+                    await _prijavaRepo.UrediAsync(p);
+                }
+
+                // Označi oglas kao neaktivan (popunjen)
                 oglas.StatusOglasa = Status.Neaktivan;
                 await _oglasRepo.UrediAsync(oglas);
+                return true; // Listing is now full
             }
+
+            return false; // Listing still has available spots
         }
 
         public async Task OdbijPrijavu(int prijavaId)

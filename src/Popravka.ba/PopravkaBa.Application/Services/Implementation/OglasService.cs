@@ -30,6 +30,7 @@ namespace PopravkaBa.Application.Services
                 MjestoID = dto.MjestoID,
                 MinCijena = dto.MinCijena,
                 TipIsplate = dto.TipIsplate,
+                Slika = dto.Slika,
                 DatumObjave = DateTime.UtcNow,
                 VlasnikOglasaID = vlasnikId
             };
@@ -50,6 +51,8 @@ namespace PopravkaBa.Application.Services
             oglas.MjestoID = dto.MjestoID;
             oglas.MinCijena = dto.MinCijena;
             oglas.TipIsplate = dto.TipIsplate;
+            if (dto.Slika is not null)
+                oglas.Slika = dto.Slika;
 
             await _repo.UrediAsync(oglas);
         }
@@ -172,6 +175,7 @@ namespace PopravkaBa.Application.Services
                 MjestoID = dto.MjestoID,
                 MinBudzet = dto.MinBudzet,
                 MaxBudzet = dto.MaxBudzet,
+                Slika = dto.Slika,
                 DatumObjave = DateTime.UtcNow,
                 VlasnikOglasaID = vlasnikId,
                 StatusOglasa = Status.Aktivan
@@ -213,6 +217,8 @@ namespace PopravkaBa.Application.Services
             oglas.MjestoID = dto.MjestoID;
             oglas.MinBudzet = dto.MinBudzet;
             oglas.MaxBudzet = dto.MaxBudzet;
+            if (dto.Slika is not null)
+                oglas.Slika = dto.Slika;
 
             await _repo.UrediAsync(oglas);
         }

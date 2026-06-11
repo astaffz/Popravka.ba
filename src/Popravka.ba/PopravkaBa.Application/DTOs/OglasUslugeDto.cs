@@ -41,7 +41,10 @@ namespace PopravkaBa.Application.DTOs
         public int MaxBudzet { get; set; }
 
         [MinLength(1, ErrorMessage = "Najmanje jedna kategorija.")]
-        public List<int> KategorijeID { get; set; } 
+        public List<int> KategorijeID { get; set; }
+
+        // Opcionalna slika (URL postavlja kontroler nakon uploada)
+        public string? Slika { get; set; }
     }
 
     public class UrediOglasUslugeDto
@@ -70,5 +73,8 @@ namespace PopravkaBa.Application.DTOs
 
         [MinLength(1, ErrorMessage = "Najmanje jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
+
+        // Postojeća slika (zadržava se ako se ne uploaduje nova); URL nove postavlja kontroler
+        public string? Slika { get; set; }
     }
 }

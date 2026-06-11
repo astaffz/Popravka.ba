@@ -71,8 +71,10 @@ namespace PopravkaBa.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Klijent,Administrator")]
-        public async Task<IActionResult> ObjaviOglasUsluge(ObjaviOglasUslugeDto dto)
+        public async Task<IActionResult> ObjaviOglasUsluge(ObjaviOglasUslugeDto dto, IFormFile? slika, CancellationToken ct = default)
         {
+            dto.Slika = await UploadSlikeAsync(slika, ct);
+
             if (!ModelState.IsValid)
             {
                 await UcitajViewBag();
@@ -99,8 +101,10 @@ namespace PopravkaBa.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Majstor,Firma,Administrator")]
-        public async Task<IActionResult> ObjaviOglasMajstora(ObjaviOglasMajstoraDto dto)
+        public async Task<IActionResult> ObjaviOglasMajstora(ObjaviOglasMajstoraDto dto, IFormFile? slika, CancellationToken ct = default)
         {
+            dto.Slika = await UploadSlikeAsync(slika, ct);
+
             if (!ModelState.IsValid)
             {
                 await UcitajViewBag();

@@ -56,6 +56,7 @@ namespace PopravkaBa.Web.Controllers
                 Lokacija = oglas.Mjesto?.Naziv,
                 MinCijena = oglas.MinCijena,
                 TipIsplate = oglas.TipIsplate,
+                Slika = oglas.Slika,
                 Kategorije = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
                                     .Where(n => n != "").ToList() ?? new(),
                 VlasnikId = oglas.VlasnikOglasaID,
@@ -591,6 +592,7 @@ namespace PopravkaBa.Web.Controllers
                 Lokacija = oglas.Mjesto?.Naziv,
                 MinBudzet = oglas.MinBudzet,
                 MaxBudzet = oglas.MaxBudzet,
+                Slika = oglas.Slika,
                 Kategorije = oglas.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "").Where(n => n != "").ToList() ?? new(),
                 VlasnikId = oglas.VlasnikOglasaID,
                 VlasnikUsername = vlasnik?.UserName ?? oglas.VlasnikOglasaID,

@@ -124,6 +124,12 @@
                         <strong>Budžet:</strong> @Model.MinBudzet – @Model.MaxBudzet KM
                     </div>
 
+                    @if (!string.IsNullOrEmpty(Model.Slika))
+                    {
+                        <img src="@Model.Slika" alt="@Model.Naslov"
+                             class="img-fluid rounded mb-3 w-100" style="max-height:360px;object-fit:cover;" />
+                    }
+
                     @if (!string.IsNullOrEmpty(Model.Opis))
                     {
                         <hr />

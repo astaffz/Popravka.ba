@@ -30,6 +30,9 @@ namespace PopravkaBa.Domain.Models
 
         public virtual int BrojPrijava => 0;
 
+        // Opcionalna slika oglasa (javni URL na storage-u)
+        public string? Slika { get; set; }
+
         public Status StatusOglasa { get; set; } = Status.Aktivan; // Status.Aktivan ili Status.Neaktivan
     }
 }

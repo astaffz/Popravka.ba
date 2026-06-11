@@ -14,7 +14,7 @@ namespace PopravkaBa.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
 
-            migrationBuilder.Sql("DROP TABLE IF EXISTS \"__EFMigrationsHistory\"");
+        
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new

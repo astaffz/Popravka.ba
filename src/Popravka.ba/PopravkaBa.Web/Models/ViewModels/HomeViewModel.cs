@@ -19,6 +19,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public DateTime DatumObjave { get; set; }
         public string VlasnikOglasaSkracenoIme { get; set; }
         public string? VlasnikOglasaSlika { get; set; }
+        public string? Slika { get; set; }
         public int BrojPonuda { get; set; }
         /// <summary>Koji controller/action treba koristiti za link. "OglasUsluge" ili "OglasRadnoMjesto"</summary>
         public string TipOglasa { get; set; } = "OglasUsluge";

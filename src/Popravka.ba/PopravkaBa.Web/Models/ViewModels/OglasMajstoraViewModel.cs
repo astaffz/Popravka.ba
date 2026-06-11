@@ -12,6 +12,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public string? Lokacija { get; set; }
         public double MinCijena { get; set; }
         public TipIsplate TipIsplate { get; set; }
+        public string? Slika { get; set; }
         public List<string> Kategorije { get; set; } = new();
 
         // Vlasnik (Majstor/Firma)

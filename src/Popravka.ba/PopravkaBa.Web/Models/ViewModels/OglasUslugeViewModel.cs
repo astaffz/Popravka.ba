@@ -14,6 +14,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public string? Lokacija { get; set; }
         public int MinBudzet { get; set; }
         public int MaxBudzet { get; set; }
+        public string? Slika { get; set; }
         public List<string> Kategorije { get; set; } = new();
 
         // Vlasnik oglasa

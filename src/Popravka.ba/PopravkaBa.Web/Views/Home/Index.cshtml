@@ -173,6 +173,12 @@
             @foreach (var oglas in Model.NedavniOglasi)
             {
                 <a class="oglas-card" asp-controller="@oglas.TipOglasa" asp-action="Detalji" asp-route-id="@oglas.ID">
+                    @if (!string.IsNullOrEmpty(oglas.Slika))
+                    {
+                        <div class="oglas-thumb">
+                            <img src="@oglas.Slika" alt="@oglas.Naslov" loading="lazy" />
+                        </div>
+                    }
                     <div class="oglas-body">
                         <strong>@oglas.Naslov</strong>
                         <p>@oglas.Opis</p>

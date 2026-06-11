@@ -24,6 +24,9 @@ namespace PopravkaBa.Application.DTOs
 
         [MinLength(1, ErrorMessage = "Minimalno jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
+
+        // Opcionalna slika (URL postavlja kontroler nakon uploada)
+        public string? Slika { get; set; }
     }
 
     public class UrediOglasMajstoraDto
@@ -51,6 +54,9 @@ namespace PopravkaBa.Application.DTOs
 
         [MinLength(1, ErrorMessage = "Minimalno jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
+
+        // Postojeća slika (zadržava se ako se ne uploaduje nova); URL nove postavlja kontroler
+        public string? Slika { get; set; }
     }
 
 }

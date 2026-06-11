@@ -96,8 +96,15 @@ public class PrijavaOglasController : Controller
         {
             var prijava = await _prijavaOglasService.DajPrijavuPoId(prijavaId);
             if (prijava is null) return NotFound();
-            await _prijavaOglasService.PrihvatiPonudu(prijavaId);
-            TempData["Success"] = "Prijava je prihvaćena. Sve ostale prijave su automatski odbijene.";
+            bool isListingFull = await _prijavaOglasService.PrihvatiPonudu(prijavaId);
+            if (isListingFull)
+            {
+                TempData["Success"] = "Prijava je prihvaćena. Popis je popunjen - sve preostale prijave su automatski odbijene.";
+            }
+            else
+            {
+                TempData["Success"] = "Prijava je prihvaćena.";
+            }
             return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = prijava.OglasID });
         }
         catch (Exception ex)
@@ -116,8 +123,15 @@ public class PrijavaOglasController : Controller
         {
             var prijava = await _prijavaOglasService.DajPrijavuPoId(prijavaId);
             if (prijava is null) return NotFound();
-            await _prijavaOglasService.PrihvatiPonudu(prijavaId);
-            TempData["Success"] = "Prijava je prihvaćena. Sve ostale prijave su automatski odbijene.";
+            bool isListingFull = await _prijavaOglasService.PrihvatiPonudu(prijavaId);
+            if (isListingFull)
+            {
+                TempData["Success"] = "Prijava je prihvaćena. Popis je popunjen - sve preostale prijave su automatski odbijene.";
+            }
+            else
+            {
+                TempData["Success"] = "Prijava je prihvaćena.";
+            }
             return RedirectToAction("Detalji", "OglasRadnoMjesto", new { id = prijava.OglasID });
         }
         catch (Exception ex)
