@@ -5,34 +5,34 @@
 namespace PopravkaBa.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class oglasMigration : Migration
+    public partial class OglasSlikaMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "BrojPrijava",
+                name: "Slika",
                 table: "OglasRadnoMjesto");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Oglas_DatumObjave",
+            migrationBuilder.AddColumn<string>(
+                name: "Slika",
                 table: "Oglas",
-                column: "DatumObjave");
+                type: "text",
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_Oglas_DatumObjave",
+            migrationBuilder.DropColumn(
+                name: "Slika",
                 table: "Oglas");
 
-            migrationBuilder.AddColumn<int>(
-                name: "BrojPrijava",
+            migrationBuilder.AddColumn<string>(
+                name: "Slika",
                 table: "OglasRadnoMjesto",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
+                type: "text",
+                nullable: true);
         }
     }
 }

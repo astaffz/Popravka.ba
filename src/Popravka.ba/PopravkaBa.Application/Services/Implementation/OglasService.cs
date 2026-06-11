@@ -1,5 +1,6 @@
 ﻿using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
+using PopravkaBa.Domain.Enums;
 using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Models;
 
@@ -22,6 +23,10 @@ namespace PopravkaBa.Application.Services
 
         public async Task<int> ObjaviOglas(ObjaviOglasMajstoraDto dto, string vlasnikId)
         {
+            var brojAktivnih = await _repo.DajBrojAktivnihZaKorisnikaAsync(vlasnikId);
+            if (brojAktivnih >= 3)
+                throw new InvalidOperationException("Možete imati maksimalno 3 aktivna oglasa usluge istovremeno.");
+
             var oglas = new OglasMajstora
             {
                 Naslov = dto.Naslov,
@@ -29,7 +34,8 @@ namespace PopravkaBa.Application.Services
                 MjestoID = dto.MjestoID,
                 MinCijena = dto.MinCijena,
                 TipIsplate = dto.TipIsplate,
-                DatumObjave = DateTime.Now,
+                Slika = dto.Slika,
+                DatumObjave = DateTime.UtcNow,
                 VlasnikOglasaID = vlasnikId
             };
 
@@ -49,6 +55,8 @@ namespace PopravkaBa.Application.Services
             oglas.MjestoID = dto.MjestoID;
             oglas.MinCijena = dto.MinCijena;
             oglas.TipIsplate = dto.TipIsplate;
+            if (dto.Slika is not null)
+                oglas.Slika = dto.Slika;
 
             await _repo.UrediAsync(oglas);
         }
@@ -60,7 +68,9 @@ namespace PopravkaBa.Application.Services
             if (oglas is null)
                 throw new KeyNotFoundException($"Oglas sa ID {id} nije pronađen.");
 
-            await _repo.ObrisiAsync(id);
+            // "Brisanje" oglasa = postavljanje statusa na Neaktivan (soft delete)
+            oglas.StatusOglasa = Status.Neaktivan;
+            await _repo.UrediAsync(oglas);
         }
 
         // TODO: Implementirati pretragu preko lokacije u OglasRepository zbog pocetne stranice
@@ -91,9 +101,10 @@ namespace PopravkaBa.Application.Services
                 MjestoID = dto.MjestoID,
                 BrojIzvrsilaca = dto.BrojIzvrsilaca,
                 VrstaZaposlenja = dto.VrstaZaposlenja,
-                MinPrihod = dto.MinPrihod,
-                MaxPrihod = dto.MaxPrihod,
+                MinPrihod = dto.MinPrihod ?? 0,
+                MaxPrihod = dto.MaxPrihod ?? 0,
                 TipIsplate = dto.TipIsplate,
+                Slika = dto.Slika,
                 DatumObjave = DateTime.UtcNow,
                 VlasnikOglasaID = vlasnikId
             };
@@ -107,7 +118,8 @@ namespace PopravkaBa.Application.Services
             if (oglas is null)
                 throw new KeyNotFoundException($"Oglas sa ID {id} nije pronađen.");
 
-            await _repo.ObrisiAsync(id);
+            oglas.StatusOglasa = Status.Neaktivan;
+            await _repo.UrediAsync(oglas);
         }
 
         public async Task<IEnumerable<OglasRadnoMjesto>> PronadjiOglase(string pretraga, int? lokacija)
@@ -134,9 +146,11 @@ namespace PopravkaBa.Application.Services
             oglas.MjestoID = dto.MjestoID;
             oglas.BrojIzvrsilaca = dto.BrojIzvrsilaca;
             oglas.VrstaZaposlenja = dto.VrstaZaposlenja;
-            oglas.MinPrihod = dto.MinPrihod;
-            oglas.MaxPrihod = dto.MaxPrihod;
+            oglas.MinPrihod = dto.MinPrihod ?? 0;
+            oglas.MaxPrihod = dto.MaxPrihod ?? 0;
             oglas.TipIsplate = dto.TipIsplate;
+            if (dto.Slika is not null)
+                oglas.Slika = dto.Slika;
 
             await _repo.UrediAsync(oglas);
         }
@@ -151,36 +165,66 @@ namespace PopravkaBa.Application.Services
         {
             _repo = repo;
         }
-        public Task<OglasUsluge?> DajOglasPoId(int id)
+        public async Task<OglasUsluge?> DajOglasPoId(int id) => await _repo.DajPoIdAsync(id);
+
+        public async Task<IEnumerable<OglasUsluge>> DajSveOglase()
+            => await _repo.DajSveAsync();
+
+        public async Task<int> ObjaviOglas(ObjaviOglasUslugeDto dto, string vlasnikId)
         {
-            throw new NotImplementedException();
+            var oglas = new OglasUsluge
+            {
+                Naslov = dto.Naslov,
+                Opis = dto.Opis,
+                MjestoID = dto.MjestoID,
+                MinBudzet = dto.MinBudzet,
+                MaxBudzet = dto.MaxBudzet,
+                Slika = dto.Slika,
+                DatumObjave = DateTime.UtcNow,
+                VlasnikOglasaID = vlasnikId,
+                StatusOglasa = Status.Aktivan
+            };
+
+            await _repo.DodajAsync(oglas);
+            return oglas.OglasID;
         }
 
-        public Task<IEnumerable<OglasUsluge>> DajSveOglase()
+        public async Task ObrisiOglas(int id)
         {
-            throw new NotImplementedException();
+            var oglas = await _repo.DajPoIdAsync(id);
+
+            if (oglas is null)
+                throw new KeyNotFoundException($"Oglas sa ID {id} nije pronađen.");
+
+            // "Brisanje" oglasa = postavljanje statusa na Neaktivan (soft delete)
+            oglas.StatusOglasa = Status.Neaktivan;
+            await _repo.UrediAsync(oglas);
         }
 
-        public Task<int> ObjaviOglas(ObjaviOglasUslugeDto dto, string vlasnikId)
+        public async Task<IEnumerable<OglasUsluge>> PronadjiOglase(string pretraga, int? lokacija)
         {
-            throw new NotImplementedException();
+            var oglasi = await _repo.IzvrsiPretraguTekstaAsync(pretraga);
+            if (lokacija is not null)
+                oglasi = oglasi.Where(o => o.MjestoID == lokacija).ToList();
+            return oglasi;
         }
 
-
-
-        public Task ObrisiOglas(int id)
+        public async Task UrediOglas(UrediOglasUslugeDto dto)
         {
-            throw new NotImplementedException();
-        }
+            var oglas = await _repo.DajPoIdAsync(dto.OglasID);
 
-        public Task<IEnumerable<OglasUsluge>> PronadjiOglase(string pretraga, int? lokacija)
-        {
-            throw new NotImplementedException();
-        }
+            if (oglas is null)
+                throw new KeyNotFoundException($"Oglas sa ID {dto.OglasID} nije pronađen.");
 
-        public Task UrediOglas(UrediOglasUslugeDto dto)
-        {
-            throw new NotImplementedException();
+            oglas.Naslov = dto.Naslov;
+            oglas.Opis = dto.Opis;
+            oglas.MjestoID = dto.MjestoID;
+            oglas.MinBudzet = dto.MinBudzet;
+            oglas.MaxBudzet = dto.MaxBudzet;
+            if (dto.Slika is not null)
+                oglas.Slika = dto.Slika;
+
+            await _repo.UrediAsync(oglas);
         }
 
         public async Task<int> DajBrojZavrsenihAsync() => await _repo.DajBrojZavrsenih();

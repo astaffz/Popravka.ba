@@ -1,0 +1,52 @@
+﻿@model PopravkaBa.Web.Models.ViewModels.ProfilOglasUslugeItem
+@using PopravkaBa.Domain.Enums
+@{
+    string statusLabel = Model.Status switch
+    {
+        Status.Aktivan => "Aktivan",
+        Status.Neaktivan => "Zatvoren",
+        Status.Isporuceno => "Završen",
+        _ => Model.Status.ToString()
+    };
+    string statusKlasa = Model.Status switch
+    {
+        Status.Aktivan => "oglas-status--aktivan",
+        Status.Isporuceno => "oglas-status--zavrsen",
+        _ => "oglas-status--zatvoren"
+    };
+}
+
+<div class="moj-oglas-card">
+    <div class="moj-oglas-body">
+        <span class="moj-oglas-thumb"><i class="bi bi-image"></i></span>
+        <div class="moj-oglas-info">
+            <a asp-controller="OglasUsluge" asp-action="Detalji" asp-route-id="@Model.OglasId" class="moj-oglas-naslov">@Model.Naslov</a>
+            <div class="moj-oglas-meta">
+                @if (!string.IsNullOrEmpty(Model.Lokacija))
+                {
+                    <span><i class="bi bi-geo-alt"></i> @Model.Lokacija</span>
+                }
+                <span><i class="bi bi-clock"></i> @Model.DatumObjave.ToString("dd.MM.yyyy.")</span>
+                @if (Model.Kategorije.Any())
+                {
+                    <span>@string.Join(", ", Model.Kategorije)</span>
+                }
+            </div>
+        </div>
+        <div class="moj-oglas-desno">
+            <span class="oglas-status @statusKlasa"><i class="bi bi-circle-fill"></i> @statusLabel</span>
+            <span class="moj-oglas-budzet">@Model.MinBudzet - @Model.MaxBudzet KM</span>
+        </div>
+    </div>
+    <div class="moj-oglas-footer">
+        <span class="moj-oglas-ponude"><i class="bi bi-person"></i> <strong>@Model.BrojPonuda</strong> @(Model.BrojPonuda == 1 ? "ponuda" : Model.BrojPonuda is > 1 and < 5 ? "ponude" : "ponuda")</span>
+        <div class="moj-oglas-akcije">
+            <a asp-controller="OglasUsluge" asp-action="Detalji" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--outline">Pogledaj ponude</a>
+            @if (Model.Status == Status.Aktivan)
+            {
+                <a asp-controller="OglasUsluge" asp-action="UrediOglas" asp-route-id="@Model.OglasId" class="moj-oglas-btn">Uredi</a>
+            }
+            <a asp-controller="OglasUsluge" asp-action="ObrisiOglas" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--crveni">Obriši</a>
+        </div>
+    </div>
+</div>

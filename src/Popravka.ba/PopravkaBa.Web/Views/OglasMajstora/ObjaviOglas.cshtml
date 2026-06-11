@@ -1,0 +1,88 @@
+@model PopravkaBa.Application.DTOs.ObjaviOglasMajstoraDto
+@using PopravkaBa.Domain.Models
+@using PopravkaBa.Domain.Enums
+@{
+    ViewData["Title"] = "Objavi oglas majstora – Popravka.ba";
+    var kategorije = (ViewBag.Kategorije as IEnumerable<Kategorija>) ?? Enumerable.Empty<Kategorija>();
+}
+
+<div class="container mt-4 mb-5" style="max-width:760px;">
+    <a asp-controller="ObjaviOglas" asp-action="Index" class="text-muted text-decoration-none small d-block mb-3">
+        <i class="fa-solid fa-arrow-left me-1"></i>Odabir vrste oglasa
+    </a>
+
+    <h3 class="fw-bold mb-1"><i class="fa-solid fa-hard-hat me-2 text-primary"></i>Objavi oglas majstora</h3>
+    <p class="text-muted mb-4">Reklamirajte svoje usluge — klijenti će vas pronaći i kontaktirati.</p>
+
+    <form asp-action="ObjaviOglas" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display:none;"></div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Osnovne informacije</h5>
+                <div class="mb-3">
+                    <label asp-for="Naslov" class="form-label fw-medium">Naziv usluge *</label>
+                    <input asp-for="Naslov" class="form-control" placeholder="npr. Vodoinstalaterske usluge" />
+                    <span asp-validation-for="Naslov" class="text-danger small"></span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium">Kategorija *</label>
+                        <select name="KategorijeID" class="form-select" multiple size="5" required>
+                            @foreach (var kat in kategorije)
+                            {
+                                <option value="@kat.ID">@kat.Naziv</option>
+                            }
+                        </select>
+                        <div class="form-text">Ctrl+klik za više kategorija</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="MjestoID" class="form-label fw-medium">Lokacija</label>
+                        <input asp-for="MjestoID" type="number" class="form-control" placeholder="ID mjesta (opcionalno)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Opis usluge *</h5>
+                <textarea asp-for="Opis" class="form-control" rows="5"
+                          placeholder="Opišite usluge koje nudite, iskustvo, opremu i certifikate..."></textarea>
+                <span asp-validation-for="Opis" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Cijena</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="MinCijena" class="form-label fw-medium">Cijena od (KM)</label>
+                        <div class="input-group">
+                            <input asp-for="MinCijena" type="number" class="form-control" min="0" step="0.5" />
+                            <span class="input-group-text">KM</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="TipIsplate" class="form-label fw-medium">Tip isplate *</label>
+                        <select asp-for="TipIsplate" class="form-select" required>
+                            <option value="1">Po satu</option>
+                            <option value="0">Jednokratno (fiksno)</option>
+                            <option value="2">Sedmično</option>
+                            <option value="3">Mjesečno</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-controller="ObjaviOglas" asp-action="Index" class="btn btn-outline-secondary">Odustani</a>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fa-solid fa-paper-plane me-2"></i>Objavi oglas
+            </button>
+        </div>
+    </form>
+</div>

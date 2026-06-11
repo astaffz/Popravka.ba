@@ -12,8 +12,8 @@ using Popravka.ba.Data;
 namespace PopravkaBa.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260604002029_oglasMigration")]
-    partial class oglasMigration
+    [Migration("20260611201406_initialCreate")]
+    partial class initialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -219,6 +219,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<string>("Slika")
                         .HasColumnType("text");
 
+                    b.Property<int>("StatusVerifikacije")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -312,6 +315,67 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.ToTable("KorisnikMjesto", (string)null);
                 });
 
+            modelBuilder.Entity("PopravkaBa.Domain.Models.MjesecnaStatistikaKompozicija", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("BrojPoslova")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Godina")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("IzvrsilacID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("KategorijaID")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("KategorijaNaziv")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Mjesec")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MjestoID")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("MjestoNaziv")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("ProsjecnaOcjena")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("RangStandardni")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Slika")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TipKorisnika")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("VrijemeAzuriranja")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("MjesecnaStatistikaKompozicija", (string)null);
+                });
+
             modelBuilder.Entity("PopravkaBa.Domain.Models.Mjesto", b =>
                 {
                     b.Property<int>("MjestoID")
@@ -380,6 +444,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<string>("Opis")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("StatusOglasa")
+                        .HasColumnType("integer");
 
                     b.Property<string>("VlasnikOglasaID")
                         .IsRequired()
@@ -450,6 +517,12 @@ namespace PopravkaBa.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
+                    b.Property<int?>("Cijena")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DatumIzvrsavanjaUsluge")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("DatumOcekivanogZavrsetka")
                         .HasColumnType("timestamp with time zone");
 
@@ -466,7 +539,13 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<int>("OglasUslugeID")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Poruka")
+                        .HasColumnType("text");
+
                     b.Property<int>("StatusPonude")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TipIsplate")
                         .HasColumnType("integer");
 
                     b.HasKey("ID");
@@ -624,6 +703,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("JIB")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("KontaktTelefon")
                         .IsRequired()
                         .HasColumnType("text");
@@ -659,6 +742,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PDVBroj")
+                        .HasColumnType("text");
+
                     b.Property<string>("PoreznoUvjerenje")
                         .IsRequired()
                         .HasColumnType("text");
@@ -689,6 +775,47 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.UseTptMappingStrategy();
                 });
 
+            modelBuilder.Entity("PopravkaBa.Domain.Models.VerifikacijskiToken", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("KorisnikID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Tip")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("VrijemeGenerisanja")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("VrijemeIsteka")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("VrijemeKoristenja")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("VrijemeIsteka");
+
+                    b.HasIndex("KorisnikID", "Tip", "VrijemeGenerisanja");
+
+                    b.ToTable("VerifikacijskiToken", (string)null);
+                });
+
             modelBuilder.Entity("PopravkaBa.Domain.Models.Administrator", b =>
                 {
                     b.HasBaseType("PopravkaBa.Domain.Models.ApplicationUser");
@@ -704,14 +831,20 @@ namespace PopravkaBa.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("BrojRecenzija")
+                        .HasColumnType("integer");
+
                     b.Property<int>("BrojZavrsenihPoslova")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MinCijenaUsluge")
                         .HasColumnType("integer");
 
                     b.Property<string>("Opis")
                         .HasColumnType("text");
 
-                    b.Property<double>("ProsjecnaOcjena")
-                        .HasColumnType("double precision");
+                    b.Property<decimal>("ProsjecnaOcjena")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("StambeniBroj")
                         .HasColumnType("text");
@@ -760,8 +893,14 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<int>("MaxPrihod")
                         .HasColumnType("integer");
 
+                    b.Property<int>("MinIskustvo")
+                        .HasColumnType("integer");
+
                     b.Property<int>("MinPrihod")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Slika")
+                        .HasColumnType("text");
 
                     b.Property<int>("TipIsplate")
                         .HasColumnType("integer");
@@ -775,9 +914,6 @@ namespace PopravkaBa.Infrastructure.Migrations
             modelBuilder.Entity("PopravkaBa.Domain.Models.OglasUsluge", b =>
                 {
                     b.HasBaseType("PopravkaBa.Domain.Models.Oglas");
-
-                    b.Property<int>("BrojPrijava")
-                        .HasColumnType("integer");
 
                     b.Property<int>("MaxBudzet")
                         .HasColumnType("integer");
@@ -803,7 +939,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                 {
                     b.HasBaseType("PopravkaBa.Domain.Models.IzvrsilacUsluge");
 
-                    b.Property<DateOnly>("DatumOsnivanja")
+                    b.Property<bool>("AdminVerificirao")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateOnly?>("DatumOsnivanja")
                         .HasColumnType("date");
 
                     b.Property<int>("MaxZaposlenih")
@@ -824,9 +963,6 @@ namespace PopravkaBa.Infrastructure.Migrations
 
                     b.Property<string>("RadnoVrijeme")
                         .HasColumnType("text");
-
-                    b.Property<int>("StatusVerifikacije")
-                        .HasColumnType("integer");
 
                     b.Property<int>("VelicinaFirme")
                         .HasColumnType("integer");
@@ -926,7 +1062,7 @@ namespace PopravkaBa.Infrastructure.Migrations
             modelBuilder.Entity("PopravkaBa.Domain.Models.KorisnikMjesto", b =>
                 {
                     b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "Korisnik")
-                        .WithMany()
+                        .WithMany("Mjesta")
                         .HasForeignKey("KorisnikID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1092,6 +1228,17 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Navigation("Firma");
                 });
 
+            modelBuilder.Entity("PopravkaBa.Domain.Models.VerifikacijskiToken", b =>
+                {
+                    b.HasOne("PopravkaBa.Domain.Models.ApplicationUser", "Korisnik")
+                        .WithMany("Tokeni")
+                        .HasForeignKey("KorisnikID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Korisnik");
+                });
+
             modelBuilder.Entity("PopravkaBa.Domain.Models.EmailNotifikacijaOglas", b =>
                 {
                     b.HasOne("PopravkaBa.Domain.Models.NotifikacijaOglas", null)
@@ -1139,7 +1286,11 @@ namespace PopravkaBa.Infrastructure.Migrations
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Mjesta");
+
                     b.Navigation("Oglasi");
+
+                    b.Navigation("Tokeni");
                 });
 
             modelBuilder.Entity("PopravkaBa.Domain.Models.Kategorija", b =>

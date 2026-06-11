@@ -23,6 +23,9 @@ namespace PopravkaBa.Infrastructure.Repositories
      
         public async Task DodajUvjeteOglasu(int oglasId, List<string> tekstUvjeti)
         {
+            if (tekstUvjeti is null || tekstUvjeti.Count == 0)
+                return;
+
             var newOglasUvjetiRows = tekstUvjeti.Select(tekst => new UvjetOglasa
             {
                 OglasID = oglasId,

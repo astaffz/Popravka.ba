@@ -13,5 +13,6 @@ namespace PopravkaBa.Application.Services.Interface
         Task PrihvatiPonudu(int ponudaId);
         Task OdbijPonudu(int ponudaId);
         Task ObrisiPonudu(int ponudaId);
+        Task<decimal?> DajProsjekCijenePoKategorijama(IEnumerable<int> kategorijeIds);
     }
 }

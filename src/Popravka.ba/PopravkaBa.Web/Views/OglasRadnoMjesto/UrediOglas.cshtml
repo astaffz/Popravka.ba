@@ -1,5 +1,198 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model PopravkaBa.Application.DTOs.UrediOglasRadnoMjestoDto
+@using PopravkaBa.Domain.Models
+@using PopravkaBa.Domain.Enums
 @{
+    ViewData["Title"] = "Uredi oglas za posao – Popravka.ba";
+    var kategorije = (ViewBag.Kategorije as IEnumerable<Kategorija>) ?? Enumerable.Empty<Kategorija>();
+    var mjesta = (ViewBag.Mjesta as IEnumerable<Mjesto>) ?? Enumerable.Empty<Mjesto>();
+    var msKat = new KategorijeMultiSelectModel { Prefix = "katUrediRM", Kategorije = kategorije, InputName = "KategorijeID", Selektovano = Model.KategorijeID ?? new() };
+    var uvjeti = Model.Uvjeti ?? new List<string>();
+}
+
+<div class="container mt-4 mb-5" style="max-width:760px;">
+    <a asp-controller="OglasRadnoMjesto" asp-action="Detalji" asp-route-id="@Model.OglasID" class="text-muted text-decoration-none small d-block mb-3">
+        <i class="fa-solid fa-arrow-left me-1"></i>Nazad na oglas
+    </a>
+
+    <h3 class="fw-bold mb-1">Uredi oglas za posao</h3>
+    <p class="text-muted mb-4">Izmijenite podatke svog oglasa.</p>
+
+    <form asp-action="UrediOglas" asp-route-id="@Model.OglasID" method="post" id="radnoMjestoForm" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="OglasID" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display:none;"></div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Osnovne informacije</h5>
+                <div class="mb-3">
+                    <label asp-for="Naslov" class="form-label fw-medium">Naziv radnog mjesta</label>
+                    <input asp-for="Naslov" class="form-control" />
+                    <span asp-validation-for="Naslov" class="text-danger small"></span>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium">Kategorija</label>
+                        <partial name="_KategorijeMultiSelect" model="msKat" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="MjestoID" class="form-label fw-medium">Lokacija</label>
+                        <select asp-for="MjestoID" class="form-select" required>
+                            <option value="">Odaberite grad...</option>
+                            @foreach (var m in mjesta)
+                            {
+                                <option value="@m.MjestoID">@m.Naziv</option>
+                            }
+                        </select>
+                        <span asp-validation-for="MjestoID" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-medium">Tip zaposlenja</label>
+                        <div class="d-flex flex-wrap gap-2 mt-1">
+                            @foreach (var vz in Enum.GetValues<VrstaZaposlenja>())
+                            {
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="VrstaZaposlenja"
+                                           id="vz_@vz" value="@((int)vz)" required
+                                           @(Model.VrstaZaposlenja == vz ? "checked" : "") />
+                                    <label class="form-check-label" for="vz_@vz">
+                                        @(vz switch {
+                                            VrstaZaposlenja.PunoRadnoVrijeme  => "Stalni radni odnos",
+                                            VrstaZaposlenja.PolaRadnogVrijema => "Pola radnog vremena",
+                                            VrstaZaposlenja.UgovorDjelo       => "Ugovor o djelu",
+                                            VrstaZaposlenja.Praksa            => "Praksa",
+                                            VrstaZaposlenja.Sezonski          => "Sezonski",
+                                            _ => vz.ToString()
+                                        })
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="BrojIzvrsilaca" class="form-label fw-medium">Broj izvršilaca</label>
+                        <input asp-for="BrojIzvrsilaca" type="number" class="form-control" min="1" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Opis posla i uvjeti</h5>
+                <div class="mb-3">
+                    <label asp-for="Opis" class="form-label fw-medium">Opis radnog mjesta</label>
+                    <textarea asp-for="Opis" class="form-control" rows="5" maxlength="800"></textarea>
+                    <span asp-validation-for="Opis" class="text-danger small"></span>
+                </div>
+                <label class="form-label fw-medium">Uvjeti <span class="text-muted fw-normal">(opcionalno, max 3)</span></label>
+                <div id="uvjetiContainer">
+                    @if (uvjeti.Any())
+                    {
+                        foreach (var u in uvjeti)
+                        {
+                            <div class="input-group mb-2">
+                                <input type="text" name="Uvjeti" class="form-control" value="@u" />
+                                <button type="button" class="btn btn-outline-secondary" onclick="this.closest('.input-group').remove()">×</button>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="input-group mb-2">
+                            <input type="text" name="Uvjeti" class="form-control" placeholder="npr. Vozačka dozvola kategorije C/CE" />
+                            <button type="button" class="btn btn-outline-secondary" onclick="this.closest('.input-group').remove()">×</button>
+                        </div>
+                    }
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-1" id="btnDodajUvjet">
+                    <i class="fa-solid fa-plus me-1"></i>Dodaj uvjet
+                </button>
+
+                <label class="form-label fw-medium mt-3 d-block">Tražene vozačke dozvole <span class="text-muted fw-normal">(opcionalno)</span></label>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                    @{ var vozackeSel = Model.VozackeDozvole ?? new List<VozackaDozvola>(); }
+                    @foreach (var vd in Enum.GetValues<VozackaDozvola>())
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="VozackeDozvole"
+                                   id="vd_@vd" value="@vd" @(vozackeSel.Contains(vd) ? "checked" : "") />
+                            <label class="form-check-label" for="vd_@vd">@(vd == VozackaDozvola.Sve ? "Sve kategorije" : vd.ToString())</label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Prihod</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="MinPrihod" class="form-label fw-medium">Minimalni (KM)</label>
+                        <input asp-for="MinPrihod" type="number" class="form-control" min="0" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="MaxPrihod" class="form-label fw-medium">Maksimalni (KM)</label>
+                        <input asp-for="MaxPrihod" type="number" class="form-control" min="0" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TipIsplate" class="form-label fw-medium">Period isplate</label>
+                        <select name="TipIsplate" class="form-select" required>
+                            <option value="3" selected="@(Model.TipIsplate == TipIsplate.Mjesecno ? "selected" : null)">Mjesečno</option>
+                            <option value="2" selected="@(Model.TipIsplate == TipIsplate.Sedmicno ? "selected" : null)">Sedmično</option>
+                            <option value="1" selected="@(Model.TipIsplate == TipIsplate.PoSatu ? "selected" : null)">Po satu</option>
+                            <option value="0" selected="@(Model.TipIsplate == TipIsplate.Jednokratno ? "selected" : null)">Jednokratno</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Slika oglasa <span class="text-muted fw-normal small">(opcionalno)</span></h5>
+                @if (!string.IsNullOrEmpty(Model.Slika))
+                {
+                    <div class="mb-2">
+                        <img src="@Model.Slika" alt="Trenutna slika" class="img-fluid rounded" style="max-height:200px;object-fit:cover;" />
+                        <div class="form-text">Trenutna slika. Odaberite novu da je zamijenite.</div>
+                    </div>
+                }
+                <input type="file" name="slika" class="form-control" accept="image/png,image/jpeg,image/webp" />
+                <div class="form-text">JPG, PNG ili WEBP – maksimalno 5MB.</div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-controller="OglasRadnoMjesto" asp-action="Detalji" asp-route-id="@Model.OglasID" class="btn btn-outline-secondary">Odustani</a>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fa-solid fa-floppy-disk me-2"></i>Sačuvaj izmjene
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var btn = document.getElementById('btnDodajUvjet');
+    if (btn) {
+        btn.addEventListener('click', function () {
+            var cont = document.getElementById('uvjetiContainer');
+            if (cont.querySelectorAll('.input-group').length >= 3) {
+                alert('Možete dodati najviše 3 uvjeta.');
+                return;
+            }
+            var div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = '<input type="text" name="Uvjeti" class="form-control" placeholder="Dodajte uvjet..." />' +
+                '<button type="button" class="btn btn-outline-secondary" onclick="this.closest(\'.input-group\').remove()">×</button>';
+            cont.appendChild(div);
+        });
+    }
+})();
+</script>
 }

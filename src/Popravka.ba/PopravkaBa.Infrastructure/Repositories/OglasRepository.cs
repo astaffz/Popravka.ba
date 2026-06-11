@@ -38,7 +38,7 @@ namespace PopravkaBa.Infrastructure.Repositories
         {
             _context = context;
         }
-        
+
 
         public async Task<IEnumerable<OglasMajstora>> DajSveAsync()
             => await _context.OglasiMajstora
@@ -66,15 +66,17 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .ToListAsync();
         public async Task DodajAsync(OglasMajstora oglas)
         {
-            oglas.DatumObjave = DateTime.Now;
+            oglas.DatumObjave = DateTime.UtcNow;
             await _context.OglasiMajstora.AddAsync(oglas);
             await _context.SaveChangesAsync();
+            await AzurirajMinCijenuVlasnikaAsync(oglas.VlasnikOglasaID);
         }
 
         public async Task UrediAsync(OglasMajstora oglas)
         {
             _context.OglasiMajstora.Update(oglas);
             await _context.SaveChangesAsync();
+            await AzurirajMinCijenuVlasnikaAsync(oglas.VlasnikOglasaID);
         }
 
         public async Task ObrisiAsync(int id)
@@ -82,9 +84,32 @@ namespace PopravkaBa.Infrastructure.Repositories
             var oglas = await _context.OglasiMajstora.FindAsync(id);
             if (oglas is not null)
             {
+                var vlasnikId = oglas.VlasnikOglasaID;
                 _context.OglasiMajstora.Remove(oglas);
                 await _context.SaveChangesAsync();
+                await AzurirajMinCijenuVlasnikaAsync(vlasnikId);
             }
+        }
+
+        // Sinkronizuje pretraživu cijenu izvršioca (MinCijenaUsluge) sa najnižom
+        // cijenom njegovih aktivnih oglasa. Oglasi sa MinCijena = 0 ("Po dogovoru")
+        // se ne računaju. Ako nema aktivnih oglasa sa cijenom, vrijednost je null.
+        private async Task AzurirajMinCijenuVlasnikaAsync(string vlasnikId)
+        {
+            var vlasnik = await _context.ApplicationUsers
+                .OfType<IzvrsilacUsluge>()
+                .FirstOrDefaultAsync(u => u.Id == vlasnikId);
+            if (vlasnik is null) return;
+
+            var minCijena = await _context.OglasiMajstora
+                .Where(o => o.VlasnikOglasaID == vlasnikId
+                         && o.StatusOglasa == Domain.Enums.Status.Aktivan
+                         && o.MinCijena > 0)
+                .Select(o => (double?)o.MinCijena)
+                .MinAsync();
+
+            vlasnik.MinCijenaUsluge = minCijena.HasValue ? (int)Math.Round(minCijena.Value) : null;
+            await _context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<OglasMajstora>> IzvrsiPretraguTekstaAsync(string pretraga)
@@ -95,6 +120,11 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(o => o.Notifikacije)
                 .Where(o => o.Naslov.Contains(pretraga) || o.Opis.Contains(pretraga))
                 .ToListAsync();
+
+        public async Task<int> DajBrojAktivnihZaKorisnikaAsync(string vlasnikId)
+            => await _context.OglasiMajstora
+                .Where(o => o.VlasnikOglasaID == vlasnikId && o.StatusOglasa == Domain.Enums.Status.Aktivan)
+                .CountAsync();
     }
 
     public class OglasUslugeRepository : IOglasUslugeRepository
@@ -105,16 +135,21 @@ namespace PopravkaBa.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<OglasUsluge?> DajPoIdAsync(int id) => 
+        public async Task<OglasUsluge?> DajPoIdAsync(int id) =>
             await _context.OglasiUsluga
             .Include(o => o.VlasnikOglasa)
             .Include(o => o.Mjesto)
             .Include(o => o.Kategorije)
+                .ThenInclude(ok => ok.Kategorija)
             .Include(o => o.Notifikacije)
             .Include(o => o.Ponude)
+                .ThenInclude(p => p.Izvrsilac)
+                    .ThenInclude(izv => izv.Kategorije)
+                        .ThenInclude(ik => ik.Kategorija)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(o => o.OglasID == id);
 
-        public async Task<IEnumerable<OglasUsluge>> DajSveAsync() => 
+        public async Task<IEnumerable<OglasUsluge>> DajSveAsync() =>
             await _context.OglasiUsluga
             .Include(o => o.VlasnikOglasa)
             .Include(o => o.Mjesto)
@@ -126,11 +161,12 @@ namespace PopravkaBa.Infrastructure.Repositories
         public async Task<StraniceniRezultat<OglasUsluge>> PronadjiAsync(
         ISpecification<OglasUsluge> spec, int stranica, int stavkiPoStranici)
         {
+            // Include Ponude so that BrojPrijava (= Ponude.Count) is correctly populated.
+            // VlasnikOglasaΓåÆMjesta is NOT needed here (PretragaService only reads SkracenoIme/Slika).
             var query = _context.OglasiUsluga
                 .Include(o => o.VlasnikOglasa)
-                    .ThenInclude(v => v.Mjesta)
-                        .ThenInclude(km => km.Mjesto)
                 .Include(o => o.Mjesto)
+                .Include(o => o.Ponude)
                 .Where(spec.ToExpression())
                 .AsNoTracking();
 
@@ -163,7 +199,7 @@ namespace PopravkaBa.Infrastructure.Repositories
 
         public async Task DodajAsync(OglasUsluge oglas)
         {
-            oglas.DatumObjave = DateTime.Now;
+            oglas.DatumObjave = DateTime.UtcNow;
             await _context.OglasiUsluga.AddAsync(oglas);
             await _context.SaveChangesAsync();
         }
@@ -196,8 +232,8 @@ namespace PopravkaBa.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        // TODO: Dodati WHERE uslov kada obrazložimo logiku za izvršen oglas
-        public async Task<int> DajBrojZavrsenih() => 
+
+        public async Task<int> DajBrojZavrsenih() =>
             await _context.OglasiUsluga
                 .Where(o => o.StatusOglasa == Domain.Enums.Status.Isporuceno)
                 .CountAsync();
@@ -214,15 +250,20 @@ namespace PopravkaBa.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<OglasRadnoMjesto?> DajPoIdAsync(int id) => 
-            await  _context.OglasiRadnogMjesta
+        public async Task<OglasRadnoMjesto?> DajPoIdAsync(int id) =>
+            await _context.OglasiRadnogMjesta
             .Include(orm => orm.VozackeDozvole)
             .Include(orm => orm.Uvjeti)
             .Include(orm => orm.VlasnikOglasa)
             .Include(orm => orm.Prijave)
+                .ThenInclude(p => p.Majstor)
+                    .ThenInclude(m => m.Kategorije)
+                        .ThenInclude(ik => ik.Kategorija)
             .Include(orm => orm.Mjesto)
             .Include(orm => orm.Kategorije)
+                .ThenInclude(ok => ok.Kategorija)
             .Include(orm => orm.Notifikacije)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(orm => orm.OglasID == id);
         public async Task<IEnumerable<OglasRadnoMjesto>?> DajNedavneAsync(int topN)
        => await _context.OglasiRadnogMjesta
@@ -242,12 +283,10 @@ namespace PopravkaBa.Infrastructure.Repositories
             ISpecification<OglasRadnoMjesto> spec, int stranica, int stavkiPoStranici)
         {
             var query = _context.OglasiRadnogMjesta
-                .Include(o => o.VlasnikOglasa)
-                    .ThenInclude(v => v.Mjesta)
-                        .ThenInclude(km => km.Mjesto)
-                .Include(o => o.Mjesto)
-                .Where(spec.ToExpression())
-                .AsNoTracking();
+                 .Include(o => o.VlasnikOglasa)
+                 .Include(o => o.Mjesto)
+                 .Where(spec.ToExpression())
+                 .AsNoTracking();
 
             var ukupno = await query.CountAsync();
 
@@ -276,7 +315,7 @@ namespace PopravkaBa.Infrastructure.Repositories
 
         public async Task DodajAsync(OglasRadnoMjesto oglas)
         {
-            oglas.DatumObjave = DateTime.Now;
+            oglas.DatumObjave = DateTime.UtcNow;
             await _context.OglasiRadnogMjesta.AddAsync(oglas);
             await _context.SaveChangesAsync();
         }
@@ -298,7 +337,7 @@ namespace PopravkaBa.Infrastructure.Repositories
         public async Task ObrisiAsync(int id)
         {
             var oglas = await _context.OglasiRadnogMjesta.FindAsync(id);
-            if (oglas is not null) 
+            if (oglas is not null)
             {
                 _context.OglasiRadnogMjesta.Remove(oglas);
                 await _context.SaveChangesAsync();

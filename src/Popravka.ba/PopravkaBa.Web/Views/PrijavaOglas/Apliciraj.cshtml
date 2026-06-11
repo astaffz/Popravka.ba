@@ -1,5 +1,77 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model PopravkaBa.Application.DTOs.KreirajPrijavaRadnoMjestoDto
+@using PopravkaBa.Domain.Enums
 @{
+    ViewData["Title"] = "Prijava na oglas – Popravka.ba";
+    var oglas = ViewBag.Oglas as PopravkaBa.Domain.Models.OglasRadnoMjesto;
+
+    string vrstaZaposlenjaLabel(VrstaZaposlenja v) => v switch
+    {
+        VrstaZaposlenja.PunoRadnoVrijeme  => "Puno radno vrijeme",
+        VrstaZaposlenja.PolaRadnogVrijema => "Pola radnog vremena",
+        VrstaZaposlenja.UgovorDjelo       => "Ugovor o djelu",
+        VrstaZaposlenja.Praksa            => "Praksa",
+        VrstaZaposlenja.Sezonski          => "Sezonski",
+        _ => v.ToString()
+    };
 }
+
+<div class="container mt-4 mb-5" style="max-width:680px;">
+    <a asp-controller="OglasRadnoMjesto" asp-action="Detalji" asp-route-id="@Model.OglasID"
+       class="text-muted text-decoration-none small d-block mb-3">
+        <i class="fa-solid fa-arrow-left me-1"></i>Nazad na oglas
+    </a>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <h3 class="fw-bold mb-1">Prijava na oglas</h3>
+    <p class="text-muted mb-4">Potvrdite svoju prijavu na ovaj oglas za posao. Poslodavac će vidjeti vaš profil.</p>
+
+    @if (oglas is not null)
+    {
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">@oglas.Naslov</h5>
+                <table class="table table-sm table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted small">Poslodavac</td>
+                            <td class="fw-medium small text-end">@(oglas.VlasnikOglasa?.DisplayName ?? "—")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted small">Lokacija</td>
+                            <td class="fw-medium small text-end">@(oglas.Mjesto?.Naziv ?? "—")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted small">Tip zaposlenja</td>
+                            <td class="fw-medium small text-end">@vrstaZaposlenjaLabel(oglas.VrstaZaposlenja)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted small">Prihod</td>
+                            <td class="fw-medium small text-end">@oglas.MinPrihod.ToString("N0") – @oglas.MaxPrihod.ToString("N0") KM</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <form asp-controller="PrijavaOglas" asp-action="Apliciraj" method="post"
+          onsubmit="return confirm('Poslati prijavu na ovaj oglas?');">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="OglasID" />
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-controller="OglasRadnoMjesto" asp-action="Detalji" asp-route-id="@Model.OglasID"
+               class="btn btn-outline-secondary">Odustani</a>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fa-solid fa-paper-plane me-2"></i>Pošalji prijavu
+            </button>
+        </div>
+    </form>
+</div>

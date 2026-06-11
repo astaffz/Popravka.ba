@@ -11,6 +11,7 @@ namespace PopravkaBa.Domain.Enums
         PunoRadnoVrijeme,
         PolaRadnogVrijema,
         UgovorDjelo,
-        Praksa
+        Praksa,
+        Sezonski
     }
 }

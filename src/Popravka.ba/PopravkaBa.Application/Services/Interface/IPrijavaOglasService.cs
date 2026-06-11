@@ -9,6 +9,6 @@ public interface IPrijavaOglasService
     Task<PrijavaRadnoMjesto?> DajPrijavuPoId(int prijavaId);
     Task KreirajPrijavu(KreirajPrijavaRadnoMjestoDto dto);
     Task ObrisiPrijavu(int prijavaId);
-    Task PrihvatiPonudu(int prijavaId);
+    Task<bool> PrihvatiPonudu(int prijavaId);
     Task OdbijPrijavu(int prijavaId);
 }

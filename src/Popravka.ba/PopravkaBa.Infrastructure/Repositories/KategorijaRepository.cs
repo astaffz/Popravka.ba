@@ -23,6 +23,9 @@ namespace PopravkaBa.Infrastructure.Repositories
      
         public async Task DodajKategorijeOglasu(int oglasId, List<int> kategorijeID)
         {
+            if (kategorijeID is null || kategorijeID.Count == 0)
+                return;
+
             var newOglasKategorijeRows = kategorijeID.Select(kid => new OglasKategorija
             {
                 OglasID = oglasId,

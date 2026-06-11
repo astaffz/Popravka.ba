@@ -56,7 +56,9 @@ namespace PopravkaBa.Web.Controllers
                     DatumObjave = oglas.DatumObjave,
                     VlasnikOglasaSkracenoIme = oglas.VlasnikOglasa.SkracenoIme.Length > 15 ? oglas.VlasnikOglasa.SkracenoIme.Substring(0, 15) + "..." : oglas.VlasnikOglasa.SkracenoIme,
                     VlasnikOglasaSlika = oglas.VlasnikOglasa.Slika,
-                    BrojPonuda = oglas.BrojPrijava
+                    Slika = oglas.Slika,
+                    BrojPonuda = oglas.BrojPrijava,
+                    TipOglasa = oglas is Domain.Models.OglasRadnoMjesto ? "OglasRadnoMjesto" : "OglasUsluge"
                 }) ?? Enumerable.Empty<NedavniOglasiViewModel>()
             };
            

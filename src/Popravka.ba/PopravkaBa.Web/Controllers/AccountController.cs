@@ -74,27 +74,27 @@ namespace PopravkaBa.Web.Controllers
         [RedirectIfAuthenticated]
         public async Task<IActionResult> Login(string? returnUrl = null)
         {
-          
-            var vm =  new RegistracijaViewModel
+
+            var vm = new RegistracijaViewModel
             {
                 ActiveTab = AuthTab.Prijava,
                 Mjesta = await _mjestoService.DajSvaMjestaAsync(),
                 Kategorije = await _kategorijaService.DajSveKategorije(),
 
             };
-            
+
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["Title"] = "Prijava – Popravka.ba";
-           
-            return View("Registracija",vm);
+
+            return View("Registracija", vm);
         }
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
         [RedirectIfAuthenticated]
         [ValidateAntiForgeryToken]
         [HttpPost("/login")]
-      public async Task<IActionResult> Login(RegistracijaViewModel vm, string? returnUrl = null)
-{
+        public async Task<IActionResult> Login(RegistracijaViewModel vm, string? returnUrl = null)
+        {
 
             returnUrl ??= Request.Form["returnUrl"].FirstOrDefault();
 
@@ -128,11 +128,11 @@ namespace PopravkaBa.Web.Controllers
                 return View("Registracija", await IzgradiRegistracijaVmAsync(auth: AuthTab.Prijava));
             }
 
-        
+
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
             return RedirectToAction("Index", "Home");
-                
+
         }
 
         [Authorize]
@@ -146,7 +146,7 @@ namespace PopravkaBa.Web.Controllers
         }
 
 
- 
+
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
         [HttpPost("/register/klijent")]
@@ -169,7 +169,7 @@ namespace PopravkaBa.Web.Controllers
 
 
             var result = await _userManager.CreateAsync(user, dto.Lozinka);
-            
+
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
@@ -200,13 +200,13 @@ namespace PopravkaBa.Web.Controllers
                 Mjesta = await _mjestoService.DajSvaMjestaAsync(),
                 Kategorije = await _kategorijaService.DajSveKategorije(),
                 ActiveTab = AuthTab.Registracija,
-                
+
             };
             ViewData["Title"] = "Registracija – Popravka.ba";
             return View(vm);
         }
 
-   
+
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
         [RedirectIfAuthenticated]
@@ -242,7 +242,7 @@ namespace PopravkaBa.Web.Controllers
             await _userManager.AddToRoleAsync(user, KorisnickeUloge.Majstor.ToString());
             await _kategorijaService.DodajKategorijeIzvrsiocu(user.Id, dto.KategorijeID);
 
-         
+
             await _mjestoService.DodajMjestaKorisniku(user.Id, dto.MjestaID);
 
             await _signInManager.SignInAsync(user, isPersistent: false);
@@ -254,7 +254,7 @@ namespace PopravkaBa.Web.Controllers
             return RedirectToAction(nameof(VerifikacijaPoslana));
         }
 
-       
+
         [AllowAnonymous]
         [EnableRateLimiting("auth")]
         [RedirectIfAuthenticated]
@@ -279,7 +279,7 @@ namespace PopravkaBa.Web.Controllers
                 WebStranica = dto.WebStranica,
                 DatumRegistracije = DateTime.UtcNow
             };
-          
+
             var registerResult = await _userManager.CreateAsync(user, dto.Lozinka);
             if (!registerResult.Succeeded)
             {
@@ -291,12 +291,12 @@ namespace PopravkaBa.Web.Controllers
 
             await _userManager.AddToRoleAsync(user, KorisnickeUloge.Firma.ToString());
 
-           
+
             if (logo is { Length: > 0 })
             {
-                ValidirajLogo(logo);   
+                ValidirajLogo(logo);
                 await using var s = logo.OpenReadStream();
-                user.Slika = await _storage.SpremiSlikuPublic(s, logo.ContentType, ct);
+                user.Slika = await _storage.SpremiPublic(s, logo.ContentType, ct);
             }
 
             await _kategorijaService.DodajKategorijeIzvrsiocu(user.Id, dto.KategorijeID);
@@ -327,7 +327,7 @@ namespace PopravkaBa.Web.Controllers
                 ModelState.AddModelError("", "Unesite validnu email adresu.");
                 return View();
             }
-            
+
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
@@ -385,16 +385,16 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> ResetLozinke(string? token)
         {
             if (string.IsNullOrEmpty(token))
-                return StatusCode(404);
+                return NotFound();
 
             var (status, _, _) = await _verifikacijaService.ValidirajResetTokenAsync(token);
             if (status != Status.Aktivan)
                 return RedirectToAction("StatusCode", "Home", new { code = 403 });
             return View(new ResetLozinkeViewModel { Token = token });
         }
-        
 
-        
+
+
 
 
         [HttpPost("profil/reset-lozinke")]
@@ -405,7 +405,7 @@ namespace PopravkaBa.Web.Controllers
 
             var (status, token, user) = await _verifikacijaService.ValidirajResetTokenAsync(vm.Token);
             if (status != Status.Aktivan)
-                return View("Error");  
+                return View("Error");
 
             var identityToken = await _userManager.GeneratePasswordResetTokenAsync(user!);
             var result = await _userManager.ResetPasswordAsync(user!, identityToken, vm.NovaLozinka);
@@ -414,18 +414,18 @@ namespace PopravkaBa.Web.Controllers
             {
                 foreach (var e in result.Errors)
                     ModelState.AddModelError(string.Empty, e.Description);
-                return View(vm);   
+                return View(vm);
             }
 
-            await _verifikacijaService.OznaciKoristenimAsync(token!);   
+            await _verifikacijaService.OznaciKoristenimAsync(token!);
             return View("ResetLozinkePotvrda");
         }
 
 
-        
-     
 
-      
+
+
+
         private async Task<RegistracijaViewModel> IzgradiRegistracijaVmAsync(
             RegistracijaKlijentaDto klijent = null,
             RegistracijaMajstoraDto majstor = null,

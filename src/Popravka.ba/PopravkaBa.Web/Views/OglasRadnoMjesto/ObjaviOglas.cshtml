@@ -1,5 +1,154 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model PopravkaBa.Application.DTOs.ObjaviOglasRadnoMjestoDto
+@using PopravkaBa.Domain.Models
+@using PopravkaBa.Domain.Enums
 @{
+    ViewData["Title"] = "Objavi oglas za posao – Popravka.ba";
+    var kategorije = (ViewBag.Kategorije as IEnumerable<Kategorija>) ?? Enumerable.Empty<Kategorija>();
+}
+
+<div class="container mt-4 mb-5" style="max-width:760px;">
+    <a asp-controller="ObjaviOglas" asp-action="Index" class="text-muted text-decoration-none small d-block mb-3">
+        <i class="fa-solid fa-arrow-left me-1"></i>Odabir vrste oglasa
+    </a>
+
+    <h3 class="fw-bold mb-1"><i class="fa-solid fa-briefcase me-2 text-primary"></i>Objavi oglas za posao</h3>
+    <p class="text-muted mb-4">Oglas za radno mjesto — majstori će aplicirovati na vaš oglas.</p>
+
+    <form asp-action="ObjaviOglas" method="post" id="radnoMjestoForm">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display:none;"></div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Osnovne informacije</h5>
+                <div class="mb-3">
+                    <label asp-for="Naslov" class="form-label fw-medium">Naziv radnog mjesta *</label>
+                    <input asp-for="Naslov" class="form-control" placeholder="npr. Komercijalni prevoznik/ica" />
+                    <span asp-validation-for="Naslov" class="text-danger small"></span>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium">Kategorija *</label>
+                        <select name="KategorijeID" class="form-select" multiple size="5" required>
+                            @foreach (var kat in kategorije)
+                            {
+                                <option value="@kat.ID">@kat.Naziv</option>
+                            }
+                        </select>
+                        <div class="form-text">Ctrl+klik za više kategorija</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="MjestoID" class="form-label fw-medium">Lokacija *</label>
+                        <input asp-for="MjestoID" type="number" class="form-control" placeholder="ID mjesta" required />
+                        <span asp-validation-for="MjestoID" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-medium">Tip zaposlenja *</label>
+                        <div class="d-flex flex-wrap gap-3 mt-1">
+                            @foreach (var vz in Enum.GetValues<VrstaZaposlenja>())
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="VrstaZaposlenja"
+                                           id="vz_@vz" value="@((int)vz)"
+                                           @(vz == VrstaZaposlenja.PunoRadnoVrijeme ? "checked" : "") required />
+                                    <label class="form-check-label" for="vz_@vz">
+                                        @(vz switch {
+                                            VrstaZaposlenja.PunoRadnoVrijeme  => "Stalni radni odnos",
+                                            VrstaZaposlenja.PolaRadnogVrijema => "Pola radnog vremena",
+                                            VrstaZaposlenja.UgovorDjelo       => "Ugovor o djelu",
+                                            VrstaZaposlenja.Praksa            => "Praksa",
+                                            VrstaZaposlenja.Sezonski          => "Sezonski",
+                                            _ => vz.ToString()
+                                        })
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="BrojIzvrsilaca" class="form-label fw-medium">Broj izvršilaca *</label>
+                        <input asp-for="BrojIzvrsilaca" type="number" class="form-control" min="1" value="1" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Opis posla i uvjeti</h5>
+                <div class="mb-3">
+                    <label asp-for="Opis" class="form-label fw-medium">Opis radnog mjesta *</label>
+                    <textarea asp-for="Opis" class="form-control" rows="5" maxlength="800"
+                              placeholder="Opišite radno mjesto, odgovornosti i sve što smatrate važnim za kandidata..."></textarea>
+                    <span asp-validation-for="Opis" class="text-danger small"></span>
+                </div>
+                <label class="form-label fw-medium">Uvjeti <span class="text-muted fw-normal">(opcionalno, max 3)</span></label>
+                <div id="uvjetiContainer">
+                    <div class="input-group mb-2">
+                        <input type="text" name="Uvjeti" class="form-control" placeholder="npr. Vozačka dozvola kategorije C/CE" />
+                        <button type="button" class="btn btn-outline-secondary" onclick="this.closest('.input-group').remove()">×</button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-1" id="btnDodajUvjet">
+                    <i class="fa-solid fa-plus me-1"></i>Dodaj uvjet
+                </button>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Prihod</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="MinPrihod" class="form-label fw-medium">Minimalni (KM)</label>
+                        <input asp-for="MinPrihod" type="number" class="form-control" min="0" placeholder="1.500" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="MaxPrihod" class="form-label fw-medium">Maksimalni (KM)</label>
+                        <input asp-for="MaxPrihod" type="number" class="form-control" min="0" placeholder="2.200" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TipIsplate" class="form-label fw-medium">Period isplate *</label>
+                        <select asp-for="TipIsplate" class="form-select" required>
+                            <option value="3" selected>Mjesečno</option>
+                            <option value="2">Sedmično</option>
+                            <option value="1">Po satu</option>
+                            <option value="0">Jednokratno</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-controller="ObjaviOglas" asp-action="Index" class="btn btn-outline-secondary">Odustani</a>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fa-solid fa-paper-plane me-2"></i>Objavi oglas
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var btn = document.getElementById('btnDodajUvjet');
+    if (btn) {
+        btn.addEventListener('click', function () {
+            var cont = document.getElementById('uvjetiContainer');
+            if (cont.querySelectorAll('.input-group').length >= 3) {
+                alert('Možete dodati najviše 3 uvjeta.');
+                return;
+            }
+            var div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = '<input type="text" name="Uvjeti" class="form-control" placeholder="Dodajte uvjet..." />' +
+                '<button type="button" class="btn btn-outline-secondary" onclick="this.closest(\'.input-group\').remove()">×</button>';
+            cont.appendChild(div);
+        });
+    }
+})();
+</script>
 }

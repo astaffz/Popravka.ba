@@ -1,5 +1,95 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model PopravkaBa.Application.DTOs.ObjaviOglasUslugeDto
+@using PopravkaBa.Domain.Models
 @{
+    ViewData["Title"] = "Objavi oglas usluge – Popravka.ba";
+    var kategorije = (ViewBag.Kategorije as IEnumerable<Kategorija>) ?? Enumerable.Empty<Kategorija>();
 }
+
+<div class="container mt-4 mb-5" style="max-width:760px;">
+    <a asp-controller="ObjaviOglas" asp-action="Index" class="text-muted text-decoration-none small d-block mb-3">
+        <i class="fa-solid fa-arrow-left me-1"></i>Odabir vrste oglasa
+    </a>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fa-solid fa-circle-check me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <h3 class="fw-bold mb-1"><i class="fa-solid fa-wrench me-2 text-primary"></i>Objavi oglas usluge</h3>
+    <p class="text-muted mb-4">Oglas za traženu uslugu – majstori/firme će vam slati ponude.</p>
+
+    <form asp-action="ObjaviOglas" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none"></div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Osnovne informacije</h5>
+                <div class="mb-3">
+                    <label asp-for="Naslov" class="form-label fw-medium">Naziv posla *</label>
+                    <input asp-for="Naslov" class="form-control" placeholder="npr. Popravka vodovodnih cijevi" />
+                    <span asp-validation-for="Naslov" class="text-danger small"></span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium">Kategorija *</label>
+                        <select name="KategorijeID" class="form-select" multiple size="5" required>
+                            @foreach (var kat in kategorije)
+                            {
+                                <option value="@kat.ID">@kat.Naziv</option>
+                            }
+                        </select>
+                        <div class="form-text">Ctrl+klik za više kategorija</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="MjestoID" class="form-label fw-medium">Lokacija *</label>
+                        <input asp-for="MjestoID" type="number" class="form-control" placeholder="ID mjesta" />
+                        <span asp-validation-for="MjestoID" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Opis</h5>
+                <label asp-for="Opis" class="form-label fw-medium">Opis posla *</label>
+                <textarea asp-for="Opis" class="form-control" rows="5"
+                          placeholder="Opišite šta je potrebno uraditi..."></textarea>
+                <span asp-validation-for="Opis" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Budžet</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="MinBudzet" class="form-label fw-medium">Minimalni budžet (KM)</label>
+                        <div class="input-group">
+                            <input asp-for="MinBudzet" type="number" class="form-control" min="0" />
+                            <span class="input-group-text">KM</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="MaxBudzet" class="form-label fw-medium">Maksimalni budžet (KM)</label>
+                        <div class="input-group">
+                            <input asp-for="MaxBudzet" type="number" class="form-control" min="0" />
+                            <span class="input-group-text">KM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-controller="ObjaviOglas" asp-action="Index" class="btn btn-outline-secondary">Odustani</a>
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fa-solid fa-paper-plane me-2"></i>Objavi oglas
+            </button>
+        </div>
+    </form>
+</div>

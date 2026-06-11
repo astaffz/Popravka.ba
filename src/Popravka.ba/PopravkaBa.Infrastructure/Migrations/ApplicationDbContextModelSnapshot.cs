@@ -442,6 +442,9 @@ namespace PopravkaBa.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Slika")
+                        .HasColumnType("text");
+
                     b.Property<int>("StatusOglasa")
                         .HasColumnType("integer");
 
@@ -514,6 +517,9 @@ namespace PopravkaBa.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
+                    b.Property<int?>("Cijena")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("DatumIzvrsavanjaUsluge")
                         .HasColumnType("timestamp with time zone");
 
@@ -533,7 +539,13 @@ namespace PopravkaBa.Infrastructure.Migrations
                     b.Property<int>("OglasUslugeID")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Poruka")
+                        .HasColumnType("text");
+
                     b.Property<int>("StatusPonude")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TipIsplate")
                         .HasColumnType("integer");
 
                     b.HasKey("ID");
@@ -691,6 +703,10 @@ namespace PopravkaBa.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("JIB")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("KontaktTelefon")
                         .IsRequired()
                         .HasColumnType("text");
@@ -724,6 +740,9 @@ namespace PopravkaBa.Infrastructure.Migrations
 
                     b.Property<string>("OdgovornaOsobaTelefon")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PDVBroj")
                         .HasColumnType("text");
 
                     b.Property<string>("PoreznoUvjerenje")

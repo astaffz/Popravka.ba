@@ -22,7 +22,7 @@ namespace PopravkaBa.Domain.Models
         [ForeignKey("Majstor")]
         public string MajstorID { get; set; }
         public Majstor Majstor { get; set; }
-        public DateTime VrijemePrijave { get; set; } = DateTime.Now;
+        public DateTime VrijemePrijave { get; set; } = DateTime.UtcNow;
 
         // TODO Migration1: Uvodi StatusPrijave enum
         public Status StatusPrijave { get; set; } = Status.NaCekanju;

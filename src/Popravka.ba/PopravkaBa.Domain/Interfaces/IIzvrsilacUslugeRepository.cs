@@ -8,6 +8,8 @@ namespace PopravkaBa.Domain.Interfaces
     {
         Task<IEnumerable<IzvrsilacUsluge>> DajSveAsync();
         Task<IzvrsilacUsluge?> DajPoIdAsync(int id);
+        // Profil sa svim navigacijama (kategorije, portfolio, mjesta, recenzije)
+        Task<IzvrsilacUsluge?> DajProfilPoIdAsync(string id);
         Task<StraniceniRezultat<IzvrsilacUsluge>> PronadjiAsync(
             ISpecification<IzvrsilacUsluge> spec, int stranica, int stavkiPoStranici);
         Task DodajAsync(IzvrsilacUsluge oglas);

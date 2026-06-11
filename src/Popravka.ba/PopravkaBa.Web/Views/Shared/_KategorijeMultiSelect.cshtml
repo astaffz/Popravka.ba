@@ -1,0 +1,177 @@
+@model PopravkaBa.Web.Models.ViewModels.KategorijeMultiSelectModel
+@{
+    var prefix = Model.Prefix;
+    var sel = Model.Selektovano ?? new List<int>();
+    var nadkategorije = Model.Kategorije
+        .Where(k => k.NadkategorijaID == null)
+        .OrderBy(k => k.Naziv)
+        .ToList();
+}
+
+<div class="filter-multiselect" id="@(prefix)Wrap">
+    <div class="filter-ms-display" id="@(prefix)Display">
+        <span class="filter-ms-placeholder">@Model.Placeholder</span>
+        <i class="fa-solid fa-chevron-down filter-ms-caret"></i>
+    </div>
+    <div class="filter-ms-dropdown" id="@(prefix)Dropdown">
+        <div class="filter-ms-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="filter-ms-search" id="@(prefix)Search"
+                   placeholder="Pretraži zanimanje..." autocomplete="off"
+                   oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()" />
+        </div>
+        <div class="filter-ms-options" id="@(prefix)Options">
+            @foreach (var nadkat in nadkategorije)
+            {
+                var podkategorije = Model.Kategorije
+                    .Where(k => k.NadkategorijaID == nadkat.ID)
+                    .OrderBy(k => k.Naziv)
+                    .ToList();
+                if (podkategorije.Any())
+                {
+                    <div class="filter-ms-group-label" data-group="@nadkat.Naziv">@nadkat.Naziv</div>
+                    foreach (var podkat in podkategorije)
+                    {
+                        <div class="filter-ms-option @(sel.Contains(podkat.ID) ? "selected" : "")"
+                             data-value="@podkat.ID" data-label="@podkat.Naziv" data-group="@nadkat.Naziv">@podkat.Naziv</div>
+                    }
+                }
+                else
+                {
+                    <div class="filter-ms-option @(sel.Contains(nadkat.ID) ? "selected" : "")"
+                         data-value="@nadkat.ID" data-label="@nadkat.Naziv" data-group="@nadkat.Naziv">@nadkat.Naziv</div>
+                }
+            }
+        </div>
+    </div>
+</div>
+<div class="chip-container mt-2" id="@(prefix)Chips"></div>
+<div id="@(prefix)Hidden"></div>
+
+<script>
+(function () {
+    if (!window.__kmsSetup) {
+        window.__kmsSetup = function (cfg) {
+            var wrap = document.getElementById(cfg.prefix + 'Wrap');
+            if (!wrap || wrap.dataset.kmsInit) return;
+            wrap.dataset.kmsInit = '1';
+
+            var display     = document.getElementById(cfg.prefix + 'Display');
+            var placeholder = display.querySelector('.filter-ms-placeholder');
+            var dropdown    = document.getElementById(cfg.prefix + 'Dropdown');
+            var search      = document.getElementById(cfg.prefix + 'Search');
+            var optionEls   = Array.prototype.slice.call(dropdown.querySelectorAll('.filter-ms-option'));
+            var groupEls    = Array.prototype.slice.call(dropdown.querySelectorAll('.filter-ms-group-label'));
+            var chips       = document.getElementById(cfg.prefix + 'Chips');
+            var hidden      = document.getElementById(cfg.prefix + 'Hidden');
+            var selected    = new Set();
+
+            function open()  { wrap.classList.add('open'); search.focus(); }
+            function close() { wrap.classList.remove('open'); search.value = ''; filter(''); }
+
+            function filter(q) {
+                q = q.toLowerCase();
+                var visibleGroups = new Set();
+                var anyVisible = false;
+                optionEls.forEach(function (opt) {
+                    var match = opt.dataset.label.toLowerCase().indexOf(q) !== -1;
+                    opt.style.display = match ? '' : 'none';
+                    if (match) { visibleGroups.add(opt.dataset.group); anyVisible = true; }
+                });
+                groupEls.forEach(function (g) {
+                    g.style.display = visibleGroups.has(g.dataset.group) ? '' : 'none';
+                });
+                var nr = dropdown.querySelector('.filter-ms-no-results');
+                if (!anyVisible) {
+                    if (!nr) {
+                        nr = document.createElement('div');
+                        nr.className = 'filter-ms-no-results';
+                        nr.textContent = 'Nema rezultata.';
+                        dropdown.querySelector('.filter-ms-options').appendChild(nr);
+                    }
+                    nr.style.display = '';
+                } else if (nr) {
+                    nr.style.display = 'none';
+                }
+            }
+
+            function optionEl(val) {
+                return optionEls.filter(function (o) { return o.dataset.value === val; })[0];
+            }
+
+            function updatePlaceholder() {
+                placeholder.textContent = selected.size > 0
+                    ? selected.size + ' odabrano'
+                    : cfg.placeholder;
+            }
+
+            function addChip(val, label) {
+                var chip = document.createElement('span');
+                chip.className = 'filter-chip';
+                chip.dataset.value = val;
+                chip.appendChild(document.createTextNode(label + ' '));
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'filter-chip-remove';
+                btn.textContent = '×';
+                btn.addEventListener('click', function (e) { e.stopPropagation(); deselect(val); });
+                chip.appendChild(btn);
+                chips.appendChild(chip);
+
+                var h = document.createElement('input');
+                h.type = 'hidden';
+                h.name = cfg.inputName;
+                h.value = val;
+                h.dataset.value = val;
+                hidden.appendChild(h);
+            }
+
+            function select(val, label) {
+                if (selected.has(val)) return;
+                selected.add(val);
+                addChip(val, label);
+                var o = optionEl(val); if (o) o.classList.add('selected');
+                updatePlaceholder();
+            }
+
+            function deselect(val) {
+                selected.delete(val);
+                var chip = chips.querySelector('.filter-chip[data-value="' + val + '"]'); if (chip) chip.remove();
+                var h = hidden.querySelector('input[data-value="' + val + '"]'); if (h) h.remove();
+                var o = optionEl(val); if (o) o.classList.remove('selected');
+                updatePlaceholder();
+            }
+
+            display.addEventListener('click', function (e) {
+                e.stopPropagation();
+                wrap.classList.contains('open') ? close() : open();
+            });
+            dropdown.addEventListener('click', function (e) { e.stopPropagation(); });
+            search.addEventListener('input', function () { filter(search.value); });
+            optionEls.forEach(function (opt) {
+                opt.addEventListener('click', function () {
+                    var val = opt.dataset.value;
+                    selected.has(val) ? deselect(val) : select(val, opt.dataset.label);
+                });
+            });
+            document.addEventListener('click', function () {
+                if (wrap.classList.contains('open')) close();
+            });
+
+            // Pre-selekcija (za uređivanje) — opcije već označene kao .selected
+            optionEls.forEach(function (opt) {
+                if (opt.classList.contains('selected')) {
+                    opt.classList.remove('selected');
+                    select(opt.dataset.value, opt.dataset.label);
+                }
+            });
+
+            updatePlaceholder();
+        };
+    }
+    window.__kmsSetup({ prefix: '@prefix', inputName: '@Model.InputName', placeholder: '@Model.Placeholder' });
+})();
+</script>

@@ -1,3 +1,4 @@
+using Amazon;
 using Amazon.S3;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ using PopravkaBa.Infrastructure.Adapters.Options;
 using PopravkaBa.Infrastructure.BackgroundServices;
 using PopravkaBa.Infrastructure.Repositories;
 using PopravkaBa.Infrastructure.Seeders;
+using System.Globalization;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +35,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     options.Lockout.MaxFailedAccessAttempts = 10;
     options.Lockout.AllowedForNewUsers = true;
- 
+
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = false;
@@ -77,7 +79,7 @@ builder.Services.AddScoped<IKategorijaService, KategorijaService>();
 builder.Services.AddScoped<IKategorijaRepository, KategorijaRepository>();
 
 builder.Services.AddScoped<IMjestoService, MjestoService>();
-builder.Services.AddScoped<IMjestoRepository,MjestoRepository>();
+builder.Services.AddScoped<IMjestoRepository, MjestoRepository>();
 
 builder.Services.AddScoped<IMjesecnaStatistikaRepository, MjesecnaStatistikaRepository>();
 
@@ -91,6 +93,8 @@ builder.Services.AddScoped<IOglasRadnoMjestoService, OglasRadnoMjestoService>();
 builder.Services.AddScoped<IOglasRadnoMjestoRepository, OglasRadnoMjestoRepository>();
 builder.Services.AddScoped<IUvjetOglasaRepository, UvjetOglasaRepository>();
 builder.Services.AddScoped<IUvjetOglasaService, UvjetOglasaService>();
+builder.Services.AddScoped<IVozackeDozvoleRepository, VozackeDozvoleRepository>();
+builder.Services.AddScoped<IVozackeDozvoleService, VozackeDozvoleService>();
 
 builder.Services.AddScoped<IOglasUslugeService, OglasUslugeService>();
 builder.Services.AddScoped<IOglasUslugeRepository, OglasUslugeRepository>();
@@ -100,9 +104,13 @@ builder.Services.AddScoped<IOglasMajstoraFacade, OglasMajstoraFacade>();
 builder.Services.AddScoped<IOglasRadnoMjestoFacade, OglasRadnoMjestoFacade>();
 builder.Services.AddScoped<IOglasUslugeFacade, OglasUslugeFacade>();
 
+builder.Services.AddScoped<IPonudaUslugeRepository, PonudaUslugeRepository>();
 builder.Services.AddScoped<IPonudaUslugeService, PonudaUslugeService>();
-// builder.Services.AddScoped<IPrijavaOglasService, PrijavaOglasService>();
+
+builder.Services.AddScoped<IPrijavaRadnoMjestoRepository, PrijavaRadnoMjestoRepository>();
+builder.Services.AddScoped<IPrijavaOglasService, PrijavaOglasService>();
 builder.Services.AddScoped<IRecenzijaService, RecenzijaService>();
+builder.Services.AddScoped<IRecenzijaRepository, RecenzijaRepository>();
 
 builder.Services.AddScoped<IPretragaStrategy, KlijentStrategy>();
 builder.Services.AddScoped<IPretragaStrategy, MajstorStrategy>();
@@ -131,17 +139,22 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
     return new AmazonS3Client(o.AccessKey, o.SecretKey, new AmazonS3Config
     {
         ServiceURL = $"https://{o.AccountID}.r2.cloudflarestorage.com",
-        ForcePathStyle = true
+        AuthenticationRegion = "auto",
+        ForcePathStyle = true,
+   
     });
 });
-
 builder.Services.AddSingleton<IFileStorage, S3FileStorageAdapter>();
 
 builder.Services.AddScoped<IVerifikacijaEmailaService, VerifikacijaEmailaService>();
 builder.Services.AddScoped<IVerifikacijskiTokenRepository, VerifikacijskiTokenRepository>();
 
+builder.Services.AddScoped<IVerifikacijaFirmeService, VerifikacijaFirmeService>();
+builder.Services.AddScoped<IVerifikacijaFirmeRepository, VerifikacijaFirmeRepository>();
+
 builder.Services.AddHostedService<VerifikacijskiTokenCleanupJob>();
 builder.Services.AddHostedService<MjesecnaStatistikaJob>();
+// builder.Services.AddHostedService<NeaktivniOglasiCleanupJob>();
 builder.Services.AddScoped<DbSeeder>();
 
 
@@ -161,7 +174,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
-    var seeder =  scope.ServiceProvider.GetRequiredService<DbSeeder>();
+    var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
     await seeder.SeedAsync();
 }
 
@@ -186,11 +199,28 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
+// Lokalizacija: bazirana na InvariantCulture (decimalni separator ostaje "."),
+// ali s dd/MM/yyyy formatom datuma za prikaz i model binding formi.
+var bhKultura = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+bhKultura.DateTimeFormat.ShortDatePattern = "dd/MM/yyyy";
+bhKultura.DateTimeFormat.DateSeparator = "/";
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(bhKultura),
+    SupportedCultures = new[] { bhKultura },
+    SupportedUICultures = new[] { bhKultura }
+});
+
 app.UseRouting();
 app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "profil",
+    pattern: "Profil/{username}",
+    defaults: new { controller = "Profil", action = "Index" });
 
 app.MapControllerRoute(
     name: "default",

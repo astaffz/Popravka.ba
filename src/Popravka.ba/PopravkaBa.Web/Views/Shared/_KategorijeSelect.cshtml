@@ -1,0 +1,32 @@
+@model PopravkaBa.Web.Models.ViewModels.KategorijeMultiSelectModel
+@{
+    var sel = Model.Selektovano ?? new List<int>();
+    var nadkategorije = Model.Kategorije
+        .Where(k => k.NadkategorijaID == null)
+        .OrderBy(k => k.Naziv)
+        .ToList();
+}
+
+<select name="@Model.InputName" class="form-select" multiple size="8" required>
+    @foreach (var nadkat in nadkategorije)
+    {
+        var pod = Model.Kategorije
+            .Where(k => k.NadkategorijaID == nadkat.ID)
+            .OrderBy(k => k.Naziv)
+            .ToList();
+        if (pod.Any())
+        {
+            <optgroup label="@nadkat.Naziv">
+                @foreach (var p in pod)
+                {
+                    <option value="@p.ID" selected="@(sel.Contains(p.ID) ? "selected" : null)">@p.Naziv</option>
+                }
+            </optgroup>
+        }
+        else
+        {
+            <option value="@nadkat.ID" selected="@(sel.Contains(nadkat.ID) ? "selected" : null)">@nadkat.Naziv</option>
+        }
+    }
+</select>
+<div class="form-text">Držite <kbd>Ctrl</kbd> (⌘ na Mac-u) i kliknite za odabir više kategorija.</div>
