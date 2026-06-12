@@ -73,9 +73,38 @@ namespace PopravkaBa.Infrastructure.Repositories
         {
             throw new NotImplementedException();
         }
-        public Task UrediAsync(IzvrsilacUsluge oglas)
+        public async Task UrediAsync(IzvrsilacUsluge izvrsilac)
         {
-            throw new NotImplementedException();
+            // Učitaj praćenu instancu kako bi se ažurirala skalarna polja bez
+            // diranja cijelog Identity grafa korisnika.
+            var praceni = await _context.ApplicationUsers
+                .OfType<IzvrsilacUsluge>()
+                .FirstOrDefaultAsync(i => i.Id == izvrsilac.Id);
+            if (praceni is null) return;
+
+            praceni.Opis = izvrsilac.Opis;
+
+            // Uskladi portfolio slike: nove imaju ID == 0, obrisane više nisu u kolekciji.
+            var postojece = await _context.PortfolioSlika
+                .Where(s => s.IzvrsilacID == izvrsilac.Id)
+                .ToListAsync();
+
+            var zeljene = izvrsilac.SlikePortfolija ?? new List<PortfolioSlika>();
+            var zeljeniIds = zeljene
+                .Select(s => s.PortfolioSlikaID)
+                .ToHashSet();
+
+            var zaBrisanje = postojece.Where(s => !zeljeniIds.Contains(s.PortfolioSlikaID)).ToList();
+            if (zaBrisanje.Count > 0)
+                _context.PortfolioSlika.RemoveRange(zaBrisanje);
+
+            foreach (var nova in zeljene)
+            {
+                nova.IzvrsilacID = izvrsilac.Id;
+                await _context.PortfolioSlika.AddAsync(nova);
+            }
+
+            await _context.SaveChangesAsync();
         }
         public Task ObrisiAsync(int id)
         {

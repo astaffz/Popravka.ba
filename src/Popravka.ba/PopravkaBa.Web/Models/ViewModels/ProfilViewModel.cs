@@ -1,3 +1,4 @@
+using PopravkaBa.Application.DTOs;
 using PopravkaBa.Domain.Enums;
 
 namespace PopravkaBa.Web.Models.ViewModels
@@ -28,6 +29,11 @@ namespace PopravkaBa.Web.Models.ViewModels
         public int BrojAktivnihOglasa => OglasiUsluge.Count(o => o.Status == Status.Aktivan);
         public int BrojZatvorenihOglasa => OglasiUsluge.Count(o => o.Status == Status.Neaktivan);
         public int BrojZavrsenihOglasa => OglasiUsluge.Count(o => o.Status == Status.Isporuceno);
+
+        public RadnoVrijemeDto? RadnoVrijeme { get; set; }
+        public int? MinZaposlenih { get; set; }
+        public int? MaxZaposlenih { get; set; }
+        public string? NazivFirme { get; set; }
     }
 
     public class ProfilOglasMajstoraItem
