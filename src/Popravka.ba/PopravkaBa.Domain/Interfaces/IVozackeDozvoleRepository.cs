@@ -1,6 +1,6 @@
 using PopravkaBa.Domain.Enums;
 
-namespace PopravkaBa.Domain.Interfaces.Repositories
+namespace PopravkaBa.Domain.Interfaces
 {
     public interface IVozackeDozvoleRepository
     {

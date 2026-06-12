@@ -1,6 +1,6 @@
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Domain.Enums;
-using PopravkaBa.Domain.Interfaces.Repositories;
+using PopravkaBa.Domain.Interfaces;
 
 namespace PopravkaBa.Application.Services
 {

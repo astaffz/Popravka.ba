@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Popravka.ba.Data;
 using PopravkaBa.Domain.Enums;
-using PopravkaBa.Domain.Interfaces.Repositories;
+using PopravkaBa.Domain.Interfaces;
 using PopravkaBa.Domain.Models;
 
 namespace PopravkaBa.Infrastructure.Repositories
