@@ -57,20 +57,8 @@
                     }
                     else
                     {
-                        var (oglasiLabel, oglasiAction) = uloga switch
-                        {
-                            var u when u == KorisnickeUloge.Klijent.ToString() => ("Moji oglasi", "Oglasi"),
-                            _ => ("Ponude", "Ponude")
-                        };
-
                         <a class="dropdown-item pp-item" asp-controller="Profil" asp-action="Index" asp-route-username=@user.UserName>
                             <i class="bi bi-person"></i><span>Moj profil</span>
-                        </a>
-                        <a class="dropdown-item pp-item" asp-controller="Profil" asp-action="@oglasiAction">
-                            <i class="bi bi-file-earmark-text"></i><span>@oglasiLabel</span>
-                        </a>
-                        <a class="dropdown-item pp-item" asp-controller="Account" asp-action="Postavke">
-                            <i class="bi bi-gear"></i><span>Postavke</span>
                         </a>
                     }
 

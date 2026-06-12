@@ -324,19 +324,19 @@
                         else
                         {
                             <h6 class="fw-semibold mb-3">Pošalji ponudu</h6>
-                            <form asp-controller="PonudaUsluge" asp-action="PosaljiPonudu" method="post"
+                            <form asp-controller="PonudaUsluge" asp-action="PosaljiPonudu" method="post" novalidate
                                   onsubmit="return confirm('Ponuda se ne može povući, a po oglasu možete poslati samo jednu ponudu. Želite li poslati ponudu?');">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="OglasUslugeID" value="@Model.OglasId" />
                                 <div class="mb-2">
                                     <label class="form-label small fw-medium">Datum početka</label>
-                                    <input type="date" name="DatumPocetkaUsluge" lang="en-GB" data-date-format="dd/mm/yyyy"
-                                           class="form-control form-control-sm" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                                    <input type="text" name="DatumPocetkaUsluge" autocomplete="off" placeholder="dd/mm/yyyy"
+                                           class="form-control form-control-sm js-datepicker" required />
                                 </div>
                                 <div class="mb-2">
                                     <label class="form-label small fw-medium">Očekivani završetak <span class="text-muted">(opcionalno)</span></label>
-                                    <input type="date" name="DatumOcekivanogZavrsetka" lang="en-GB" data-date-format="dd/mm/yyyy"
-                                           class="form-control form-control-sm" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                    <input type="text" name="DatumOcekivanogZavrsetka" autocomplete="off" placeholder="dd/mm/yyyy"
+                                           class="form-control form-control-sm js-datepicker" />
                                 </div>
                                 <div class="row g-2 mb-2">
                                     <div class="col-6">
@@ -415,7 +415,22 @@
 </style>
 
 @section Scripts {
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+(function () {
+    // ---- Datum picker (prikaz dd/mm/yyyy, server prima ISO yyyy-MM-dd) ----
+    if (window.flatpickr) {
+        flatpickr('.js-datepicker', {
+            dateFormat: 'Y-m-d',   // vrijednost koja se šalje serveru
+            altInput: true,
+            altFormat: 'd/m/Y',    // ono što korisnik vidi i unosi
+            minDate: 'today',
+            allowInput: true
+        });
+    }
+})();
+
 (function () {
     // ---- Confirm modal (Prihvati/Odbij/Obriši) ----
     var overlay = document.getElementById('confirmModal');
