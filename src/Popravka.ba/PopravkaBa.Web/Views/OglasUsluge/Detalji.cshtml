@@ -324,8 +324,7 @@
                         else
                         {
                             <h6 class="fw-semibold mb-3">Pošalji ponudu</h6>
-                            <form asp-controller="PonudaUsluge" asp-action="PosaljiPonudu" method="post" novalidate
-                                  onsubmit="return confirm('Ponuda se ne može povući, a po oglasu možete poslati samo jednu ponudu. Želite li poslati ponudu?');">
+                            <form asp-controller="PonudaUsluge" asp-action="PosaljiPonudu" method="post" novalidate class="confirm-form">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="OglasUslugeID" value="@Model.OglasId" />
                                 <div class="mb-2">
@@ -361,7 +360,8 @@
                                 <p class="text-muted mb-2" style="font-size:.75rem;">
                                     Napomena: ponuda se ne može povući, a po oglasu možete poslati samo jednu ponudu.
                                 </p>
-                                <button type="submit" class="btn btn-primary w-100">
+                                <button type="button" class="btn btn-primary w-100 confirm-btn"
+                                        data-msg="Ponuda se ne može povući, a po oglasu možete poslati samo jednu ponudu. Želite li poslati ponudu?">
                                     <i class="fa-solid fa-paper-plane me-2"></i>Pošalji ponudu
                                 </button>
                             </form>

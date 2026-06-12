@@ -41,10 +41,14 @@
     <div class="moj-oglas-footer">
         <span class="moj-oglas-ponude"><i class="bi bi-person"></i> <strong>@Model.BrojPonuda</strong> @(Model.BrojPonuda == 1 ? "ponuda" : Model.BrojPonuda is > 1 and < 5 ? "ponude" : "ponuda")</span>
         <div class="moj-oglas-akcije">
-            <a asp-controller="OglasUsluge" asp-action="Detalji" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--outline">Pogledaj ponude</a>
             @if (Model.Status == Status.Aktivan)
             {
+                <a asp-controller="OglasUsluge" asp-action="Detalji" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--outline">Pogledaj ponude</a>
                 <a asp-controller="OglasUsluge" asp-action="UrediOglas" asp-route-id="@Model.OglasId" class="moj-oglas-btn">Uredi</a>
+            }
+            @if (Model.Status != Status.Aktivan)
+            {
+            <a asp-controller="Recenzija" asp-action="Index" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--outline">Ostavi Recenziju</a>
             }
             <a asp-controller="OglasUsluge" asp-action="ObrisiOglas" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--crveni">Obriši</a>
         </div>
