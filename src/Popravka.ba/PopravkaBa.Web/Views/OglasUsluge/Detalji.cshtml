@@ -193,12 +193,17 @@
                                                 {
                                                     <div class="text-end">
                                                         <span class="fw-bold fs-5">@ponuda.Cijena KM@(tipIsplateLabel(ponuda.TipIsplate))</span>
-                                                        @if (ponuda.RazlikaOdProsjeka.HasValue && ponuda.RazlikaOdProsjeka.Value != 0)
+                                                        @if (ponuda.RazlikaOdProsjeka.HasValue)
                                                         {
                                                             var razlika = ponuda.RazlikaOdProsjeka.Value;
+
                                                             <br />
-                                                            <small class="@(razlika < 0 ? "text-success" : "text-danger")">
-                                                                @(razlika < 0 ? $"{Math.Abs(razlika):F0} KM ispod prosjeka" : $"{razlika:F0} KM iznad prosjeka")
+                                                            <small class="@((razlika < 0 && Math.Abs(razlika) > 5) ? "text-success" : (razlika > 0 && Math.Abs(razlika) > 5) ? "text-danger" : "text-secondary")">
+                                                                @((razlika < 0 && Math.Abs(razlika) > 5)
+                                                                    ? $"{Math.Abs(razlika):F0} KM ispod prosjeka"
+                                                                    : (razlika > 0 && Math.Abs(razlika) > 5)
+                                                                        ? $"{razlika:F0} KM iznad prosjeka"
+                                                                        : "Prosječna cijena")
                                                             </small>
                                                         }
                                                     </div>
