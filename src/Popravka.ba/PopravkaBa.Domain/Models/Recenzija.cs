@@ -29,7 +29,13 @@ namespace PopravkaBa.Domain.Models
         public DateTime? DatumPrijave  { get; set; }
         public Status? StatusPrijave { get; set; }
 
-        public void PrijaviRecenziju(string razlog) { }
+        public void PrijaviRecenziju(string razlog)
+        {
+            Prijavljena = true;
+            RazlogPrijave = razlog;
+            DatumPrijave = DateTime.UtcNow;
+            StatusPrijave = Status.NaCekanju;
+        }
          
     }
 }

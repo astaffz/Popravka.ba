@@ -41,7 +41,35 @@
     <div class="moj-oglas-footer">
         <span class="moj-oglas-ponude"><i class="bi bi-person"></i> <strong>@Model.BrojPonuda</strong> @(Model.BrojPonuda == 1 ? "ponuda" : Model.BrojPonuda is > 1 and < 5 ? "ponude" : "ponuda")</span>
         <div class="moj-oglas-akcije">
-            <a asp-controller="OglasUsluge" asp-action="Detalji" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--outline">Pogledaj ponude</a>
+            @if (Model.Status == Status.Neaktivan && Model.ImaPrihvacenuPonudu)
+            {
+                <!-- Posao dogovoren — klijent ga može označiti završenim -->
+                <form asp-controller="OglasUsluge" asp-action="ZavrsiOglas" method="post" class="d-inline"
+                      onsubmit="return confirm('Označiti posao kao završen? Ova radnja se ne može poništiti.');">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.OglasId" />
+                    <button type="submit" class="moj-oglas-btn moj-oglas-btn--zeleni">
+                        <i class="bi bi-check2-all"></i> Završi oglas
+                    </button>
+                </form>
+            }
+            else if (Model.Status == Status.Isporuceno && !string.IsNullOrEmpty(Model.IzvrsilacUsername))
+            {
+                @if (Model.VecOcijenjen)
+                {
+                    <span class="moj-oglas-ocijenjeno"><i class="bi bi-star-fill"></i> Ocijenjeno</span>
+                }
+                else
+                {
+                    <a href="/Profil/@Model.IzvrsilacUsername" class="moj-oglas-btn moj-oglas-btn--outline">
+                        <i class="bi bi-star"></i> Ostavi recenziju
+                    </a>
+                }
+            }
+            else
+            {
+                <a asp-controller="OglasUsluge" asp-action="Detalji" asp-route-id="@Model.OglasId" class="moj-oglas-btn moj-oglas-btn--outline">Pogledaj ponude</a>
+            }
             @if (Model.Status == Status.Aktivan)
             {
                 <a asp-controller="OglasUsluge" asp-action="UrediOglas" asp-route-id="@Model.OglasId" class="moj-oglas-btn">Uredi</a>

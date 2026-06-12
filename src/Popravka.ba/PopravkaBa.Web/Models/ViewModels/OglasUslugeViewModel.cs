@@ -31,5 +31,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public bool JeVlasnik { get; set; }
         public bool MozeApplicirati { get; set; }
         public bool VecApplicirao { get; set; }
+        // Vlasnik je već ostavio recenziju izvršiocu završenog posla
+        public bool VecOcijenjen { get; set; }
     }
 }

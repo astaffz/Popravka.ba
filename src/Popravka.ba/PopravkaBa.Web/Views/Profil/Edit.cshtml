@@ -1,8 +1,13 @@
 @model ProfilEditViewModel
 @using PopravkaBa.Web.Models.ViewModels
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Uredi profil - Popravka.ba";
     bool jeIzvrsilac = Model.Uloga == "Majstor" || Model.Uloga == "Firma";
+
+    // Admin uređuje tuđi profil (vs. korisnik svoj) — za informativni banner
+    var trenutniId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    bool adminUredjujeTudji = User.IsInRole("Administrator") && Model.UserId != trenutniId;
 
     var msKategorije = new KategorijeMultiSelectModel
     {
@@ -10,7 +15,8 @@
         Kategorije = Model.Kategorije,
         InputName = "SelectedKategorijeId",
         Selektovano = Model.SelectedKategorijeId,
-        Placeholder = "-- Odaberi vještine --"
+        Placeholder = "-- Odaberi vještine --",
+        SearchPlaceholder = "Pretraži vještine..."
     };
     var msMjesta = new MjestaMultiSelectModel
     {
@@ -28,6 +34,14 @@
     </a>
 
     <h3 class="fw-bold mb-4">Uredi profil</h3>
+
+    @if (adminUredjujeTudji)
+    {
+        <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-shield-lock-fill"></i>
+            <span>Uređujete profil korisnika <strong>@Model.Username</strong> kao administrator.</span>
+        </div>
+    }
 
     <form asp-action="Edit" method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()

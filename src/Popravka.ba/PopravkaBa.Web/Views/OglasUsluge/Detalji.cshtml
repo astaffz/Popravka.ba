@@ -160,7 +160,7 @@
                         <ul class="list-group list-group-flush">
                             @foreach (var ponuda in Model.Ponude)
                             {
-                                <li class="list-group-item p-3 @(ponuda.StatusPonude == Status.Prihvaceno ? "list-group-item-success" : ponuda.StatusPonude == Status.Odbijeno ? "list-group-item-light" : "")">
+                                <li class="list-group-item p-3 @(ponuda.StatusPonude == Status.Prihvaceno || ponuda.StatusPonude == Status.Isporuceno ? "list-group-item-success" : ponuda.StatusPonude == Status.Odbijeno ? "list-group-item-light" : "")">
                                     <div class="d-flex align-items-start gap-3">
                                         <a href="/Profil/@ponuda.IzvrsilacUsername" class="flex-shrink-0">
                                             @if (!string.IsNullOrEmpty(ponuda.IzvrsilacSlika))
@@ -206,7 +206,7 @@
                                             </div>
 
                                             <div class="d-flex align-items-center gap-2 my-1 small text-muted">
-                                                <span class="izv-stars text-warning">@ocjenaStars(ponuda.ProsjecnaOcjena)</span>
+                                                <span class="izv-stars" style="color:#1e6fe0;">@ocjenaStars(ponuda.ProsjecnaOcjena)</span>
                                                 <span>@ponuda.ProsjecnaOcjena.ToString("F1") (@ponuda.BrojRecenzija recenzija)</span>
                                             </div>
 
@@ -229,9 +229,13 @@
 
                                             @if (ponuda.StatusPonude != Status.NaCekanju)
                                             {
-                                                <span class="badge @(ponuda.StatusPonude == Status.Prihvaceno ? "bg-success" : "bg-secondary") mt-1">
-                                                    @(ponuda.StatusPonude == Status.Prihvaceno ? "✓ Prihvaćena" : "Odbijena")
-                                                </span>
+                                                var (ponudaBadgeKlasa, ponudaBadgeTekst) = ponuda.StatusPonude switch
+                                                {
+                                                    Status.Prihvaceno => ("bg-success", "✓ Prihvaćena"),
+                                                    Status.Isporuceno => ("bg-info", "✓ Posao završen"),
+                                                    _                 => ("bg-secondary", "Odbijena")
+                                                };
+                                                <span class="badge @ponudaBadgeKlasa mt-1">@ponudaBadgeTekst</span>
                                             }
                                             else if (Model.JeVlasnik)
                                             {
@@ -368,6 +372,58 @@
                         }
                     </div>
                 </div>
+            }
+
+            <!-- Vlasnik: posao dogovoren (prihvaćena ponuda) — može ga označiti završenim -->
+            @if (Model.JeVlasnik && Model.StatusOglasa == Status.Neaktivan
+                 && Model.Ponude.Any(p => p.StatusPonude == Status.Prihvaceno))
+            {
+                <div class="card shadow-sm border-0 mb-3">
+                    <div class="card-body p-3">
+                        <h6 class="fw-semibold mb-2"><i class="fa-solid fa-handshake me-1 text-success"></i>Posao dogovoren</h6>
+                        <p class="small text-muted mb-2">
+                            Kada izvršilac obavi posao, označite ga završenim — nakon toga možete ostaviti recenziju.
+                        </p>
+                        <form asp-controller="OglasUsluge" asp-action="ZavrsiOglas" method="post" class="confirm-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.OglasId" />
+                            <button type="button" class="btn btn-success btn-sm w-100 confirm-btn"
+                                    data-msg="Označiti posao kao završen? Ova radnja se ne može poništiti, a omogućit će vam ostavljanje recenzije izvršiocu.">
+                                <i class="fa-solid fa-check-double me-1"></i>Označi kao završen
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            <!-- Vlasnik: posao završen — poziv na recenziju -->
+            @if (Model.JeVlasnik && Model.StatusOglasa == Status.Isporuceno)
+            {
+                var izvrsilacPonude = Model.Ponude.FirstOrDefault(p => p.StatusPonude == Status.Isporuceno)
+                                      ?? Model.Ponude.FirstOrDefault(p => p.StatusPonude == Status.Prihvaceno);
+                @if (izvrsilacPonude != null)
+                {
+                    <div class="card shadow-sm border-0 mb-3">
+                        <div class="card-body p-3">
+                            <h6 class="fw-semibold mb-2"><i class="fa-solid fa-star me-1" style="color:#1e6fe0;"></i>Posao završen</h6>
+                            @if (Model.VecOcijenjen)
+                            {
+                                <p class="small text-muted mb-0">
+                                    <i class="fa-solid fa-circle-check me-1 text-success"></i>Već ste ocijenili ovog izvršioca.
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="small text-muted mb-2">
+                                    Ocijenite saradnju s izvršiocem @izvrsilacPonude.IzvrsilacIme na njegovom profilu.
+                                </p>
+                                <a href="/Profil/@izvrsilacPonude.IzvrsilacUsername" class="btn btn-outline-primary btn-sm w-100">
+                                    <i class="fa-solid fa-pen me-1"></i>Ostavi recenziju
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
             }
 
             <!-- Vlasnik/Admin: uredi/obriši (samo za aktivne oglase) -->

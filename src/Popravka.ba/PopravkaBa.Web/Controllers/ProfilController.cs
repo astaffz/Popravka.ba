@@ -21,6 +21,7 @@ namespace PopravkaBa.Web.Controllers
         private readonly ILogger<ProfilController> _logger;
         private readonly IMjestoService _mjestoService;
         private readonly IKategorijaService _kategorijaService;
+        private readonly IRecenzijaService _recenzijaService;
 
         public ProfilController(
             UserManager<ApplicationUser> userManager,
@@ -31,7 +32,8 @@ namespace PopravkaBa.Web.Controllers
             IFileStorage fileStorage,
             ILogger<ProfilController> logger,
             IMjestoService mjestoServ,
-            IKategorijaService kategorijaService
+            IKategorijaService kategorijaService,
+            IRecenzijaService recenzijaService
             )
         {
             _userManager = userManager;
@@ -43,6 +45,7 @@ namespace PopravkaBa.Web.Controllers
             _logger = logger;
             _mjestoService = mjestoServ;
             _kategorijaService = kategorijaService;
+            _recenzijaService = recenzijaService;
         }
 
         [AllowAnonymous]
@@ -74,7 +77,14 @@ namespace PopravkaBa.Web.Controllers
             };
 
             if (uloga == "Majstor" || uloga == "Firma")
+            {
                 await PopuniIzvrsilacProfilAsync(vm, korisnik.Id);
+
+                // Recenzija je moguća samo za klijenta sa završenim poslom kod ovog izvršioca
+                var trenutniId = _userManager.GetUserId(User);
+                if (trenutniId != null && !vm.JeVlasnik && User.IsInRole("Klijent"))
+                    vm.MozeOstavitiRecenziju = await _recenzijaService.MozeOstavitiRecenziju(trenutniId, korisnik.Id);
+            }
             else if (uloga == "Klijent")
                 await PopuniKlijentProfilAsync(vm, korisnik.Id);
 
@@ -112,7 +122,8 @@ namespace PopravkaBa.Web.Controllers
                         KlijentSlika = r.Klijent?.Slika,
                         Ocjena = r.Ocjena,
                         Komentar = r.Komentar,
-                        Datum = r.DatumRecenzije
+                        Datum = r.DatumRecenzije,
+                        Prijavljena = r.Prijavljena
                     }).ToList() ?? new();
                 vm.BrojRecenzija = Math.Max(izvrsilac.BrojRecenzija, vm.Recenzije.Count);
 
@@ -151,27 +162,56 @@ namespace PopravkaBa.Web.Controllers
             vm.OglasiUsluge = oglasi
                 .Where(o => o.VlasnikOglasaID == korisnikId)
                 .OrderByDescending(o => o.DatumObjave)
-                .Select(o => new ProfilOglasUslugeItem
+                .Select(o =>
                 {
-                    OglasId = o.OglasID,
-                    Naslov = o.Naslov,
-                    Lokacija = o.Mjesto?.Naziv,
-                    DatumObjave = o.DatumObjave,
-                    MinBudzet = o.MinBudzet,
-                    MaxBudzet = o.MaxBudzet,
-                    BrojPonuda = o.BrojPrijava,
-                    Status = o.StatusOglasa,
-                    Kategorije = o.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
-                                   .Where(n => n != "").ToList() ?? new()
+                    // Izvršilac dogovorenog (Prihvaceno) ili završenog (Isporuceno) posla
+                    var dogovorena = o.Ponude?.FirstOrDefault(p =>
+                        p.StatusPonude == Status.Prihvaceno || p.StatusPonude == Status.Isporuceno);
+
+                    return new ProfilOglasUslugeItem
+                    {
+                        OglasId = o.OglasID,
+                        Naslov = o.Naslov,
+                        Lokacija = o.Mjesto?.Naziv,
+                        DatumObjave = o.DatumObjave,
+                        MinBudzet = o.MinBudzet,
+                        MaxBudzet = o.MaxBudzet,
+                        BrojPonuda = o.BrojPrijava,
+                        Status = o.StatusOglasa,
+                        Kategorije = o.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
+                                       .Where(n => n != "").ToList() ?? new(),
+                        ImaPrihvacenuPonudu = dogovorena?.StatusPonude == Status.Prihvaceno,
+                        IzvrsilacUsername = dogovorena?.Izvrsilac?.UserName
+                    };
                 }).ToList();
+
+            // Za završene oglase (samo na vlastitom profilu): da li je klijent već ocijenio izvršioca
+            if (!vm.JeVlasnik) return;
+            foreach (var stavka in vm.OglasiUsluge.Where(s => s.Status == Status.Isporuceno && s.IzvrsilacUsername != null))
+            {
+                var izvrsilacId = oglasi.First(o => o.OglasID == stavka.OglasId)
+                    .Ponude!.First(p => p.Izvrsilac?.UserName == stavka.IzvrsilacUsername).IzvrsilacID;
+                stavka.VecOcijenjen = !await _recenzijaService.MozeOstavitiRecenziju(korisnikId, izvrsilacId);
+            }
         }
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> Edit()
+        public async Task<IActionResult> Edit(string? username)
         {
             var korisnikId = _userManager.GetUserId(User);
-            var korisnik = await _userManager.FindByIdAsync(korisnikId);
+            ApplicationUser? korisnik;
+
+            // Admin može editovati bilo koji profil; obični korisnici samo svoj
+            if (!string.IsNullOrWhiteSpace(username) && User.IsInRole("Administrator"))
+            {
+                korisnik = await _userManager.FindByNameAsync(username);
+            }
+            else
+            {
+                korisnik = await _userManager.FindByIdAsync(korisnikId);
+            }
+
             if (korisnik is null) return NotFound();
 
             var vm = new ProfilEditViewModel
@@ -187,7 +227,7 @@ namespace PopravkaBa.Web.Controllers
 
             if (vm.Uloga == "Majstor" || vm.Uloga == "Firma")
             {
-                var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnikId);
+                var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnik.Id);
                 if (izvrsilac != null)
                 {
                     vm.Opis = izvrsilac.Opis;
@@ -242,8 +282,23 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> Edit(ProfilEditViewModel vm, IFormFile? novaSlika, List<IFormFile>? noveSlike, CancellationToken ct = default)
         {
             var korisnikId = _userManager.GetUserId(User);
-            var korisnik = await _userManager.FindByIdAsync(korisnikId);
+            ApplicationUser? korisnik;
+
+            // Admin može editovati bilo koji profil; obični korisnici samo svoj.
+            // Cilj se traži po skrivenom UserId polju (Username je editabilan, pa nije pouzdan ključ).
+            if (User.IsInRole("Administrator") && !string.IsNullOrWhiteSpace(vm.UserId) && vm.UserId != korisnikId)
+            {
+                korisnik = await _userManager.FindByIdAsync(vm.UserId);
+            }
+            else
+            {
+                korisnik = await _userManager.FindByIdAsync(korisnikId);
+            }
+
             if (korisnik is null) return NotFound();
+
+            // Da li korisnik uređuje vlastiti profil (vs. admin uređuje tuđi)
+            bool uredjujeVlastiti = korisnik.Id == korisnikId;
 
             var korisnikUloge = await _userManager.GetRolesAsync(korisnik);
             var korisnikUloga = korisnikUloge.FirstOrDefault() ?? "Korisnik";
@@ -253,7 +308,7 @@ namespace PopravkaBa.Web.Controllers
             {
                 if ((vm.SelectedMjestaId?.Count ?? 0) == 0 || (vm.SelectedKategorijeId?.Count ?? 0) == 0)
                 {
-                    var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnikId);
+                    var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnik.Id);
                     if (izvrsilac != null)
                     {
                         if ((vm.SelectedMjestaId?.Count ?? 0) == 0)
@@ -367,7 +422,9 @@ namespace PopravkaBa.Web.Controllers
                 }
 
                 // Promjena korisničkog imena poništava cookie — osvježi prijavu.
-                await _signInManager.RefreshSignInAsync(korisnik);
+                // Samo kad korisnik uređuje vlastiti profil (inače bi admina prebacilo na tuđi nalog).
+                if (uredjujeVlastiti)
+                    await _signInManager.RefreshSignInAsync(korisnik);
 
                 var uloge = await _userManager.GetRolesAsync(korisnik);
                 var uloga = uloge.FirstOrDefault() ?? "Korisnik";
@@ -375,10 +432,10 @@ namespace PopravkaBa.Web.Controllers
                 if (uloga == "Majstor" || uloga == "Firma")
                 {
                     // Lokacije i kategorije izvršioca (više vrijednosti — kao u pretrazi)
-                    await _mjestoService.AzurirajMjestaKorisnika(korisnikId, vm.SelectedMjestaId ?? new());
-                    await _kategorijaService.AzurirajKategorijeIzvrsioca(korisnikId, vm.SelectedKategorijeId ?? new());
+                    await _mjestoService.AzurirajMjestaKorisnika(korisnik.Id, vm.SelectedMjestaId ?? new());
+                    await _kategorijaService.AzurirajKategorijeIzvrsioca(korisnik.Id, vm.SelectedKategorijeId ?? new());
 
-                    var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnikId);
+                    var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnik.Id);
                     if (izvrsilac != null)
                     {
                         izvrsilac.Opis = vm.Opis;

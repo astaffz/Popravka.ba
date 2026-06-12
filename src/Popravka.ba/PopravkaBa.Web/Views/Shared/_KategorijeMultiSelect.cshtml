@@ -20,7 +20,7 @@
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
             <input type="text" class="filter-ms-search" id="@(prefix)Search"
-                   placeholder="Pretraži zanimanje..." autocomplete="off"
+                   placeholder="@Model.SearchPlaceholder" autocomplete="off"
                    oninput="this.value = this.value.trimStart()" onchange="this.value = this.value.trim()" />
         </div>
         <div class="filter-ms-options" id="@(prefix)Options">

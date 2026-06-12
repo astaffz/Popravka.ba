@@ -84,7 +84,7 @@ namespace PopravkaBa.Infrastructure.Repositories
 
             praceni.Opis = izvrsilac.Opis;
 
-            // Uskladi portfolio slike: nove imaju ID == 0, obrisane više nisu u kolekciji.
+           
             var postojece = await _context.PortfolioSlika
                 .Where(s => s.IzvrsilacID == izvrsilac.Id)
                 .ToListAsync();
@@ -106,6 +106,29 @@ namespace PopravkaBa.Infrastructure.Repositories
 
             await _context.SaveChangesAsync();
         }
+        public async Task OsvjeziOcjeneAsync(string izvrsilacId, decimal prosjecnaOcjena, int brojRecenzija)
+        {
+            var praceni = await _context.ApplicationUsers
+                .OfType<IzvrsilacUsluge>()
+                .FirstOrDefaultAsync(i => i.Id == izvrsilacId);
+            if (praceni is null) return;
+
+            praceni.ProsjecnaOcjena = prosjecnaOcjena;
+            praceni.BrojRecenzija = brojRecenzija;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task PovecajBrojZavrsenihPoslovaAsync(string izvrsilacId)
+        {
+            var praceni = await _context.ApplicationUsers
+                .OfType<IzvrsilacUsluge>()
+                .FirstOrDefaultAsync(i => i.Id == izvrsilacId);
+            if (praceni is null) return;
+
+            praceni.BrojZavrsenihPoslova++;
+            await _context.SaveChangesAsync();
+        }
+
         public Task ObrisiAsync(int id)
         {
             throw new NotImplementedException();

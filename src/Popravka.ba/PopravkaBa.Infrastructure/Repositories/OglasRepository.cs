@@ -156,6 +156,7 @@ namespace PopravkaBa.Infrastructure.Repositories
             .Include(o => o.Kategorije)
             .Include(o => o.Notifikacije)
             .Include(o => o.Ponude)
+                .ThenInclude(p => p.Izvrsilac)
             .ToListAsync();
 
         public async Task<StraniceniRezultat<OglasUsluge>> PronadjiAsync(

@@ -14,6 +14,10 @@ namespace PopravkaBa.Domain.Interfaces
             ISpecification<IzvrsilacUsluge> spec, int stranica, int stavkiPoStranici);
         Task DodajAsync(IzvrsilacUsluge oglas);
         Task UrediAsync(IzvrsilacUsluge oglas);
+        // Ažurira prosječnu ocjenu i broj recenzija (nakon objave/brisanja recenzije)
+        Task OsvjeziOcjeneAsync(string izvrsilacId, decimal prosjecnaOcjena, int brojRecenzija);
+        // Uvećava brojač završenih poslova kada klijent označi posao završenim
+        Task PovecajBrojZavrsenihPoslovaAsync(string izvrsilacId);
         Task ObrisiAsync(int id);
         Task<IEnumerable<IzvrsilacUsluge>> IzvrsiPretraguTekstaAsync(string pretraga);
     }

@@ -68,5 +68,11 @@ namespace PopravkaBa.Infrastructure.Repositories
             if (!await query.AnyAsync()) return null;
             return (decimal)await query.AverageAsync(p => (double)p.Cijena!.Value);
         }
+
+        public async Task<bool> PostojiZavrseniPosaoAsync(string klijentId, string izvrsilacId)
+            => await _context.PonudeUsluge.AnyAsync(p =>
+                p.IzvrsilacID == izvrsilacId &&
+                p.StatusPonude == Domain.Enums.Status.Isporuceno &&
+                p.OglasUsluge.VlasnikOglasaID == klijentId);
     }
 }

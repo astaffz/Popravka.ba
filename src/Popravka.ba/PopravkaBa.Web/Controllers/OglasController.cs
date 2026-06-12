@@ -527,11 +527,13 @@ namespace PopravkaBa.Web.Controllers
         private readonly IMjestoService _mjestoService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IPonudaUslugeService _ponudaUslugeService;
+        private readonly IRecenzijaService _recenzijaService;
         private readonly ILogger<OglasUslugeController> _logger;
         private readonly IFileStorage _storage;
 
-        public OglasUslugeController(IOglasUslugeFacade facadeService, IMjestoService mjestoService, 
-            UserManager<ApplicationUser> userManager, IPonudaUslugeService ponudaUslugeService, ILogger<OglasUslugeController> logger,
+        public OglasUslugeController(IOglasUslugeFacade facadeService, IMjestoService mjestoService,
+            UserManager<ApplicationUser> userManager, IPonudaUslugeService ponudaUslugeService,
+            IRecenzijaService recenzijaService, ILogger<OglasUslugeController> logger,
             IFileStorage storage
 
             )
@@ -540,6 +542,7 @@ namespace PopravkaBa.Web.Controllers
             _mjestoService = mjestoService;
             _userManager = userManager;
             _ponudaUslugeService = ponudaUslugeService;
+            _recenzijaService = recenzijaService;
             _logger = logger;
             _storage = storage;
         }
@@ -628,6 +631,15 @@ namespace PopravkaBa.Web.Controllers
                                   && trenutniKorisnikId != oglas.VlasnikOglasaID,
                 VecApplicirao = oglas.Ponude?.Any(p => p.IzvrsilacID == trenutniKorisnikId) ?? false
             };
+
+            // Završen posao: da li je vlasnik već ocijenio izvršioca (za poruku umjesto CTA)
+            if (vm.JeVlasnik && oglas.StatusOglasa == Status.Isporuceno && trenutniKorisnikId != null)
+            {
+                var izvrsenaPonuda = oglas.Ponude?.FirstOrDefault(p =>
+                    p.StatusPonude == Status.Isporuceno || p.StatusPonude == Status.Prihvaceno);
+                if (izvrsenaPonuda != null)
+                    vm.VecOcijenjen = !await _recenzijaService.MozeOstavitiRecenziju(trenutniKorisnikId, izvrsenaPonuda.IzvrsilacID);
+            }
 
             return View(vm);
         }
@@ -785,6 +797,39 @@ namespace PopravkaBa.Web.Controllers
             catch (KeyNotFoundException)
             {
                 return NotFound();
+            }
+
+            return RedirectToAction(nameof(Detalji), new { id });
+        }
+
+        // Klijent označava dogovoreni posao kao obavljen — tek tada može ostaviti recenziju izvršiocu.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Klijent")]
+        public async Task<IActionResult> ZavrsiOglas(int id)
+        {
+            try
+            {
+                var korisnikId = _userManager.GetUserId(User)!;
+                await _ponudaUslugeService.ZavrsiPosao(id, korisnikId);
+                TempData["Success"] = "Posao je označen kao završen. Sada možete ostaviti recenziju izvršiocu na njegovom profilu.";
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                TempData["Error"] = "Samo vlasnik oglasa može označiti posao završenim.";
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri označavanju oglasa {OglasId} završenim.", id);
+                TempData["Error"] = "Došlo je do greške pri označavanju posla završenim.";
             }
 
             return RedirectToAction(nameof(Detalji), new { id });

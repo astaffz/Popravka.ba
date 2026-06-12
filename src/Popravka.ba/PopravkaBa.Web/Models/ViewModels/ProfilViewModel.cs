@@ -34,6 +34,9 @@ namespace PopravkaBa.Web.Models.ViewModels
         public int? MinZaposlenih { get; set; }
         public int? MaxZaposlenih { get; set; }
         public string? NazivFirme { get; set; }
+
+        // Trenutni korisnik (klijent) ima završen posao s ovim izvršiocem i još ga nije ocijenio
+        public bool MozeOstavitiRecenziju { get; set; }
     }
 
     public class ProfilOglasMajstoraItem
@@ -58,6 +61,13 @@ namespace PopravkaBa.Web.Models.ViewModels
         public int MaxBudzet { get; set; }
         public int BrojPonuda { get; set; }
         public Status Status { get; set; }
+
+        // Posao dogovoren (prihvaćena ponuda) — vlasnik ga može označiti završenim
+        public bool ImaPrihvacenuPonudu { get; set; }
+        // Izvršilac dogovorenog/završenog posla — za link "Ostavi recenziju"
+        public string? IzvrsilacUsername { get; set; }
+        // Klijent je već ostavio recenziju ovom izvršiocu
+        public bool VecOcijenjen { get; set; }
     }
 
     public class ProfilRecenzijaItem
@@ -68,5 +78,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public int Ocjena { get; set; }
         public string Komentar { get; set; }
         public DateTime Datum { get; set; }
+        // Recenzija je već prijavljena i čeka pregled administratora
+        public bool Prijavljena { get; set; }
     }
 }

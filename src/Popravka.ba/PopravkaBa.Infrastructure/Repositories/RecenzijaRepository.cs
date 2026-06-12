@@ -53,6 +53,10 @@ namespace PopravkaBa.Infrastructure.Repositories
                 .Include(r => r.Izvrsilac)
                 .FirstOrDefaultAsync(r => r.RecenzijaID == id);
 
+        public async Task<bool> PostojiAsync(string klijentId, string izvrsilacId)
+            => await _context.Recenzije
+                .AnyAsync(r => r.KlijentID == klijentId && r.IzvrsilacID == izvrsilacId);
+
         public async Task DodajAsync(Recenzija recenzija)
         {
             await _context.Recenzije.AddAsync(recenzija);

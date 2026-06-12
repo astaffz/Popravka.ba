@@ -2,7 +2,6 @@
 
 namespace PopravkaBa.Application.DTOs
 {
-    // TODO Biznis pravilo duzina stringova
     public class KreirajRecenzijuDto
     {
         [Required]
@@ -13,7 +12,7 @@ namespace PopravkaBa.Application.DTOs
         public int Ocjena { get; set; }
 
         [Required(ErrorMessage = "Komentar je obavezan.")]
-        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti između x i xmax karaktera.")]
+        [StringLength(1000, MinimumLength = 10, ErrorMessage = "Komentar mora biti između 10 i 1000 karaktera.")]
         public string Komentar { get; set; } = string.Empty;
     }
 
@@ -23,7 +22,7 @@ namespace PopravkaBa.Application.DTOs
         public int RecenzijaID { get; set; }
 
         [Required(ErrorMessage = "Razlog prijave je obavezan.")]
-        //    [StringLength(xmax, MinimumLength = x, ErrorMessage = "Opis mora biti između x i xmax karaktera.")]
+        [StringLength(500, MinimumLength = 10, ErrorMessage = "Razlog prijave mora biti između 10 i 500 karaktera.")]
         public string RazlogPrijave { get; set; } = string.Empty;
     }
     public class ObradiPrijavuRecenzijeDto

@@ -127,14 +127,17 @@
                         <tr class="@(i >= PrikazanoOdmah ? " admin-red-skriven" : "")">
                             <td class="admin-recenzija-tekst">@komentar</td>
                             <td>@r.IzvrsilacIme</td>
-                            <td>
+                            <td class="admin-razlog-cell">
                                 @if (!string.IsNullOrWhiteSpace(r.Razlog))
                                 {
-                                    <span class="admin-badge">@r.Razlog</span>
+                                    <div class="admin-razlog-badge" title="@r.Razlog">
+                                        <i class="bi bi-flag-fill"></i>
+                                        <span class="admin-razlog-tekst">@r.Razlog</span>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <span>-</span>
+                                    <span class="admin-razlog-prazno">-</span>
                                 }
                             </td>
                             <td class="admin-datum">@PrijeVremena(r.DatumPrijave)</td>
@@ -365,14 +368,42 @@
         font-style: italic;
     }
 
-    .admin-badge {
-        display: inline-block;
-        background: #fef9c3;
-        color: #854d0e;
-        font-size: .76rem;
+    .admin-razlog-cell {
+        width: 100%;
+        padding: 0 !important;
+    }
+
+    .admin-razlog-badge {
+        display: flex;
+        align-items: flex-start;
+        gap: .5rem;
+        background: #f5f3ff;
+        color: var(--text-primary, #1f2937);
+        font-size: .8rem;
         font-weight: 600;
-        padding: .2rem .65rem;
-        border-radius: 999px;
+        padding: .75rem;
+        width: 100%;
+        box-sizing: border-box;
+        line-height: 1.4;
+    }
+
+    .admin-razlog-badge i {
+        color: var(--brand-blue, #1e6fe0);
+        font-size: .9rem;
+        flex-shrink: 0;
+        margin-top: .08rem;
+    }
+
+    .admin-razlog-tekst {
+        flex: 1;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .admin-razlog-prazno {
+        color: var(--text-muted, #6b7280);
+        display: block;
+        padding: .75rem;
     }
 
     .admin-akcije {
