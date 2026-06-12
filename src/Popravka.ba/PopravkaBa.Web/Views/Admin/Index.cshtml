@@ -72,13 +72,13 @@
                             <td class="admin-datum">@PrijeVremena(z.DatumPodnosenja)</td>
                             <td>
                                 <div class="admin-akcije">
-                                    <form asp-action="ObradiVerifikaciju" method="post">
+                                    <form asp-action="ObradiVerifikaciju" method="post" novalidate>
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="verifikacioniId" value="@z.VerifikacioniId" />
                                         <input type="hidden" name="odobri" value="true" />
                                         <button type="submit" class="admin-btn admin-btn--zeleni">Odobri</button>
                                     </form>
-                                    <form asp-action="ObradiVerifikaciju" method="post">
+                                    <form asp-action="ObradiVerifikaciju" method="post" novalidate>
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="verifikacioniId" value="@z.VerifikacioniId" />
                                         <input type="hidden" name="odobri" value="false" />
@@ -147,12 +147,12 @@
                                     {
                                         <a asp-controller="Profil" asp-action="Index" asp-route-username="@r.IzvrsilacUsername" class="admin-btn admin-btn--svijetli">Pregledaj</a>
                                     }
-                                    <form asp-action="OdbaciPrijavu" method="post">
+                                    <form asp-action="OdbaciPrijavu" method="post" novalidate>
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="recenzijaId" value="@r.RecenzijaId" />
                                         <button type="submit" class="admin-btn admin-btn--svijetli" title="Odbaci prijavu, recenzija ostaje">Odbaci</button>
                                     </form>
-                                    <form asp-action="UkloniRecenziju" method="post">
+                                    <form asp-action="UkloniRecenziju" method="post" novalidate>
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="recenzijaId" value="@r.RecenzijaId" />
                                         <button type="submit" class="admin-btn admin-btn--crveni">Ukloni</button>

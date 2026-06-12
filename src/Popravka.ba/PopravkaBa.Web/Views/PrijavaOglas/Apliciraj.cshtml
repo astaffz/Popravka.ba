@@ -62,7 +62,7 @@
     }
 
     <form asp-controller="PrijavaOglas" asp-action="Apliciraj" method="post"
-          onsubmit="return confirm('Poslati prijavu na ovaj oglas?');">
+          onsubmit="return confirm('Poslati prijavu na ovaj oglas?');" novalidate>
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="OglasID" />
 

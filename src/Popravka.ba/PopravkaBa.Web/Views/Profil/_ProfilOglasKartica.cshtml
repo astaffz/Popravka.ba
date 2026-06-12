@@ -50,7 +50,7 @@
             {
                 <!-- Posao dogovoren — klijent ga može označiti završenim -->
                 <form asp-controller="OglasUsluge" asp-action="ZavrsiOglas" method="post" class="d-inline"
-                      onsubmit="return confirm('Označiti posao kao završen? Ova radnja se ne može poništiti.');">
+                      onsubmit="return confirm('Označiti posao kao završen? Ova radnja se ne može poništiti.');" novalidate>
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" value="@Model.OglasId" />
                     <button type="submit" class="moj-oglas-btn moj-oglas-btn--zeleni">

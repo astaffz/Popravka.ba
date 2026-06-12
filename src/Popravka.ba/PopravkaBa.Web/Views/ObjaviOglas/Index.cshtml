@@ -76,7 +76,7 @@
     <!-- ===== OGLAS USLUGE ===== -->
     @if (mozeUsluge && aktivniTab == "usluge")
     {
-        <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasUsluge" method="post" enctype="multipart/form-data">
+        <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasUsluge" method="post" enctype="multipart/form-data" novalidate>
             @Html.AntiForgeryToken()
 
             <div class="card border-0 shadow-sm mb-3">
@@ -165,7 +165,7 @@
     <!-- ===== OGLAS MAJSTORA ===== -->
     @if (mozeMajstora && aktivniTab == "majstora")
     {
-        <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasMajstora" method="post" enctype="multipart/form-data">
+        <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasMajstora" method="post" enctype="multipart/form-data" novalidate>
             @Html.AntiForgeryToken()
 
             <div class="card border-0 shadow-sm mb-3">
@@ -255,7 +255,7 @@
     <!-- ===== OGLAS ZA POSAO (RADNO MJESTO) ===== -->
     @if (mozeRadnoMjesto && aktivniTab == "radnomjesto")
     {
-        <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasRadnoMjesto" method="post" enctype="multipart/form-data">
+        <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasRadnoMjesto" method="post" enctype="multipart/form-data" novalidate>
             @Html.AntiForgeryToken()
 
             <div class="card border-0 shadow-sm mb-3">

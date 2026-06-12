@@ -52,7 +52,7 @@
         </div>
     }
 
-    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" novalidate>
         @Html.AntiForgeryToken()
 
         <!-- Hidden fields that shouldn't change -->

@@ -17,7 +17,7 @@
     <h3 class="fw-bold mb-1">Uredi oglas za posao</h3>
     <p class="text-muted mb-4">Izmijenite podatke svog oglasa.</p>
 
-    <form asp-action="UrediOglas" asp-route-id="@Model.OglasID" method="post" id="radnoMjestoForm" enctype="multipart/form-data">
+    <form asp-action="UrediOglas" asp-route-id="@Model.OglasID" method="post" id="radnoMjestoForm" enctype="multipart/form-data" novalidate>
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="OglasID" />
         <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display:none;"></div>

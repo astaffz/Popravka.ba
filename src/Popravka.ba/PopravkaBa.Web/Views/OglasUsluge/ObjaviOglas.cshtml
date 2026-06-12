@@ -21,7 +21,7 @@
     <h3 class="fw-bold mb-1"><i class="fa-solid fa-wrench me-2 text-primary"></i>Objavi oglas usluge</h3>
     <p class="text-muted mb-4">Oglas za traženu uslugu – majstori/firme će vam slati ponude.</p>
 
-    <form asp-action="ObjaviOglas" method="post">
+    <form asp-action="ObjaviOglas" method="post" novalidate>
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none"></div>
 

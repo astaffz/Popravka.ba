@@ -253,15 +253,15 @@
                                                     ? $"Prihvatiti prijavu od {prijava.MajstorIme}? Popis će biti popunjen i ostale prijave će biti odbijene."
                                                     : $"Prihvatiti prijavu od {prijava.MajstorIme}? ({slobodnihMjesta - 1} slobodnih mjesta ostaje)";
                                                 <div class="mt-2 d-flex gap-2">
-                                                    <form asp-controller="PrijavaOglas" asp-action="PrihvatiPrijavu" method="post" class="confirm-form">
+                                                    <form asp-controller="PrijavaOglas" asp-action="PrihvatiPrijavu" method="post" class="confirm-form" novalidate>
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="prijavaId" value="@prijava.PrijavaId" />
-                                                        <button type="button" class="btn btn-success btn-sm confirm-btn"
+                                                        <button type="button" class="btn btn-ponuda btn-sm confirm-btn"
                                                                 data-msg="@confirmMsg">
                                                             <i class="fa-solid fa-check me-1"></i>Prihvati
                                                         </button>
                                                     </form>
-                                                    <form asp-controller="PrijavaOglas" asp-action="OdbijPrijavu" method="post" class="confirm-form">
+                                                    <form asp-controller="PrijavaOglas" asp-action="OdbijPrijavu" method="post" class="confirm-form" novalidate>
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="prijavaId" value="@prijava.PrijavaId" />
                                                         <button type="button" class="btn btn-outline-danger btn-sm confirm-btn"
@@ -364,7 +364,7 @@
                         else
                         {
                             <p class="text-muted small mb-2">Oglas je trenutno aktivan i još uvijek možete dostaviti vašu prijavu poslodavcu.</p>
-                            <form asp-controller="PrijavaOglas" asp-action="Posalji" method="post" class="confirm-form">
+                            <form asp-controller="PrijavaOglas" asp-action="Posalji" method="post" class="confirm-form" novalidate>
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="oglasId" value="@Model.OglasId" />
                                 <button type="button" class="btn btn-primary w-100 confirm-btn"
@@ -386,7 +386,7 @@
                            class="btn btn-outline-primary btn-sm">
                             <i class="fa-solid fa-pen-to-square me-1"></i>Uredi oglas
                         </a>
-                        <form asp-controller="OglasRadnoMjesto" asp-action="ObrisiOglas" method="post" class="confirm-form">
+                        <form asp-controller="OglasRadnoMjesto" asp-action="ObrisiOglas" method="post" class="confirm-form" novalidate>
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.OglasId" />
                             <button type="button" class="btn btn-outline-danger btn-sm w-100 confirm-btn"
@@ -416,6 +416,22 @@
 .confirm-modal-text { font-size: 1rem; margin-bottom: 1.25rem; line-height: 1.5; }
 .confirm-modal-actions { display: flex; gap: .75rem; justify-content: center; }
 </style>
+
+@section Styles {
+    <style>
+        .btn-ponuda {
+            color: #198754;
+            background-color: #fff;
+            border: 1px solid #198754;
+            transition: all 0.15s ease-in-out;
+        }
+
+            .btn-ponuda:hover {
+                color: #fff;
+                background-color: #198754;
+            }
+    </style>
+}
 
 @section Scripts {
 <script>
