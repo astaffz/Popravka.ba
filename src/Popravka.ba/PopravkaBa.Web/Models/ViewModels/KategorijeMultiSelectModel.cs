@@ -10,5 +10,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public List<int> Selektovano { get; set; } = new();
         public string InputName { get; set; } = "KategorijeID";
         public string Placeholder { get; set; } = "-- Odaberi --";
+        // Tekst u polju za pretragu unutar dropdowna
+        public string SearchPlaceholder { get; set; } = "Pretraži zanimanje...";
     }
 }

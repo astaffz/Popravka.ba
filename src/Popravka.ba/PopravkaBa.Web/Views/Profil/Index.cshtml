@@ -35,6 +35,13 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
     @if (jeIzvrsilac)
     {
@@ -81,9 +88,19 @@
                                 </a>
                             }
                         }
-                        else if (!string.IsNullOrEmpty(Model.Email))
+                        else
                         {
-                            <a href="mailto:@Model.Email" class="profil-btn profil-btn--primary">Kontaktiraj</a>
+                            if (!string.IsNullOrEmpty(Model.Email))
+                            {
+                                <a href="mailto:@Model.Email" class="profil-btn profil-btn--primary">Kontaktiraj</a>
+                            }
+                            @* Admin može urediti bilo koji profil *@
+                            if (User.IsInRole("Administrator"))
+                            {
+                                <a asp-controller="Profil" asp-action="Edit" asp-route-username="@Model.Username" class="profil-btn profil-btn--outline">
+                                    <i class="bi bi-pencil-square"></i> Uredi profil
+                                </a>
+                            }
                         }
                     </div>
                 </div>
@@ -185,9 +202,34 @@
                         <h2 class="profil-card-title">Recenzije klijenata</h2>
                         @if (Model.Recenzije.Any())
                         {
-                            <a asp-controller="Recenzija" asp-action="Index" asp-route-izvrsilacId="@Model.UserId" class="profil-link">Pogledaj sve ΓÇö</a>
+                            <a asp-controller="Recenzija" asp-action="Index" asp-route-izvrsilacId="@Model.UserId" class="profil-link">Pogledaj sve -></a>
                         }
                     </div>
+
+                    @if (Model.MozeOstavitiRecenziju)
+                    {
+                        <!-- Forma za novu recenziju — vidljiva samo klijentu sa završenim poslom -->
+                        <form asp-controller="Recenzija" asp-action="Objavi" method="post" class="profil-recenzija-forma">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="IzvrsilacID" value="@Model.UserId" />
+                            <p class="profil-recenzija-forma-naslov">
+                                <i class="bi bi-star me-1"></i>Ocijenite saradnju
+                            </p>
+                            <div class="profil-zvjezdice-unos" role="radiogroup" aria-label="Ocjena">
+                                @for (int z = 5; z >= 1; z--)
+                                {
+                                    <input type="radio" id="ocjena-@z" name="Ocjena" value="@z" required />
+                                    <label for="ocjena-@z" title="@z od 5"><i class="bi bi-star-fill"></i></label>
+                                }
+                            </div>
+                            <textarea name="Komentar" class="form-control" rows="3" minlength="10" maxlength="1000" required
+                                      placeholder="Opišite vaše iskustvo s ovim izvršiocem..."></textarea>
+                            <button type="submit" class="profil-btn profil-btn--primary mt-2">
+                                <i class="bi bi-send"></i> Objavi recenziju
+                            </button>
+                        </form>
+                    }
+
                     @if (Model.Recenzije.Any())
                     {
                         @foreach (var r in Model.Recenzije.Take(3))
@@ -216,6 +258,37 @@
                                     </div>
                                 </div>
                                 <p class="profil-recenzija-tekst">@r.Komentar</p>
+                                <div class="profil-recenzija-akcije">
+                                    @* Recenziju može prijaviti samo izvršilac na čijem je profilu *@
+                                    @if (Model.JeVlasnik)
+                                    {
+                                        @if (r.Prijavljena)
+                                        {
+                                            <span class="profil-recenzija-prijava profil-recenzija-prijava--cekanje">
+                                                <i class="bi bi-flag-fill"></i> Prijavljena — čeka pregled
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="Recenzija" asp-action="Prijavi" asp-route-recenzijaId="@r.RecenzijaId"
+                                               class="profil-recenzija-prijava" title="Prijavi neprikladnu recenziju">
+                                                <i class="bi bi-flag"></i> Prijavi
+                                            </a>
+                                        }
+                                    }
+                                    @* Admin može obrisati bilo koju recenziju *@
+                                    @if (User.IsInRole("Administrator"))
+                                    {
+                                        <form asp-controller="Admin" asp-action="UkloniRecenziju" method="post" class="profil-admin-ukloni"
+                                              onsubmit="return confirm('Obrisati ovu recenziju? Ova akcija je trajna.');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="recenzijaId" value="@r.RecenzijaId" />
+                                            <button type="submit" class="profil-admin-btn" title="Obriši recenziju">
+                                                <i class="bi bi-trash-fill"></i> Obriši
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
                             </div>
                         }
                     }
@@ -407,9 +480,19 @@
                         <i class="bi bi-pencil-square"></i> Uredi profil
                     </a>
                 }
-                else if (!string.IsNullOrEmpty(Model.Email))
+                else
                 {
-                    <a href="mailto:@Model.Email" class="profil-btn profil-btn--primary">Kontaktiraj</a>
+                    if (!string.IsNullOrEmpty(Model.Email))
+                    {
+                        <a href="mailto:@Model.Email" class="profil-btn profil-btn--primary">Kontaktiraj</a>
+                    }
+                    @* Admin može urediti bilo koji profil *@
+                    if (User.IsInRole("Administrator"))
+                    {
+                        <a asp-controller="Profil" asp-action="Edit" asp-route-username="@Model.Username" class="profil-btn profil-btn--outline">
+                            <i class="bi bi-pencil-square"></i> Uredi profil
+                        </a>
+                    }
                 }
             </div>
         </div>
@@ -794,6 +877,88 @@
     .profil-recenzija-zvjezdice { margin-left: auto; color: var(--brand-blue, #1e6fe0); font-size: .85rem; }
     .profil-recenzija-tekst { margin: .55rem 0 .4rem; color: var(--text-secondary, #4b5563); font-size: .9rem; line-height: 1.55; }
 
+    /* Prijava recenzije */
+    .profil-recenzija-prijava {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        font-size: .78rem;
+        color: var(--text-muted, #6b7280);
+        text-decoration: none;
+    }
+    .profil-recenzija-prijava:hover { color: #dc2626; }
+    .profil-recenzija-prijava--cekanje { color: #d97706; cursor: default; }
+
+    /* Forma za novu recenziju */
+    .profil-recenzija-forma {
+        background: #f8faff;
+        border: 1px solid #e0e7ff;
+        border-radius: 10px;
+        padding: 1rem 1.1rem;
+        margin-bottom: 1rem;
+    }
+    .profil-recenzija-forma-naslov {
+        margin: 0 0 .4rem;
+        font-weight: 700;
+        font-size: .95rem;
+        color: var(--text-primary, #1f2937);
+    }
+    .profil-zvjezdice-unos {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        gap: .15rem;
+        margin-bottom: .6rem;
+    }
+    .profil-zvjezdice-unos input { display: none; }
+    .profil-zvjezdice-unos label {
+        cursor: pointer;
+        font-size: 1.45rem;
+        color: #d1d5db;
+        transition: color .1s ease;
+    }
+    /* row-reverse: hover/checked "lijevo od" zvjezdice u DOM-u = vizuelno popunjavanje s lijeva */
+    .profil-zvjezdice-unos input:checked ~ label,
+    .profil-zvjezdice-unos label:hover,
+    .profil-zvjezdice-unos label:hover ~ label { color: var(--brand-blue, #1e6fe0); }
+
+    .profil-recenzija-akcije {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-top: .4rem;
+        flex-wrap: wrap;
+    }
+
+    .profil-admin-ukloni {
+        margin: 0;
+        display: inline;
+    }
+
+    .profil-admin-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .4rem .85rem;
+        border: none;
+        background: #b91c1c;
+        color: #fff;
+        border-radius: 7px;
+        font-size: .82rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 1px 3px rgba(185, 28, 28, .3);
+        transition: background .15s ease, box-shadow .15s ease;
+    }
+
+    .profil-admin-btn:hover {
+        background: #991b1b;
+        box-shadow: 0 2px 6px rgba(153, 27, 27, .4);
+    }
+
+    .profil-admin-btn i {
+        font-size: .85rem;
+    }
+
     /* Portfolio */
     .profil-portfolio { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
     .profil-portfolio-slika {
@@ -1087,6 +1252,21 @@
         color: #dc2626;
     }
     .moj-oglas-btn--crveni:hover { background: #fee2e2; color: #b91c1c; }
+    .moj-oglas-btn--zeleni {
+        border-color: #a7f3d0;
+        background: #ecfdf5;
+        color: #16a34a;
+    }
+    .moj-oglas-btn--zeleni:hover { background: #d1fae5; color: #15803d; }
+    .moj-oglas-ocijenjeno {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-size: .84rem;
+        font-weight: 600;
+        color: var(--brand-blue, #1e6fe0);
+        padding: .38rem .5rem;
+    }
 
     /* ===== Javni klijent profil ===== */
     .profil-klijent-akcije {

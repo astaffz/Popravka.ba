@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Domain.Interfaces;
-using PopravkaBa.Domain.Interfaces.Repositories;
 using PopravkaBa.Web.Models.ViewModels;
 
 namespace PopravkaBa.Web.Controllers
@@ -11,18 +10,18 @@ namespace PopravkaBa.Web.Controllers
     public class AdminController : Controller
     {
         private readonly IVerifikacijaFirmeService _verifikacijaService;
-        private readonly IRecenzijaRepository _recenzijaRepo;
+        private readonly IRecenzijaService _recenzijaService;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<AdminController> _logger;
 
         public AdminController(
             IVerifikacijaFirmeService verifikacijaService,
-            IRecenzijaRepository recenzijaRepo,
+            IRecenzijaService recenzijaService,
             IEmailSender emailSender,
             ILogger<AdminController> logger)
         {
             _verifikacijaService = verifikacijaService;
-            _recenzijaRepo = recenzijaRepo;
+            _recenzijaService = recenzijaService;
             _emailSender = emailSender;
             _logger = logger;
         }
@@ -31,7 +30,7 @@ namespace PopravkaBa.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var zahtjevi = await _verifikacijaService.DajZahtjeveNaCekanjuAsync();
-            var prijavljene = await _recenzijaRepo.DajPrijavljeneAsync();
+            var prijavljene = await _recenzijaService.DajPrijavljeneRecenzije();
 
             var vm = new AdminDashboardViewModel
             {
@@ -94,15 +93,17 @@ namespace PopravkaBa.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UkloniRecenziju(int recenzijaId)
         {
-            var recenzija = await _recenzijaRepo.DajPoIdAsync(recenzijaId);
-            if (recenzija is null)
+            try
+            {
+                // Servis briše recenziju i preračunava prosječnu ocjenu izvršioca
+                await _recenzijaService.ObrisiRecenziju(recenzijaId);
+                TempData["Uspjeh"] = "Recenzija je uklonjena.";
+            }
+            catch (KeyNotFoundException)
             {
                 TempData["Greska"] = "Recenzija nije pronađena.";
-                return RedirectToAction(nameof(Index));
             }
 
-            await _recenzijaRepo.ObrisiAsync(recenzijaId);
-            TempData["Uspjeh"] = "Recenzija je uklonjena.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -110,18 +111,16 @@ namespace PopravkaBa.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OdbaciPrijavu(int recenzijaId)
         {
-            var recenzija = await _recenzijaRepo.DajPoIdAsync(recenzijaId);
-            if (recenzija is null)
+            try
+            {
+                await _recenzijaService.OdbaciPrijavu(recenzijaId);
+                TempData["Uspjeh"] = "Prijava recenzije je odbačena, recenzija ostaje objavljena.";
+            }
+            catch (KeyNotFoundException)
             {
                 TempData["Greska"] = "Recenzija nije pronađena.";
-                return RedirectToAction(nameof(Index));
             }
 
-            recenzija.StatusPrijave = Domain.Enums.Status.Odbijeno;
-            recenzija.Prijavljena = false;
-            await _recenzijaRepo.SacuvajAsync(recenzija);
-
-            TempData["Uspjeh"] = "Prijava recenzije je odbačena, recenzija ostaje objavljena.";
             return RedirectToAction(nameof(Index));
         }
     }

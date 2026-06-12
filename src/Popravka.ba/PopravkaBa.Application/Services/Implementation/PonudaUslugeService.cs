@@ -10,11 +10,16 @@ namespace PopravkaBa.Application.Services.Implementation
     {
         private readonly IPonudaUslugeRepository _ponudaRepo;
         private readonly IOglasUslugeRepository _oglasRepo;
+        private readonly IIzvrsilacUslugeRepository _izvrsilacRepo;
 
-        public PonudaUslugeService(IPonudaUslugeRepository ponudaRepo, IOglasUslugeRepository oglasRepo)
+        public PonudaUslugeService(
+            IPonudaUslugeRepository ponudaRepo,
+            IOglasUslugeRepository oglasRepo,
+            IIzvrsilacUslugeRepository izvrsilacRepo)
         {
             _ponudaRepo = ponudaRepo;
             _oglasRepo = oglasRepo;
+            _izvrsilacRepo = izvrsilacRepo;
         }
 
         public async Task<PonudaUsluge?> DajPonuduPoId(int id) =>
@@ -93,6 +98,31 @@ namespace PopravkaBa.Application.Services.Implementation
 
             ponuda.StatusPonude = Status.Odbijeno;
             await _ponudaRepo.UrediAsync(ponuda);
+        }
+
+        public async Task ZavrsiPosao(int oglasId, string klijentId)
+        {
+            var oglas = await _oglasRepo.DajPoIdAsync(oglasId)
+                ?? throw new KeyNotFoundException($"Oglas {oglasId} nije pronađen.");
+
+            if (oglas.VlasnikOglasaID != klijentId)
+                throw new UnauthorizedAccessException("Samo vlasnik oglasa može označiti posao završenim.");
+
+            if (oglas.StatusOglasa == Status.Isporuceno)
+                throw new InvalidOperationException("Posao je već označen kao završen.");
+
+            var ponude = await _ponudaRepo.DajSvePonudeOglasaAsync(oglasId);
+            var prihvacena = ponude.FirstOrDefault(p => p.StatusPonude == Status.Prihvaceno)
+                ?? throw new InvalidOperationException("Oglas nema prihvaćenu ponudu — posao se ne može označiti završenim.");
+
+            prihvacena.StatusPonude = Status.Isporuceno;
+            prihvacena.DatumIzvrsavanjaUsluge = DateTime.UtcNow;
+            await _ponudaRepo.UrediAsync(prihvacena);
+
+            oglas.StatusOglasa = Status.Isporuceno;
+            await _oglasRepo.UrediAsync(oglas);
+
+            await _izvrsilacRepo.PovecajBrojZavrsenihPoslovaAsync(prihvacena.IzvrsilacID);
         }
 
         public async Task<decimal?> DajProsjekCijenePoKategorijama(IEnumerable<int> kategorijeIds) =>

@@ -1,8 +1,13 @@
 @model ProfilEditViewModel
 @using PopravkaBa.Web.Models.ViewModels
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Uredi profil - Popravka.ba";
     bool jeIzvrsilac = Model.Uloga == "Majstor" || Model.Uloga == "Firma";
+
+    // Admin uređuje tuđi profil (vs. korisnik svoj) — za informativni banner
+    var trenutniId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    bool adminUredjujeTudji = User.IsInRole("Administrator") && Model.UserId != trenutniId;
 
     var msKategorije = new KategorijeMultiSelectModel
     {
@@ -10,7 +15,8 @@
         Kategorije = Model.Kategorije,
         InputName = "SelectedKategorijeId",
         Selektovano = Model.SelectedKategorijeId,
-        Placeholder = "-- Odaberi vještine --"
+        Placeholder = "-- Odaberi vještine --",
+        SearchPlaceholder = "Pretraži vještine..."
     };
     var msMjesta = new MjestaMultiSelectModel
     {
@@ -20,6 +26,15 @@
         Selektovano = Model.SelectedMjestaId,
         Placeholder = "-- Odaberi lokacije --"
     };
+
+    static string FormatVrijeme(TimeSpan? vrijeme)
+    {
+        if (vrijeme.HasValue)
+        {
+            return $"{vrijeme.Value.Hours:D2}:{vrijeme.Value.Minutes:D2}";
+        }
+        return "";
+    }
 }
 
 <div class="container mt-4 mb-5" style="max-width:800px;">
@@ -28,6 +43,14 @@
     </a>
 
     <h3 class="fw-bold mb-4">Uredi profil</h3>
+
+    @if (adminUredjujeTudji)
+    {
+        <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-shield-lock-fill"></i>
+            <span>Uređujete profil korisnika <strong>@Model.Username</strong> kao administrator.</span>
+        </div>
+    }
 
     <form asp-action="Edit" method="post" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
@@ -156,19 +179,17 @@
                             <div class="col-md-6">
                                 <label asp-for="RadnoVrijeme.OtvorenoOd" class="form-label fw-medium">Radno vrijeme — od</label>
                                 <input name="RadnoVrijeme.OtvorenoOd" type="text" inputmode="numeric"
-                                       value="@(Model.RadnoVrijeme?.OtvorenoOd?.Hours.ToString("D2")):@(Model.RadnoVrijeme?.OtvorenoOd?.Minutes.ToString("D2"))"
+                                       value="@FormatVrijeme(Model.RadnoVrijeme?.OtvorenoOd)"
                                        pattern="([01][0-9]|2[0-3]):[0-5][0-9]" placeholder="07:00" maxlength="5"
                                        title="Unesite vrijeme u 24-satnom formatu (npr. 07:00)" class="form-control" />
-                                <span asp-validation-for="RadnoVrijeme.OtvorenoOd" class="text-danger small"></span>
-                            </div>
+                                   </div>
                             <div class="col-md-6">
-                                <label asp-for="RadnoVrijeme.OtvorenoDo" class="form-label fw-medium">Radno vrijeme — do</label>
-                                <input name="RadnoVrijeme.OtvorenoDo" type="text" inputmode="numeric"
-                                       value="@(Model.RadnoVrijeme?.OtvorenoDo?.Hours.ToString("D2")):@(Model.RadnoVrijeme?.OtvorenoDo?.Minutes.ToString("D2"))"
-                                       pattern="([01][0-9]|2[0-3]):[0-5][0-9]" placeholder="20:00" maxlength="5"
-                                       title="Unesite vrijeme u 24-satnom formatu (npr. 20:00)" class="form-control" />
-                                <span asp-validation-for="RadnoVrijeme.OtvorenoDo" class="text-danger small"></span>
-                            </div>
+                                <label asp-for="RadnoVrijeme.OtvorenoOd" class="form-label fw-medium">Radno vrijeme — od</label>
+                            <input name="RadnoVrijeme.OtvorenoDo" type="text" inputmode="numeric"
+                                   value="@FormatVrijeme(Model.RadnoVrijeme?.OtvorenoDo)"
+                                   pattern="([01][0-9]|2[0-3]):[0-5][0-9]" placeholder="20:00" maxlength="5"
+                                   title="Unesite vrijeme u 24-satnom formatu (npr. 20:00)" class="form-control" />
+                                   </div>
                         </div>
                         <div class="form-text">Radno vrijeme je opcionalno — 24-satni format (npr. 07:00 - 20:00).</div>
                     </div>

@@ -11,5 +11,7 @@ namespace PopravkaBa.Domain.Interfaces
         Task UrediAsync(PonudaUsluge ponuda);
         Task ObrisiAsync(int id);
         Task<decimal?> DajProsjekCijenePoKategorijama(IEnumerable<int> kategorijeIds);
+        // Da li je izvršilac završio (Isporuceno) barem jedan posao na oglasu ovog klijenta
+        Task<bool> PostojiZavrseniPosaoAsync(string klijentId, string izvrsilacId);
     }
 }
