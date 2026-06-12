@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PopravkaBa.Application.DTOs;
 using PopravkaBa.Application.Services.Interface;
 using PopravkaBa.Domain.Enums;
 using PopravkaBa.Domain.Interfaces;
@@ -12,20 +13,36 @@ namespace PopravkaBa.Web.Controllers
     public class ProfilController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IOglasMajstoraFacade _oglasMajstoraFacade;
         private readonly IOglasUslugeFacade _oglasUslugeFacade;
-        private readonly IIzvrsilacUslugeRepository _izvrsilacRepo;
+        private readonly IIzvrsilacUslugeService _izvrsilacService;
+        private readonly IFileStorage _storage;
+        private readonly ILogger<ProfilController> _logger;
+        private readonly IMjestoService _mjestoService;
+        private readonly IKategorijaService _kategorijaService;
 
         public ProfilController(
             UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IOglasMajstoraFacade oglasMajstoraFacade,
             IOglasUslugeFacade oglasUslugeFacade,
-            IIzvrsilacUslugeRepository izvrsilacRepo)
+            IIzvrsilacUslugeService izvrsilacService,
+            IFileStorage fileStorage,
+            ILogger<ProfilController> logger,
+            IMjestoService mjestoServ,
+            IKategorijaService kategorijaService
+            )
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _oglasMajstoraFacade = oglasMajstoraFacade;
             _oglasUslugeFacade = oglasUslugeFacade;
-            _izvrsilacRepo = izvrsilacRepo;
+            _izvrsilacService = izvrsilacService;
+            _storage = fileStorage;
+            _logger = logger;
+            _mjestoService = mjestoServ;
+            _kategorijaService = kategorijaService;
         }
 
         [AllowAnonymous]
@@ -66,7 +83,7 @@ namespace PopravkaBa.Web.Controllers
 
         private async Task PopuniIzvrsilacProfilAsync(ProfilViewModel vm, string korisnikId)
         {
-            var izvrsilac = await _izvrsilacRepo.DajProfilPoIdAsync(korisnikId);
+            var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnikId);
             if (izvrsilac is not null)
             {
                 vm.Opis = izvrsilac.Opis;
@@ -98,6 +115,18 @@ namespace PopravkaBa.Web.Controllers
                         Datum = r.DatumRecenzije
                     }).ToList() ?? new();
                 vm.BrojRecenzija = Math.Max(izvrsilac.BrojRecenzija, vm.Recenzije.Count);
+
+                if (izvrsilac is Firma firma)
+                {
+                    vm.RadnoVrijeme = new RadnoVrijemeDto
+                    {
+                        OtvorenoOd = firma.OtvorenoOd,
+                        OtvorenoDo = firma.OtvorenoDo
+                    };
+                    vm.MinZaposlenih = firma.MinZaposlenih;
+                    vm.MaxZaposlenih = firma.MaxZaposlenih;
+                    vm.NazivFirme = firma.NazivFirme;
+                }
             }
 
             var oglasi = await _oglasMajstoraFacade.DajSveOglase();
@@ -135,6 +164,266 @@ namespace PopravkaBa.Web.Controllers
                     Kategorije = o.Kategorije?.Select(k => k.Kategorija?.Naziv ?? "")
                                    .Where(n => n != "").ToList() ?? new()
                 }).ToList();
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Edit()
+        {
+            var korisnikId = _userManager.GetUserId(User);
+            var korisnik = await _userManager.FindByIdAsync(korisnikId);
+            if (korisnik is null) return NotFound();
+
+            var vm = new ProfilEditViewModel
+            {
+                UserId = korisnik.Id,
+                Username = korisnik.UserName,
+                Ime = korisnik.Ime,
+                Prezime = korisnik.Prezime,
+                Email = korisnik.Email
+            };
+
+            await PopuniIzvoreAsync(vm, korisnik);
+
+            if (vm.Uloga == "Majstor" || vm.Uloga == "Firma")
+            {
+                var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnikId);
+                if (izvrsilac != null)
+                {
+                    vm.Opis = izvrsilac.Opis;
+                    vm.PortfolioSlike = izvrsilac.SlikePortfolija?
+                        .Select(s => new PortfolioSlikaItem { Id = s.PortfolioSlikaID, URL = s.URL })
+                        .ToList() ?? new();
+                    vm.SelectedKategorijeId = izvrsilac.Kategorije?.Select(ik => ik.KategorijaID).ToList() ?? new();
+                    vm.SelectedMjestaId = izvrsilac.Mjesta?.Select(km => km.MjestoID).ToList() ?? new();
+                }
+            }
+
+            if (korisnik is Firma firma)
+            {
+                vm.NazivFirme = firma.NazivFirme;
+                vm.VelicinaFirme = firma.VelicinaFirme;
+                vm.RadnoVrijeme = new RadnoVrijemeDto
+                {
+                    OtvorenoOd = firma.OtvorenoOd,
+                    OtvorenoDo = firma.OtvorenoDo
+                };
+            }
+
+            return View(vm);
+        }
+
+        // Učitava izvore za dropdownove i nepromjenjive prikaze (slika, uloga, portfolio).
+        // Ne dira odabrane vrijednosti (one dolaze iz forme prilikom POST-a).
+        private async Task PopuniIzvoreAsync(ProfilEditViewModel vm, ApplicationUser korisnik)
+        {
+            vm.TrenutnaSlika = korisnik.Slika;
+            vm.DatumRegistracije = korisnik.DatumRegistracije;
+
+            var uloge = await _userManager.GetRolesAsync(korisnik);
+            vm.Uloga = uloge.FirstOrDefault() ?? "Korisnik";
+
+            vm.Mjesta = await _mjestoService.DajSvaMjestaAsync();
+            vm.Kategorije = await _kategorijaService.DajSveKategorije();
+
+            if (vm.Uloga == "Majstor" || vm.Uloga == "Firma")
+            {
+                var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnik.Id);
+                if (izvrsilac != null)
+                    vm.PortfolioSlike = izvrsilac.SlikePortfolija?
+                        .Select(s => new PortfolioSlikaItem { Id = s.PortfolioSlikaID, URL = s.URL })
+                        .ToList() ?? new();
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(ProfilEditViewModel vm, IFormFile? novaSlika, List<IFormFile>? noveSlike, CancellationToken ct = default)
+        {
+            var korisnikId = _userManager.GetUserId(User);
+            var korisnik = await _userManager.FindByIdAsync(korisnikId);
+            if (korisnik is null) return NotFound();
+
+            var korisnikUloge = await _userManager.GetRolesAsync(korisnik);
+            var korisnikUloga = korisnikUloge.FirstOrDefault() ?? "Korisnik";
+
+            // Ako su mjesta i kategorije prazne (korisnik nije mijenjao), učitaj postojeće vrijednosti
+            if (korisnikUloga == "Majstor" || korisnikUloga == "Firma")
+            {
+                if ((vm.SelectedMjestaId?.Count ?? 0) == 0 || (vm.SelectedKategorijeId?.Count ?? 0) == 0)
+                {
+                    var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnikId);
+                    if (izvrsilac != null)
+                    {
+                        if ((vm.SelectedMjestaId?.Count ?? 0) == 0)
+                            vm.SelectedMjestaId = izvrsilac.Mjesta?.Select(km => km.MjestoID).ToList() ?? new();
+                        if ((vm.SelectedKategorijeId?.Count ?? 0) == 0)
+                            vm.SelectedKategorijeId = izvrsilac.Kategorije?.Select(ik => ik.KategorijaID).ToList() ?? new();
+                    }
+                }
+
+                // Validacija: najmanje 1 mjesto i 1 kategorija
+                var mjestaBroj = vm.SelectedMjestaId?.Count ?? 0;
+                var kategorijes = vm.SelectedKategorijeId?.Count ?? 0;
+
+                if (mjestaBroj == 0)
+                    ModelState.AddModelError("", "Trebate odabrati najmanje 1 lokaciju.");
+                if (kategorijes == 0)
+                    ModelState.AddModelError("", "Trebate odabrati najmanje 1 kategoriju.");
+            }
+
+            if (korisnikUloga == "Firma")
+            {
+                // Firma nema ime/prezime — uklanja Required greške za ta polja
+                ModelState.Remove(nameof(vm.Ime));
+                ModelState.Remove(nameof(vm.Prezime));
+
+                if (string.IsNullOrWhiteSpace(vm.NazivFirme))
+                    ModelState.AddModelError(nameof(vm.NazivFirme), "Naziv firme je obavezan.");
+
+                // Radno vrijeme je opcionalno, ali ako se unosi — oba vremena i ispravan redoslijed
+                var otvorenoOd = vm.RadnoVrijeme?.OtvorenoOd;
+                var otvorenoDo = vm.RadnoVrijeme?.OtvorenoDo;
+                if (otvorenoOd.HasValue != otvorenoDo.HasValue)
+                    ModelState.AddModelError("", "Za radno vrijeme unesite i vrijeme otvaranja i vrijeme zatvaranja.");
+                else if (otvorenoOd.HasValue && otvorenoOd >= otvorenoDo)
+                    ModelState.AddModelError("", "Vrijeme otvaranja mora biti prije vremena zatvaranja.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                await PopuniIzvoreAsync(vm, korisnik);
+                return View(vm);
+            }
+
+            try
+            {
+                // Promjena korisničkog imena (ako je promijenjeno)
+                if (!string.IsNullOrWhiteSpace(vm.Username) &&
+                    !string.Equals(vm.Username, korisnik.UserName, StringComparison.OrdinalIgnoreCase))
+                {
+                    var zauzeto = await _userManager.FindByNameAsync(vm.Username);
+                    if (zauzeto != null && zauzeto.Id != korisnik.Id)
+                    {
+                        ModelState.AddModelError(nameof(vm.Username), "Korisničko ime je već zauzeto.");
+                        await PopuniIzvoreAsync(vm, korisnik);
+                        return View(vm);
+                    }
+
+                    var unResult = await _userManager.SetUserNameAsync(korisnik, vm.Username);
+                    if (!unResult.Succeeded)
+                    {
+                        foreach (var error in unResult.Errors)
+                            ModelState.AddModelError(nameof(vm.Username), error.Description);
+                        await PopuniIzvoreAsync(vm, korisnik);
+                        return View(vm);
+                    }
+                }
+
+                // Firma polja (naziv, veličina, radno vrijeme); ime i prezime se ne diraju
+                if (korisnik is Firma firma)
+                {
+                    firma.NazivFirme = vm.NazivFirme!;
+
+                    if (vm.VelicinaFirme.HasValue)
+                        firma.VelicinaFirme = vm.VelicinaFirme.Value;
+
+                    var otvorenoOd = vm.RadnoVrijeme?.OtvorenoOd;
+                    var otvorenoDo = vm.RadnoVrijeme?.OtvorenoDo;
+                    firma.OtvorenoOd = otvorenoOd;
+                    firma.OtvorenoDo = otvorenoDo;
+                    firma.RadnoVrijeme = otvorenoOd.HasValue && otvorenoDo.HasValue
+                        ? $"{otvorenoOd:hh\\:mm} - {otvorenoDo:hh\\:mm}"
+                        : null;
+                }
+                else
+                {
+                    korisnik.Ime = vm.Ime;
+                    korisnik.Prezime = vm.Prezime;
+                }
+
+                // Ako se email promijenio, korisnik mora ponovno verificirati email
+                if (!string.Equals(korisnik.Email, vm.Email, StringComparison.OrdinalIgnoreCase))
+                {
+                    korisnik.Email = vm.Email;
+                    korisnik.EmailConfirmed = false;
+                    korisnik.OsvjeziStatusAktivnosti();
+                }
+
+                if (novaSlika != null)
+                {
+                    await using var stream = novaSlika.OpenReadStream();
+                    korisnik.Slika = await _storage.SpremiPublic(stream, novaSlika.ContentType, ct);
+                }
+
+                var result = await _userManager.UpdateAsync(korisnik);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                        ModelState.AddModelError("", error.Description);
+                    await PopuniIzvoreAsync(vm, korisnik);
+                    return View(vm);
+                }
+
+                // Promjena korisničkog imena poništava cookie — osvježi prijavu.
+                await _signInManager.RefreshSignInAsync(korisnik);
+
+                var uloge = await _userManager.GetRolesAsync(korisnik);
+                var uloga = uloge.FirstOrDefault() ?? "Korisnik";
+
+                if (uloga == "Majstor" || uloga == "Firma")
+                {
+                    // Lokacije i kategorije izvršioca (više vrijednosti — kao u pretrazi)
+                    await _mjestoService.AzurirajMjestaKorisnika(korisnikId, vm.SelectedMjestaId ?? new());
+                    await _kategorijaService.AzurirajKategorijeIzvrsioca(korisnikId, vm.SelectedKategorijeId ?? new());
+
+                    var izvrsilac = await _izvrsilacService.DajProfilPoIdAsync(korisnikId);
+                    if (izvrsilac != null)
+                    {
+                        izvrsilac.Opis = vm.Opis;
+                        izvrsilac.SlikePortfolija ??= new List<PortfolioSlika>();
+
+                        if (noveSlike?.Any() == true)
+                        {
+                            foreach (var slika in noveSlike.Take(10))
+                            {
+                                await using var s = slika.OpenReadStream();
+                                var url = await _storage.SpremiPublic(s, slika.ContentType, ct);
+                                if (url != null)
+                                    izvrsilac.SlikePortfolija.Add(new PortfolioSlika { URL = url });
+                            }
+                        }
+
+                        // Brisanje portfolio slika
+                        if (vm.SlikeZaBrisanje != null && vm.SlikeZaBrisanje.Count > 0)
+                        {
+                            var idsZaBrisanja = new HashSet<int>(vm.SlikeZaBrisanje);
+                            var zaBrisanje = izvrsilac.SlikePortfolija?
+                                .Where(s => idsZaBrisanja.Contains(s.PortfolioSlikaID))
+                                .ToList();
+
+                            if (zaBrisanje != null)
+                            {
+                                foreach (var slika in zaBrisanje)
+                                    izvrsilac.SlikePortfolija.Remove(slika);
+                            }
+                        }
+
+                        await _izvrsilacService.UrediAsync(izvrsilac);
+                    }
+                }
+
+                TempData["Success"] = "Profil je uspješno ažuriran.";
+                return RedirectToAction("Index", new { username = korisnik.UserName });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Greška pri ažuriranju profila");
+                ModelState.AddModelError("", "Došlo je do greške pri ažuriranju profila.");
+                await PopuniIzvoreAsync(vm, korisnik);
+                return View(vm);
+            }
         }
     }
 }

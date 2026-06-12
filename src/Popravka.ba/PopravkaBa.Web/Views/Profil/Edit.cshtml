@@ -1,0 +1,341 @@
+@model ProfilEditViewModel
+@using PopravkaBa.Web.Models.ViewModels
+@{
+    ViewData["Title"] = "Uredi profil - Popravka.ba";
+    bool jeIzvrsilac = Model.Uloga == "Majstor" || Model.Uloga == "Firma";
+
+    var msKategorije = new KategorijeMultiSelectModel
+    {
+        Prefix = "katProfil",
+        Kategorije = Model.Kategorije,
+        InputName = "SelectedKategorijeId",
+        Selektovano = Model.SelectedKategorijeId,
+        Placeholder = "-- Odaberi vještine --"
+    };
+    var msMjesta = new MjestaMultiSelectModel
+    {
+        Prefix = "mjestoProfil",
+        Mjesta = Model.Mjesta,
+        InputName = "SelectedMjestaId",
+        Selektovano = Model.SelectedMjestaId,
+        Placeholder = "-- Odaberi lokacije --"
+    };
+}
+
+<div class="container mt-4 mb-5" style="max-width:800px;">
+    <a href="/Profil/@Model.Username" class="text-muted text-decoration-none small d-block mb-3">
+        <i class="fa-solid fa-arrow-left me-1"></i>Nazad na profil
+    </a>
+
+    <h3 class="fw-bold mb-4">Uredi profil</h3>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <!-- Hidden fields that shouldn't change -->
+        <input type="hidden" asp-for="UserId" />
+        <input type="hidden" asp-for="Uloga" />
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+        }
+
+        <!-- Osnovna informacija -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Osnovne informacije</h5>
+
+                <div class="mb-3">
+                    <label asp-for="Username" class="form-label fw-medium">Korisničko ime</label>
+                    <input asp-for="Username" class="form-control" />
+                    <div class="form-text">Korisničko ime je dio adrese vašeg javnog profila.</div>
+                    <span asp-validation-for="Username" class="text-danger small"></span>
+                </div>
+
+                @if (Model.Uloga == "Firma")
+                {
+                    <div class="mb-3">
+                        <label asp-for="NazivFirme" class="form-label fw-medium">Naziv firme</label>
+                        <input asp-for="NazivFirme" class="form-control" placeholder="Naziv kompanije/firme" />
+                        <span asp-validation-for="NazivFirme" class="text-danger small"></span>
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Ime" class="form-label fw-medium">Ime</label>
+                            <input asp-for="Ime" class="form-control" />
+                            <span asp-validation-for="Ime" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Prezime" class="form-label fw-medium">Prezime</label>
+                            <input asp-for="Prezime" class="form-control" />
+                            <span asp-validation-for="Prezime" class="text-danger small"></span>
+                        </div>
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label fw-medium">Email</label>
+                    <input asp-for="Email" type="email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slika profila -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <h5 class="fw-semibold mb-3">Slika profila</h5>
+                @if (!string.IsNullOrEmpty(Model.TrenutnaSlika))
+                {
+                    <div class="mb-3">
+                        <p class="small text-muted">Trenutna slika:</p>
+                        <img src="@Model.TrenutnaSlika" alt="Profil" class="img-fluid rounded" style="max-width:150px;" />
+                    </div>
+                }
+                <div class="mb-3">
+                    <label for="novaSlika" class="form-label fw-medium">Odaberite novu sliku (opcionalno)</label>
+                    <input type="file" id="novaSlika" name="novaSlika" class="form-control" accept="image/png,image/jpeg,image/webp" />
+                    <div class="form-text">JPG, PNG ili WEBP – maksimalno 5MB.</div>
+                </div>
+            </div>
+        </div>
+
+        @if (jeIzvrsilac)
+        {
+            <!-- Lokacija, vještine i opis (samo za izvršilace) -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-4">
+                    <h5 class="fw-semibold mb-3">Dodatne informacije</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Lokacije <span class="text-danger">*</span></label>
+                        <partial name="_MjestaMultiSelect" model="msMjesta" />
+                        <small class="form-text text-muted d-block">Trebate odabrati najmanje 1 lokaciju.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Vještine i usluge (kategorije) <span class="text-danger">*</span></label>
+                        <partial name="_KategorijeMultiSelect" model="msKategorije" />
+                        <small class="form-text text-muted d-block">Trebate odabrati najmanje 1 kategoriju.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Opis" class="form-label fw-medium">O firmi</label>
+                        <textarea asp-for="Opis" class="form-control" rows="4" maxlength="1000" placeholder="Opis firme, iskustvo, specijalizacija..."></textarea>
+                        <span asp-validation-for="Opis" class="text-danger small"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Informacije za firmu -->
+            @if (Model.Uloga == "Firma")
+            {
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body p-4">
+                        <h5 class="fw-semibold mb-3">Informacije</h5>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="VelicinaFirme" class="form-label fw-medium">Zaposlenika</label>
+                                <select asp-for="VelicinaFirme" asp-items="Html.GetEnumSelectList<PopravkaBa.Domain.Enums.VelicinaFirme>()" class="form-select"></select>
+                                <span asp-validation-for="VelicinaFirme" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Član od</label>
+                                <input type="text" class="form-control" value="@Model.DatumRegistracije.ToString("MMM yyyy.")" readonly disabled />
+                                <div class="form-text">Datum registracije se ne može mijenjati.</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-6">
+                                <label asp-for="RadnoVrijeme.OtvorenoOd" class="form-label fw-medium">Radno vrijeme — od</label>
+                                <input name="RadnoVrijeme.OtvorenoOd" type="text" inputmode="numeric"
+                                       value="@(Model.RadnoVrijeme?.OtvorenoOd?.Hours.ToString("D2")):@(Model.RadnoVrijeme?.OtvorenoOd?.Minutes.ToString("D2"))"
+                                       pattern="([01][0-9]|2[0-3]):[0-5][0-9]" placeholder="07:00" maxlength="5"
+                                       title="Unesite vrijeme u 24-satnom formatu (npr. 07:00)" class="form-control" />
+                                <span asp-validation-for="RadnoVrijeme.OtvorenoOd" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="RadnoVrijeme.OtvorenoDo" class="form-label fw-medium">Radno vrijeme — do</label>
+                                <input name="RadnoVrijeme.OtvorenoDo" type="text" inputmode="numeric"
+                                       value="@(Model.RadnoVrijeme?.OtvorenoDo?.Hours.ToString("D2")):@(Model.RadnoVrijeme?.OtvorenoDo?.Minutes.ToString("D2"))"
+                                       pattern="([01][0-9]|2[0-3]):[0-5][0-9]" placeholder="20:00" maxlength="5"
+                                       title="Unesite vrijeme u 24-satnom formatu (npr. 20:00)" class="form-control" />
+                                <span asp-validation-for="RadnoVrijeme.OtvorenoDo" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="form-text">Radno vrijeme je opcionalno — 24-satni format (npr. 07:00 - 20:00).</div>
+                    </div>
+                </div>
+            }
+
+            <!-- Portfolio (prikazuje se samo ako ima slika) -->
+            @if (Model.PortfolioSlike.Any())
+            {
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body p-4">
+                        <h5 class="fw-semibold mb-3">Portfolio slike</h5>
+
+                        <div class="mb-3">
+                            <p class="small text-muted">Trenutne slike:</p>
+                            <div class="row g-2">
+                                @foreach (var slika in Model.PortfolioSlike)
+                                {
+                                    <div class="col-sm-6 col-md-4" data-portfolio-id="@slika.Id">
+                                        <div class="position-relative">
+                                            <img src="@slika.URL" alt="Portfolio" class="img-fluid rounded" style="max-height:150px;object-fit:cover;" />
+                                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 btn-delete-portfolio"
+                                                    data-id="@slika.Id">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div id="inputSlikeContainer" class="mb-3">
+                            <div class="input-group mb-2">
+                                <input type="file" name="noveSlike" class="form-control" accept="image/png,image/jpeg,image/webp" multiple />
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnDodajSliku">
+                            <i class="fa-solid fa-plus me-1"></i>Dodaj još slika
+                        </button>
+                        <div class="form-text">JPG, PNG ili WEBP – maksimalno 10 slika.</div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body p-4">
+                        <h5 class="fw-semibold mb-3">Dodaj portfolio slike</h5>
+
+                        <div id="inputSlikeContainer" class="mb-3">
+                            <div class="input-group mb-2">
+                                <input type="file" name="noveSlike" class="form-control" accept="image/png,image/jpeg,image/webp" multiple />
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnDodajSliku">
+                            <i class="fa-solid fa-plus me-1"></i>Dodaj još slika
+                        </button>
+                        <div class="form-text">JPG, PNG ili WEBP – maksimalno 10 slika.</div>
+                    </div>
+                </div>
+            }
+        }
+
+        <div class="d-flex justify-content-end gap-2">
+            <a href="/Profil/@Model.Username" class="btn btn-outline-secondary">Odustani</a>
+            @if (jeIzvrsilac)
+            {
+                <button type="submit" class="btn btn-primary px-4" onclick="return validateExecutorSelections()">
+                    <i class="fa-solid fa-floppy-disk me-2"></i>Spremi izmjene
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fa-solid fa-floppy-disk me-2"></i>Spremi izmjene
+                </button>
+            }
+        </div>
+    </form>
+</div>
+
+<script>
+function validateExecutorSelections() {
+    const selectedMjesta = document.querySelectorAll('input[name="SelectedMjestaId"]').length;
+    const selectedKategorije = document.querySelectorAll('input[name="SelectedKategorijeId"]').length;
+
+    if (selectedMjesta === 0) {
+        alert('Trebate odabrati najmanje 1 lokaciju.');
+        return false;
+    }
+    if (selectedKategorije === 0) {
+        alert('Trebate odabrati najmanje 1 kategoriju.');
+        return false;
+    }
+    return true;
+}
+
+// Brisanje portfolio slika
+document.addEventListener('click', function(e) {
+    const deleteBtn = e.target.closest('.btn-delete-portfolio');
+    if (deleteBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const id = deleteBtn.getAttribute('data-id');
+        if (!id) return;
+
+        const form = deleteBtn.closest('form');
+        if (!form) return;
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'SlikeZaBrisanje';
+        input.value = id;
+        form.appendChild(input);
+
+        const wrapper = deleteBtn.closest('[data-portfolio-id]');
+        if (wrapper) {
+            wrapper.style.opacity = '0.4';
+            wrapper.style.pointerEvents = 'none';
+        }
+        deleteBtn.disabled = true;
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Dodavanje novih slika
+    const btnDodajSliku = document.getElementById('btnDodajSliku');
+    if (btnDodajSliku) {
+        btnDodajSliku.addEventListener('click', function() {
+            const container = document.getElementById('inputSlikeContainer');
+            const count = container.querySelectorAll('input[type="file"]').length;
+            if (count >= 10) {
+                alert('Maksimalno 10 slika.');
+                return;
+            }
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = `
+                <input type="file" name="noveSlike" class="form-control" accept="image/png,image/jpeg,image/webp" />
+                <button class="btn btn-outline-secondary" type="button" onclick="this.parentElement.remove()">Ukloni</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+});
+</script>
+
+<style>
+    @@media (max-width: 640px) {
+        .container {
+            padding: 0 0.75rem;
+        }
+        .card {
+            margin-bottom: 1rem;
+        }
+        .card-body {
+            padding: 1rem !important;
+        }
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

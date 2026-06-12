@@ -6,11 +6,11 @@ namespace PopravkaBa.Application.DTOs
     public class RadnoVrijemeDto
     {
         [DataType(DataType.Time)]
-        public TimeSpan OtvorenoOd { get; set; }
+        public TimeSpan? OtvorenoOd { get; set; }
 
 
         [DataType(DataType.Time)]
-        public TimeSpan OtvorenoDo { get; set; }
+        public TimeSpan? OtvorenoDo { get; set; }
     }
 
     public class LoginDto

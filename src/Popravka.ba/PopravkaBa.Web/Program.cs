@@ -99,6 +99,7 @@ builder.Services.AddScoped<IVozackeDozvoleService, VozackeDozvoleService>();
 builder.Services.AddScoped<IOglasUslugeService, OglasUslugeService>();
 builder.Services.AddScoped<IOglasUslugeRepository, OglasUslugeRepository>();
 builder.Services.AddScoped<IIzvrsilacUslugeRepository, IzvrsilacUslugeRepository>();
+builder.Services.AddScoped<IIzvrsilacUslugeService, IzvrsilacUslugeService>();
 
 builder.Services.AddScoped<IOglasMajstoraFacade, OglasMajstoraFacade>();
 builder.Services.AddScoped<IOglasRadnoMjestoFacade, OglasRadnoMjestoFacade>();
@@ -154,7 +155,7 @@ builder.Services.AddScoped<IVerifikacijaFirmeRepository, VerifikacijaFirmeReposi
 
 builder.Services.AddHostedService<VerifikacijskiTokenCleanupJob>();
 builder.Services.AddHostedService<MjesecnaStatistikaJob>();
-// builder.Services.AddHostedService<NeaktivniOglasiCleanupJob>();
+// builder.Services.AddHostedService<NeaktivniOglasCleanupJob>();
 builder.Services.AddScoped<DbSeeder>();
 
 
@@ -218,11 +219,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
     name: "profil",
     pattern: "Profil/{username}",
     defaults: new { controller = "Profil", action = "Index" });
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.Run();
