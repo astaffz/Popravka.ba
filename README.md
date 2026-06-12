@@ -48,6 +48,6 @@ https://popravka-ba.onrender.com/
 | ------------ | ---------------- | ---------------- |
 | Admin        | administrator    | #TarikRedzic10   |
 | Firma        | haricevabdzinica | haricevapi123    |
-| Majstor      | hajromustafic    | Majstor#1234     |
+| Majstor      | hajromustafic    | Mojbabo#1234     |
 | Klijent      | esmirb           | Klijent#1234     |
 # **_--- TBD ---_**
