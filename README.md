@@ -40,4 +40,14 @@ Kompletna dokumentacija projekta održava se u `docs/` direktoriju, izvorni kod,
 
 > **Napomena:** LaTeX dokumenti su izrađeni i provjereni na **MiKTeX 25.12** distribuciji (Windows 11).
 
+## Link za pristup aplikaciji
+https://popravka-ba.onrender.com/
+
+## Pristupni podaci
+| Akter        | Username         |   Lozinka        |
+| ------------ | ---------------- | ---------------- |
+| Admin        | administrator    | #TarikRedzic10   |
+| Firma        | haricevabdzinica | haricevapi123    |
+| Majstor      | hajromustafic    | Majstor#1234     |
+| Klijent      | esmirb           | Klijent#1234     |
 # **_--- TBD ---_**
