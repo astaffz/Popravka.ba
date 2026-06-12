@@ -64,20 +64,33 @@
                         </div>
                     </div>
                     <p class="mb-1 mt-2" style="color:#4b5563;">@r.Komentar</p>
-                    @if (ViewBag.JeVlasnik == true)
-                    {
-                        @if (r.Prijavljena)
+                    <div style="display: flex; gap: 1rem; margin-top: .75rem; flex-wrap: wrap;">
+                        @if (ViewBag.JeVlasnik == true)
                         {
-                            <small style="color:#d97706;"><i class="bi bi-flag-fill"></i> Prijavljena — čeka pregled</small>
+                            @if (r.Prijavljena)
+                            {
+                                <small style="color:#d97706;"><i class="bi bi-flag-fill"></i> Prijavljena — čeka pregled</small>
+                            }
+                            else
+                            {
+                                <a asp-action="Prijavi" asp-route-recenzijaId="@r.RecenzijaID"
+                                   class="small text-muted text-decoration-none rec-prijavi">
+                                    <i class="bi bi-flag"></i> Prijavi
+                                </a>
+                            }
                         }
-                        else
+                        @if (User.IsInRole("Administrator"))
                         {
-                            <a asp-action="Prijavi" asp-route-recenzijaId="@r.RecenzijaID"
-                               class="small text-muted text-decoration-none rec-prijavi">
-                                <i class="bi bi-flag"></i> Prijavi
-                            </a>
+                            <form asp-controller="Admin" asp-action="UkloniRecenziju" method="post" style="display: inline; margin: 0;"
+                                  onsubmit="return confirm('Obrisati ovu recenziju? Ova akcija je trajna.');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="recenzijaId" value="@r.RecenzijaID" />
+                                <button type="submit" style="background: none; border: none; color: #dc2626; text-decoration: none; padding: 0; cursor: pointer; font-size: .875rem; font-weight: 500;">
+                                    <i class="bi bi-trash-fill"></i> Obriši
+                                </button>
+                            </form>
                         }
-                    }
+                    </div>
                 </div>
             </div>
         }
