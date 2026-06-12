@@ -1,0 +1,47 @@
+# Exported from Render on 2026-06-12T14:06:11Z
+version: "1"
+projects:
+- name: My project
+  environments:
+  - name: Production
+    services:
+    - type: web
+      name: Popravka.ba
+      runtime: docker
+      repo: https://github.com/ooad-2025-26/Grupa6-Tim2
+      branch: test-migration
+      plan: free
+      envVars:
+      - key: R2__PublicBaseURL
+        sync: false
+      - key: R2__PrivateBucket
+        sync: false
+      - key: R2__PublicBucket
+        sync: false
+      - key: R2__SecretKey
+        sync: false
+      - key: R2__AccessKey
+        sync: false
+      - key: R2__AccountID
+        sync: false
+      - key: Brevo__FromEmail
+        sync: false
+      - key: Brevo__SmtpKey
+        sync: false
+      - key: Brevo__Login
+        sync: false
+      - key: SeedData__AdminUsername
+        sync: false
+      - key: SeedData__AdminPassword
+        sync: false
+      - key: SeedData__AdminEmail
+        sync: false
+      - key: ASPNETCORE_ENVIRONMENT
+        sync: false
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      region: frankfurt
+      dockerContext: .
+      dockerfilePath: PopravkaBa.Web/Dockerfile
+      autoDeployTrigger: commit
+      rootDir: src/Popravka.ba
