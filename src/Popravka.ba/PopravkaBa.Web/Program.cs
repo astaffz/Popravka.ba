@@ -155,7 +155,7 @@ builder.Services.AddScoped<IVerifikacijaFirmeRepository, VerifikacijaFirmeReposi
 
 builder.Services.AddHostedService<VerifikacijskiTokenCleanupJob>();
 builder.Services.AddHostedService<MjesecnaStatistikaJob>();
-// builder.Services.AddHostedService<NeaktivniOglasCleanupJob>();
+builder.Services.AddHostedService<NeaktivniOglasCleanupJob>();
 builder.Services.AddScoped<DbSeeder>();
 
 
