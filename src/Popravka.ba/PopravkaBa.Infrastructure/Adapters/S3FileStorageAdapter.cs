@@ -76,7 +76,7 @@ namespace PopravkaBa.Infrastructure.Adapters
             return _s3.DeleteObjectAsync(new DeleteObjectRequest
             {
                 BucketName = _r2Options.PublicBucket,
-                Key = url
+                Key = key
             }, ct);
         }
 

@@ -497,6 +497,9 @@ namespace PopravkaBa.Web.Controllers
             return RedirectToAction(nameof(VerifikacijaPoslana));
         }
 
+
+        // Ovo krši SRP
+
         private async Task PosaljiVerifikacijskiEmailAsync(ApplicationUser user, string rawToken)
         {
             var link = Url.Action(nameof(PotvrdiEmail), "Account",

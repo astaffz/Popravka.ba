@@ -441,9 +441,11 @@ namespace PopravkaBa.Web.Controllers
                         izvrsilac.Opis = vm.Opis;
                         izvrsilac.SlikePortfolija ??= new List<PortfolioSlika>();
 
-                        if (noveSlike?.Any() == true)
+                        // Filter out empty files (files with 0 length from unselected inputs)
+                        var validSlike = noveSlike?.Where(f => f.Length > 0).ToList();
+                        if (validSlike?.Any() == true)
                         {
-                            foreach (var slika in noveSlike.Take(10))
+                            foreach (var slika in validSlike.Take(10))
                             {
                                 await using var s = slika.OpenReadStream();
                                 var url = await _storage.SpremiPublic(s, slika.ContentType, ct);

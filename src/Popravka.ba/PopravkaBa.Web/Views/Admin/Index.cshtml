@@ -32,7 +32,7 @@
             <h2>Čekaju na verifikaciju (@Model.ZahtjeviVerifikacije.Count)</h2>
             @if (Model.ZahtjeviVerifikacije.Count > PrikazanoOdmah)
             {
-                <button type="button" class="admin-btn admin-btn--svijetli" data-prikazi-sve="verifikacije">Prika┼╛i sve</button>
+                <button type="button" class="admin-btn admin-btn--svijetli" data-prikazi-sve="verifikacije">Prikaži sve</button>
             }
         </div>
 
@@ -491,7 +491,7 @@
 
 @section Scripts {
     <script>
-        // "Prika┼╛i sve" ΓÇö otkrij skrivene redove tabele
+        // "Prikaži sve" ΓÇö otkrij skrivene redove tabele
         document.querySelectorAll('[data-prikazi-sve]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const tabela = document.getElementById('tabela-' + btn.dataset.prikaziSve);

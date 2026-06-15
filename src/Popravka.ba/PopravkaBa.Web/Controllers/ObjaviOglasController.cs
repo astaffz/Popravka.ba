@@ -48,7 +48,7 @@ namespace PopravkaBa.Web.Controllers
             var ekstenzija = Path.GetExtension(slika.FileName).ToLowerInvariant();
             if (!DozvoljeniFormati.Contains(ekstenzija))
             {
-                ModelState.AddModelError("Slika", "Nepodr┼╛an format slike (.jpg, .jpeg, .png, .webp).");
+                ModelState.AddModelError("Slika", "Nepodržan format slike (.jpg, .jpeg, .png, .webp).");
                 return null;
             }
             if (slika.Length > MaxSlikaVelicina)

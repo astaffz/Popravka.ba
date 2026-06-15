@@ -286,6 +286,15 @@ function validateExecutorSelections() {
         alert('Trebate odabrati najmanje 1 kategoriju.');
         return false;
     }
+
+    // Remove empty file inputs before submit
+    const fileInputs = document.querySelectorAll('input[name="noveSlike"]');
+    fileInputs.forEach(input => {
+        if (!input.files || input.files.length === 0) {
+            input.parentElement.remove();
+        }
+    });
+
     return true;
 }
 
@@ -336,6 +345,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button class="btn btn-outline-secondary" type="button" onclick="this.parentElement.remove()">Ukloni</button>
             `;
             container.appendChild(div);
+        });
+    }
+
+    // Remove empty file inputs before form submission
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const fileInputs = document.querySelectorAll('input[name="noveSlike"]');
+            fileInputs.forEach(input => {
+                if (!input.files || input.files.length === 0) {
+                    input.parentElement.remove();
+                }
+            });
         });
     }
 });

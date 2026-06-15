@@ -432,7 +432,7 @@
 
 @section Scripts {
     <script>
-        // Trim na svim tekstualnim poljima: spriječi vodeće razmake pri unosu, obre┼╛i pri napuštanju polja.
+        // Trim na svim tekstualnim poljima: spriječi vodeće razmake pri unosu, obreži pri napuštanju polja.
         document.querySelectorAll('.verif-input').forEach(input => {
             input.addEventListener('input', () => { input.value = input.value.trimStart(); });
             input.addEventListener('blur', () => { input.value = input.value.trim(); });
