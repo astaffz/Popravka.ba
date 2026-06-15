@@ -13,6 +13,7 @@ namespace PopravkaBa.Web.Models.ViewModels
         public string Uloga { get; set; }
         public bool JeVlasnik { get; set; }
         public bool JeVerificiran { get; set; }
+        public bool JeVerificiranEmail { get; set; }
         public string? Email { get; set; }
         public string? Lokacija { get; set; }
 

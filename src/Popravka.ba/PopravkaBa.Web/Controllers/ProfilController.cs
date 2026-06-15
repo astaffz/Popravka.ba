@@ -73,6 +73,7 @@ namespace PopravkaBa.Web.Controllers
                 Uloga = uloga,
                 JeVlasnik = _userManager.GetUserId(User) == korisnik.Id,
                 JeVerificiran = korisnik.Aktivan() == Status.Aktivan,
+                JeVerificiranEmail = korisnik.EmailConfirmed,
                 Email = korisnik.Email
             };
 
