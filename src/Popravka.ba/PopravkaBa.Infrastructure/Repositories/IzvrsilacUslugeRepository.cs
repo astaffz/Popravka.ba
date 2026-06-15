@@ -32,10 +32,9 @@ namespace PopravkaBa.Infrastructure.Repositories
         public async Task<IzvrsilacUsluge?> DajProfilPoIdAsync(string id)
             => await _context.ApplicationUsers
                 .OfType<IzvrsilacUsluge>()
-                .AsSplitQuery()
-                .AsNoTracking()
+  
                 .Include(i => i.Kategorije)!
-                    .ThenInclude(ik => ik.Kategorija)
+                .ThenInclude(ik => ik.Kategorija)
                 .Include(i => i.SlikePortfolija)
                 .Include(i => i.Mjesta)!
                     .ThenInclude(km => km.Mjesto)
@@ -48,10 +47,10 @@ namespace PopravkaBa.Infrastructure.Repositories
             var query = _context.ApplicationUsers
                 .OfType<IzvrsilacUsluge>()
                 .AsSplitQuery()
-                .Include(m => m.Mjesta)
-                    .ThenInclude(km => km.Mjesto)
-                .Include(m => m.Kategorije)
-                    .ThenInclude(ik => ik.Kategorija)
+                .Include(m => m.Mjesta)!
+                 .ThenInclude(km => km.Mjesto)
+                .Include(m => m.Kategorije)!
+                 .ThenInclude(ik => ik.Kategorija)
                 .Where(spec.ToExpression())
                 .AsNoTracking();
 

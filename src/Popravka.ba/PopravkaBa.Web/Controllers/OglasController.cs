@@ -208,7 +208,7 @@ namespace PopravkaBa.Web.Controllers
 
         [HttpPost, ActionName("ObrisiOglas")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> PotvrdaBrisanjaOglasa(int id)
+        public async Task<IActionResult> PotvrdaBrisanjaOglasa(int id)  
         {
             var oglas = await _facadeService.DajOglasPoId(id);
             if (oglas is null) return NotFound();

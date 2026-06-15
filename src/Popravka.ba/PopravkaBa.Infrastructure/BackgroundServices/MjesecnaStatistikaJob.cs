@@ -77,16 +77,16 @@ namespace PopravkaBa.Infrastructure.BackgroundServices
                 .ToListAsync(ct);
 
             var izvrsioci = await context.Users
-      .OfType<IzvrsilacUsluge>()                       
-      .Include(u => u.Kategorije!)
-          .ThenInclude(ik => ik.Kategorija)            
-      .Include(u => u.Mjesta!)
-          .ThenInclude(km => km.Mjesto)               
-      .ToListAsync(ct);
+              .OfType<IzvrsilacUsluge>()                       
+              .Include(u => u.Kategorije!)
+                  .ThenInclude(ik => ik.Kategorija)            
+              .Include(u => u.Mjesta!)
+                  .ThenInclude(km => km.Mjesto)               
+              .ToListAsync(ct);
             
             var uloge = await context.UserRoles
-    .Join(context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
-    .ToDictionaryAsync(x => x.UserId, x => x.Name, ct);
+                .Join(context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
+                .ToDictionaryAsync(x => x.UserId, x => x.Name, ct);
 
             var ocjMap = ocjenePoIzvrsiocu.ToDictionary(x => x.IzvrsilacID, x => x.Prosjek ?? 0m);
             var poslMap = posloviPoIzvrsiocu.ToDictionary(x => x.IzvrsilacID, x => x.Broj);

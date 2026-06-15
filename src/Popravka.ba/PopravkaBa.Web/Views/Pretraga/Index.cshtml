@@ -271,12 +271,15 @@
                             <label class="filter-group-label">Cijena usluga</label>
                             <div class="filter-minmax-row">
                                 <input type="number" name="MinBudzet" placeholder="min. KM"
-                                       class="filter-input-num" min="0"
-                                       value="@filteri.MinBudzet" />
+                                       class="filter-input-num" oninput="this.value = this.value <= 0 ? 0 : this.value.replace(/^0+/,'')" onchange="this.value = this.value < 0 ? 0 : this.value.replace(/^0+/,'')"
+                                       value="@filteri.MinBudzet"
+                                       novalidate/>
                                 <span>–</span>
                                 <input type="number" name="MaxBudzet" placeholder="max. KM"
-                                       class="filter-input-num" min="0"
-                                       value="@filteri.MaxBudzet" />
+                                       class="filter-input-num" 
+                                       value="@filteri.MaxBudzet" 
+                                       ninput="this.value = this.value <= 0 ? 0 : this.value.replace(/^0+/,'')" onchange="this.value = this.value < 0 ? 0 : this.value.replace(/^0+/,'')"
+                                       novalidate/>
                             </div>
                         </div>
                     }

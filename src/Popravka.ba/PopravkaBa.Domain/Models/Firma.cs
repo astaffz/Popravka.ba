@@ -11,9 +11,9 @@ namespace PopravkaBa.Domain.Models
         public override string DisplayName => NazivFirme;
         [NotMapped]
         public override string SkracenoIme => NazivFirme;
-     
-       
-        public string NazivFirme { get; set; }
+
+
+        public string NazivFirme { get; set; } = default!; // Za primjera, ovo nije u našem projektu
         public int MinZaposlenih { get; set; } = 1;
         public int MaxZaposlenih { get; set; } = 9;
         private string? JIB { get; set; }
