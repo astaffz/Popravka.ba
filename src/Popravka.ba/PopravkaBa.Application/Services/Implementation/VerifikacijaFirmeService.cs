@@ -77,6 +77,18 @@ namespace PopravkaBa.Application.Services.Implementation
                     if (!string.IsNullOrEmpty(zahtjev.Logotip))
                         zahtjev.Firma.Slika = zahtjev.Logotip;
                 }
+                else
+                {
+                    // Pobriši gamad
+                    if (!string.IsNullOrEmpty(zahtjev.Logotip))
+                        await _storage.ObrisiPublic(zahtjev.Logotip);
+                    if (!string.IsNullOrEmpty(zahtjev.LicencaDjelatnosti))
+                        await _storage.ObrisiPrivate(zahtjev.LicencaDjelatnosti);
+                    if (!string.IsNullOrEmpty(zahtjev.PoreznoUvjerenje))
+                        await _storage.ObrisiPrivate(zahtjev.PoreznoUvjerenje);
+                    if (!string.IsNullOrEmpty(zahtjev.Rjesenje))
+                        await _storage.ObrisiPrivate(zahtjev.Rjesenje);
+                }
                 zahtjev.Firma.OsvjeziStatusAktivnosti();
             }
 
