@@ -1,4 +1,4 @@
-﻿@model PopravkaBa.Web.Models.ViewModels.AdminDashboardViewModel
+@model PopravkaBa.Web.Models.ViewModels.AdminDashboardViewModel
 @{
     ViewData["Title"] = "Admin dashboard - Popravka.ba";
     const int PrikazanoOdmah = 5;
@@ -15,7 +15,10 @@
 }
 
 <div class="admin-page">
-    <h1 class="admin-naslov">Admin dashboard</h1>
+    <header class="admin-header">
+        <h1 class="admin-naslov">Admin dashboard</h1>
+        <p class="admin-podnaslov">Pregled zahtjeva za verifikaciju i moderacija prijavljenih recenzija.</p>
+    </header>
 
     @if (TempData["Uspjeh"] is string uspjeh)
     {
@@ -26,10 +29,14 @@
         <div class="admin-alert admin-alert--err"><i class="bi bi-exclamation-triangle-fill"></i> @greska</div>
     }
 
-    <!-- ===== ─îekaju na verifikaciju ===== -->
-    <div class="admin-card">
+    <!-- ===== Čekaju na verifikaciju ===== -->
+    <section class="admin-card">
         <div class="admin-card-head">
-            <h2>Čekaju na verifikaciju (@Model.ZahtjeviVerifikacije.Count)</h2>
+            <div class="admin-card-title">
+            
+                <h2>Čekaju na verifikaciju</h2>
+                <span class="admin-count admin-count--blue">@Model.ZahtjeviVerifikacije.Count</span>
+            </div>
             @if (Model.ZahtjeviVerifikacije.Count > PrikazanoOdmah)
             {
                 <button type="button" class="admin-btn admin-btn--svijetli" data-prikazi-sve="verifikacije">Prikaži sve</button>
@@ -38,69 +45,89 @@
 
         @if (Model.ZahtjeviVerifikacije.Any())
         {
-            <table class="admin-tabela">
-                <thead>
-                    <tr>
-                        <th>Korisnik</th>
-                        <th>Kategorija</th>
-                        <th>Datum</th>
-                        <th>Akcije</th>
-                    </tr>
-                </thead>
-                <tbody id="tabela-verifikacije">
-                    @for (int i = 0; i < Model.ZahtjeviVerifikacije.Count; i++)
-                    {
-                        var z = Model.ZahtjeviVerifikacije[i];
-                        <tr class="@(i >= PrikazanoOdmah ? " admin-red-skriven" : "")">
-                            <td>
-                                <div class="admin-korisnik">
-                                    @if (!string.IsNullOrEmpty(z.Logotip))
+            <div class="admin-tabela-wrap">
+                <table class="admin-tabela">
+                    <thead>
+                        <tr>
+                            <th>Korisnik</th>
+                            <th>Kategorija</th>
+                            <th>Datum</th>
+                            <th class="admin-th-akcije">Akcije</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-verifikacije">
+                        @for (int i = 0; i < Model.ZahtjeviVerifikacije.Count; i++)
+                        {
+                            var z = Model.ZahtjeviVerifikacije[i];
+                            <tr class="@(i >= PrikazanoOdmah ? "admin-red-skriven" : "")">
+                                <td>
+                                    <a asp-controller="Profil" asp-action="Index" asp-route-username="@z.Username" class="admin-korisnik">
+                                        @if (!string.IsNullOrEmpty(z.Logotip))
+                                        {
+                                            <img src="@z.Logotip" alt="@z.NazivFirme" class="admin-avatar" />
+                                        }
+                                        else
+                                        {
+                                            <span class="admin-avatar admin-avatar--inicijal">@(z.NazivFirme?.Length > 0 ? z.NazivFirme[0].ToString().ToUpper() : "?")</span>
+                                        }
+                                        <span class="admin-korisnik-info">
+                                            <strong>@z.NazivFirme</strong>
+                                            <small>@z.Email</small>
+                                        </span>
+                                    </a>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(z.Kategorija))
                                     {
-                                        <img src="@z.Logotip" alt="@z.NazivFirme" class="admin-avatar" />
+                                        <span class="admin-kategorija">@z.Kategorija</span>
                                     }
                                     else
                                     {
-                                        <span class="admin-avatar admin-avatar--inicijal">@(z.NazivFirme?.Length > 0 ? z.NazivFirme[0].ToString().ToUpper() : "?")</span>
+                                        <span class="admin-prazno-inline">—</span>
                                     }
-                                    <div class="admin-korisnik-info">
-                                        <strong>@z.NazivFirme</strong>
-                                        <small>@z.Email</small>
+                                </td>
+                                <td>
+                                    <span class="admin-datum"><i class="bi bi-clock"></i> @PrijeVremena(z.DatumPodnosenja)</span>
+                                </td>
+                                <td>
+                                    <div class="admin-akcije">
+                                        <form asp-action="ObradiVerifikaciju" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="verifikacioniId" value="@z.VerifikacioniId" />
+                                            <input type="hidden" name="odobri" value="true" />
+                                            <button type="submit" class="admin-btn admin-btn--zeleni"><i class="bi bi-check-lg"></i> Odobri</button>
+                                        </form>
+                                        <form asp-action="ObradiVerifikaciju" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="verifikacioniId" value="@z.VerifikacioniId" />
+                                            <input type="hidden" name="odobri" value="false" />
+                                            <button type="submit" class="admin-btn admin-btn--crveni"><i class="bi bi-x-lg"></i> Odbij</button>
+                                        </form>
                                     </div>
-                                </div>
-                            </td>
-                            <td>@(z.Kategorija ?? "ΓÇö")</td>
-                            <td class="admin-datum">@PrijeVremena(z.DatumPodnosenja)</td>
-                            <td>
-                                <div class="admin-akcije">
-                                    <form asp-action="ObradiVerifikaciju" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="verifikacioniId" value="@z.VerifikacioniId" />
-                                        <input type="hidden" name="odobri" value="true" />
-                                        <button type="submit" class="admin-btn admin-btn--zeleni">Odobri</button>
-                                    </form>
-                                    <form asp-action="ObradiVerifikaciju" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="verifikacioniId" value="@z.VerifikacioniId" />
-                                        <input type="hidden" name="odobri" value="false" />
-                                        <button type="submit" class="admin-btn admin-btn--crveni">Odbij</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
         else
         {
-            <p class="admin-prazno">Nema zahtjeva koji čekaju verifikaciju.</p>
+            <div class="admin-prazno">
+                <i class="bi bi-inbox"></i>
+                <p>Nema zahtjeva koji čekaju verifikaciju.</p>
+            </div>
         }
-    </div>
+    </section>
 
     <!-- ===== Prijavljene recenzije ===== -->
-    <div class="admin-card">
+    <section class="admin-card">
         <div class="admin-card-head">
-            <h2>Prijavljene recenzije (@Model.PrijavljeneRecenzije.Count)</h2>
+            <div class="admin-card-title">
+          
+                <h2>Prijavljene recenzije</h2>
+                <span class="admin-count admin-count--amber">@Model.PrijavljeneRecenzije.Count</span>
+            </div>
             @if (Model.PrijavljeneRecenzije.Count > PrikazanoOdmah)
             {
                 <button type="button" class="admin-btn admin-btn--svijetli" data-prikazi-sve="recenzije">Prikaži sve</button>
@@ -109,71 +136,84 @@
 
         @if (Model.PrijavljeneRecenzije.Any())
         {
-            <table class="admin-tabela">
-                <thead>
-                    <tr>
-                        <th>Recenzija</th>
-                        <th>Majstor</th>
-                        <th>Razlog</th>
-                        <th>Datum</th>
-                        <th>Akcije</th>
-                    </tr>
-                </thead>
-                <tbody id="tabela-recenzije">
-                    @for (int i = 0; i < Model.PrijavljeneRecenzije.Count; i++)
-                    {
-                        var r = Model.PrijavljeneRecenzije[i];
-                        var komentar = r.Komentar?.Length > 30 ? $"\"{r.Komentar[..27]}...\"" : $"\"{r.Komentar}\"";
-                        <tr class="@(i >= PrikazanoOdmah ? " admin-red-skriven" : "")">
-                            <td class="admin-recenzija-tekst">@komentar</td>
-                            <td>@r.IzvrsilacIme</td>
-                            <td class="admin-razlog-cell">
-                                @if (!string.IsNullOrWhiteSpace(r.Razlog))
-                                {
-                                    <div class="admin-razlog-badge" title="@r.Razlog">
-                                        <i class="bi bi-flag-fill"></i>
-                                        <span class="admin-razlog-tekst">@r.Razlog</span>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="admin-razlog-prazno">-</span>
-                                }
-                            </td>
-                            <td class="admin-datum">@PrijeVremena(r.DatumPrijave)</td>
-                            <td>
-                                <div class="admin-akcije">
-                                    @if (!string.IsNullOrEmpty(r.IzvrsilacUsername))
-                                    {
-                                        <a asp-controller="Profil" asp-action="Index" asp-route-username="@r.IzvrsilacUsername" class="admin-btn admin-btn--svijetli">Pregledaj</a>
-                                    }
-                                    <form asp-action="OdbaciPrijavu" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="recenzijaId" value="@r.RecenzijaId" />
-                                        <button type="submit" class="admin-btn admin-btn--svijetli" title="Odbaci prijavu, recenzija ostaje">Odbaci</button>
-                                    </form>
-                                    <form asp-action="UkloniRecenziju" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="recenzijaId" value="@r.RecenzijaId" />
-                                        <button type="submit" class="admin-btn admin-btn--crveni">Ukloni</button>
-                                    </form>
-                                </div>
-                            </td>
+            <div class="admin-tabela-wrap">
+                <table class="admin-tabela">
+                    <thead>
+                        <tr>
+                            <th>Recenzija</th>
+                            <th>Majstor</th>
+                            <th>Razlog</th>
+                            <th>Datum</th>
+                            <th class="admin-th-akcije">Akcije</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="tabela-recenzije">
+                        @for (int i = 0; i < Model.PrijavljeneRecenzije.Count; i++)
+                        {
+                            var r = Model.PrijavljeneRecenzije[i];
+                            var komentar = r.Komentar?.Length > 30 ? $"\"{r.Komentar[..27]}…\"" : $"\"{r.Komentar}\"";
+                            <tr class="@(i >= PrikazanoOdmah ? "admin-red-skriven" : "")">
+                                <td class="admin-recenzija-tekst">@komentar</td>
+                                    <td class="admin-majstor-info">
+                                         <a asp-controller="Profil" asp-action="Index" asp-route-username="@r.IzvrsilacUsername" class="admin-korisnik-info" style="text-decoration:none">
+                                        <strong>@r.IzvrsilacIme</strong>
+                                        <small>@@@r.IzvrsilacUsername</small>
+                                    </a>
+                                    </td>
+                              
+                                <td class="admin-razlog-cell">
+                                    @if (!string.IsNullOrWhiteSpace(r.Razlog))
+                                    {
+                                        <span class="admin-razlog-badge" title="@r.Razlog">
+                                            <i class="bi bi-flag-fill"></i>
+                                            <span class="admin-razlog-tekst">@r.Razlog</span>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-prazno-inline">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="admin-datum"><i class="bi bi-clock"></i> @PrijeVremena(r.DatumPrijave)</span>
+                                </td>
+                                <td>
+                                    <div class="admin-akcije">
+                                        @if (!string.IsNullOrEmpty(r.IzvrsilacUsername))
+                                        {
+                                            <a asp-controller="Profil" asp-action="Index" asp-route-username="@r.IzvrsilacUsername" class="admin-btn admin-btn--svijetli"><i class="bi bi-eye"></i> Pregledaj</a>
+                                        }
+                                        <form asp-action="OdbaciPrijavu" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="recenzijaId" value="@r.RecenzijaId" />
+                                            <button type="submit" class="admin-btn admin-btn--svijetli" title="Odbaci prijavu, recenzija ostaje"><i class="bi bi-x-circle"></i> Odbaci</button>
+                                        </form>
+                                        <form asp-action="UkloniRecenziju" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="recenzijaId" value="@r.RecenzijaId" />
+                                            <button type="submit" class="admin-btn admin-btn--crveni"><i class="bi bi-trash3"></i> Ukloni</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
         else
         {
-            <p class="admin-prazno">Nema prijavljenih recenzija.</p>
+            <div class="admin-prazno">
+                <i class="bi bi-flag"></i>
+                <p>Nema prijavljenih recenzija.</p>
+            </div>
         }
-    </div>
+    </section>
 </div>
 
 <style>
     .admin-page {
-        max-width: 1200px;
+        max-width: 1140px;
         margin: 0 auto;
         padding: 2.5rem 1rem 3rem;
     }
@@ -184,29 +224,54 @@
         }
     }
 
-    .admin-naslov {
-        font-family: var(--font-heading, 'Poppins'), sans-serif;
-        font-size: 1.9rem;
-        font-weight: 800;
-        color: var(--brand-blue, #1e6fe0);
+    /* ===== Header ===== */
+    .admin-header {
         margin-bottom: 1.75rem;
     }
 
+    .admin-naslov {
+        font-family: var(--font-heading, 'Poppins'), sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--brand-blue, #1e6fe0);
+        margin: 0 0 .35rem;
+        letter-spacing: -.01em;
+    }
+
+    .admin-podnaslov {
+        color: var(--text-muted, #6b7280);
+        font-size: .95rem;
+        margin: 0;
+    }
+
     @@media (max-width: 640px) {
-        .admin-naslov {
-            font-size: 1.5rem;
+        .admin-header {
             margin-bottom: 1.2rem;
+        }
+
+        .admin-naslov {
+            font-size: 1.55rem;
+        }
+
+        .admin-podnaslov {
+            font-size: .85rem;
         }
     }
 
+    /* ===== Alerts ===== */
     .admin-alert {
         display: flex;
         align-items: center;
         gap: .55rem;
-        border-radius: 10px;
-        padding: .75rem 1rem;
+        border-radius: 12px;
+        padding: .8rem 1.05rem;
         font-size: .9rem;
+        font-weight: 500;
         margin-bottom: 1.25rem;
+    }
+
+    .admin-alert i {
+        font-size: 1.05rem;
     }
 
     .admin-alert--ok {
@@ -221,19 +286,21 @@
         color: #991b1b;
     }
 
+    /* ===== Card ===== */
     .admin-card {
         background: #fff;
         border: 1px solid var(--border-light, #e5e7eb);
-        border-radius: 14px;
-        padding: 1.4rem 1.6rem;
-        margin-bottom: 1.75rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,.05);
+        border-radius: 16px;
+        padding: 1.5rem 1.6rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.05);
     }
 
     @@media (max-width: 640px) {
         .admin-card {
-            padding: 1rem 1.2rem;
+            padding: 1.1rem 1.1rem;
             margin-bottom: 1.2rem;
+            border-radius: 14px;
         }
     }
 
@@ -241,78 +308,119 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
+        margin-bottom: 1.25rem;
         gap: 1rem;
         flex-wrap: wrap;
     }
 
-    @@media (max-width: 640px) {
-        .admin-card-head {
-            flex-direction: column;
-            align-items: flex-start;
-        }
+    .admin-card-title {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
     }
 
-        .admin-card-head h2 {
-            font-size: 1.05rem;
+        .admin-card-title h2 {
+            font-size: 1.15rem;
             font-weight: 700;
             margin: 0;
             color: var(--text-primary, #1f2937);
         }
 
-        @@media (max-width: 640px) {
-            .admin-card-head h2 {
-                font-size: .95rem;
-            }
+    @@media (max-width: 640px) {
+        .admin-card-title h2 {
+            font-size: 1rem;
         }
+    }
+
+    .admin-section-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    .admin-section-icon--blue {
+        background: #e8f1fe;
+        color: var(--brand-blue, #1e6fe0);
+    }
+
+    .admin-section-icon--amber {
+        background: #fef3e2;
+        color: #d97706;
+    }
+
+    .admin-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.5rem;
+        height: 1.5rem;
+        padding: 0 .5rem;
+        border-radius: 999px;
+        font-size: .8rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .admin-count--blue {
+        background: #e8f1fe;
+        color: var(--brand-blue, #1e6fe0);
+    }
+
+    .admin-count--amber {
+        background: #fef3e2;
+        color: #b45309;
+    }
+
+    /* ===== Table ===== */
+    .admin-tabela-wrap {
+        overflow-x: auto;
+        margin: 0 -.4rem;
+    }
 
     .admin-tabela {
         width: 100%;
         border-collapse: collapse;
-        overflow-x: auto;
-        display: block;
-    }
-
-    @@media (max-width: 640px) {
-        .admin-tabela {
-            font-size: .85rem;
-        }
+        min-width: 640px;
     }
 
         .admin-tabela th {
             text-align: left;
             font-size: .72rem;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: .06em;
             text-transform: uppercase;
             color: var(--text-muted, #6b7280);
-            padding: .5rem .75rem;
+            padding: .5rem .85rem;
             border-bottom: 1px solid var(--border-light, #e5e7eb);
+            white-space: nowrap;
         }
 
-        @@media (max-width: 640px) {
-            .admin-tabela th {
-                font-size: .65rem;
-                padding: .4rem .5rem;
-            }
+        .admin-th-akcije {
+            text-align: right;
         }
 
         .admin-tabela td {
-            padding: .85rem .75rem;
-            border-bottom: 1px solid #f0f1f3;
+            padding: .9rem .85rem;
+            border-bottom: 1px solid #f1f2f4;
             font-size: .9rem;
             color: var(--text-primary, #1f2937);
             vertical-align: middle;
         }
 
-        @@media (max-width: 640px) {
-            .admin-tabela td {
-                padding: .6rem .5rem;
-                font-size: .8rem;
-            }
+        .admin-tabela tbody tr {
+            transition: background .12s ease;
         }
 
-        .admin-tabela tr:last-child td {
+        .admin-tabela tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .admin-tabela tbody tr:last-child td {
             border-bottom: 0;
         }
 
@@ -320,18 +428,22 @@
         display: none;
     }
 
+    /* ===== Korisnik cell ===== */
     .admin-korisnik {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: .7rem;
+        text-decoration: none;
+        max-width: 100%;
     }
 
     .admin-avatar {
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         object-fit: cover;
         flex-shrink: 0;
+        border: 1px solid var(--border-light, #e5e7eb);
     }
 
     .admin-avatar--inicijal {
@@ -339,19 +451,27 @@
         align-items: center;
         justify-content: center;
         background: #eef2f9;
-        color: var(--text-muted, #6b7280);
+        color: var(--brand-blue, #1e6fe0);
         font-weight: 700;
-        font-size: .95rem;
+        font-size: 1rem;
+        border: none;
     }
 
     .admin-korisnik-info {
         display: flex;
         flex-direction: column;
         min-width: 0;
+        line-height: 1.3;
     }
 
         .admin-korisnik-info strong {
-            font-size: .9rem;
+            font-size: .92rem;
+            font-weight: 700;
+            color: var(--brand-blue, #1e6fe0);
+        }
+
+        .admin-korisnik:hover .admin-korisnik-info strong {
+            text-decoration: underline;
         }
 
         .admin-korisnik-info small {
@@ -359,139 +479,192 @@
             font-size: .78rem;
         }
 
-    .admin-datum {
-        color: var(--text-muted, #6b7280);
+    /* ===== Kategorija chip ===== */
+    .admin-kategorija {
+        display: inline-block;
+        padding: .25rem .6rem;
+        background: #f3f4f6;
+        color: var(--text-secondary, #4b5563);
+        border-radius: 999px;
+        font-size: .8rem;
+        font-weight: 600;
+        white-space: nowrap;
     }
 
+    /* ===== Datum ===== */
+    .admin-datum {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        color: var(--text-muted, #6b7280);
+        font-size: .82rem;
+        white-space: nowrap;
+    }
+
+        .admin-datum i {
+            font-size: .85rem;
+        }
+
+    /* ===== Recenzija / Majstor ===== */
     .admin-recenzija-tekst {
         color: var(--text-secondary, #4b5563);
         font-style: italic;
+        max-width: 220px;
     }
 
+    .admin-majstor {
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* ===== Razlog (flag chip) ===== */
     .admin-razlog-cell {
-        width: 100%;
-        padding: 0 !important;
+        max-width: 320px;
     }
 
     .admin-razlog-badge {
-        display: flex;
+        display: inline-flex;
         align-items: flex-start;
-        gap: .5rem;
-        background: #f5f3ff;
-        color: var(--text-primary, #1f2937);
-        font-size: .8rem;
-        font-weight: 600;
-        padding: .75rem;
-        width: 100%;
-        box-sizing: border-box;
+        gap: .45rem;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        font-size: .82rem;
+        font-weight: 500;
+        padding: .4rem .65rem;
+        border-radius: 10px;
         line-height: 1.4;
+        max-width: 100%;
     }
 
-    .admin-razlog-badge i {
-        color: var(--brand-blue, #1e6fe0);
-        font-size: .9rem;
-        flex-shrink: 0;
-        margin-top: .08rem;
-    }
+        .admin-razlog-badge i {
+            color: #ea580c;
+            font-size: .85rem;
+            flex-shrink: 0;
+            margin-top: .12rem;
+        }
 
     .admin-razlog-tekst {
-        flex: 1;
         word-break: break-word;
         white-space: normal;
     }
 
-    .admin-razlog-prazno {
+    .admin-prazno-inline {
         color: var(--text-muted, #6b7280);
-        display: block;
-        padding: .75rem;
     }
 
+    /* ===== Akcije + buttons ===== */
     .admin-akcije {
         display: flex;
         gap: .45rem;
         flex-wrap: wrap;
-    }
-
-    @@media (max-width: 640px) {
-        .admin-akcije {
-            flex-direction: column;
-            width: 100%;
-        }
+        justify-content: flex-end;
     }
 
         .admin-akcije form {
             margin: 0;
         }
 
-        @@media (max-width: 640px) {
-            .admin-akcije form {
-                width: 100%;
-            }
-        }
-
     .admin-btn {
         display: inline-flex;
         align-items: center;
-        padding: .35rem .85rem;
-        border-radius: 7px;
+        gap: .35rem;
+        padding: .42rem .85rem;
+        border-radius: 8px;
         border: 1px solid transparent;
-    }
-
-    @@media (max-width: 640px) {
-        .admin-btn {
-            width: 100%;
-            justify-content: center;
-            padding: .4rem .6rem;
-            font-size: .8rem;
-        }
-    }
         font-size: .82rem;
         font-weight: 600;
+        font-family: var(--font-body, 'Plus Jakarta Sans'), sans-serif;
+        line-height: 1;
         cursor: pointer;
         text-decoration: none;
-        transition: filter .15s ease, background .15s ease;
+        white-space: nowrap;
+        transition: background .15s ease, color .15s ease, border-color .15s ease, transform .1s ease;
     }
 
-        .admin-btn:hover {
-            filter: brightness(.95);
+        .admin-btn i {
+            font-size: .9rem;
+        }
+
+        .admin-btn:active {
+            transform: translateY(1px);
         }
 
     .admin-btn--zeleni {
-        background: #22c55e;
-        color: #fff;
+        background: #fff;
+        color: #16a34a;
+        border: 1px solid #16a34a;
     }
+
+        .admin-btn--zeleni:hover {
+            background: #15803d;
+            color: #fff;
+        }
 
     .admin-btn--crveni {
         background: #ef4444;
         color: #fff;
     }
 
-        .admin-btn--crveni:hover, .admin-btn--zeleni:hover {
+        .admin-btn--crveni:hover {
+            background: #dc2626;
             color: #fff;
         }
 
     .admin-btn--svijetli {
         background: #fff;
         border-color: var(--border-light, #e5e7eb);
-        color: var(--text-primary, #1f2937);
+        color: var(--text-secondary, #4b5563);
     }
 
         .admin-btn--svijetli:hover {
             background: #f3f4f6;
+            border-color: #d1d5db;
             color: var(--text-primary, #1f2937);
         }
 
+    /* ===== Empty state ===== */
     .admin-prazno {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: 2rem 1rem;
         color: var(--text-muted, #6b7280);
-        font-size: .9rem;
-        margin: 0;
-        padding: .5rem 0;
+        text-align: center;
+    }
+
+        .admin-prazno i {
+            font-size: 2rem;
+            opacity: .45;
+        }
+
+        .admin-prazno p {
+            margin: 0;
+            font-size: .9rem;
+        }
+
+    /* ===== Responsive ===== */
+    @@media (max-width: 640px) {
+        .admin-akcije {
+            justify-content: flex-start;
+        }
+
+        .admin-btn {
+            padding: .4rem .7rem;
+            font-size: .8rem;
+        }
+
+        .admin-recenzija-tekst {
+            max-width: 160px;
+        }
     }
 </style>
 
 @section Scripts {
     <script>
-        // "Prikaži sve" ΓÇö otkrij skrivene redove tabele
+        // "Prikaži sve" — otkrij skrivene redove tabele
         document.querySelectorAll('[data-prikazi-sve]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const tabela = document.getElementById('tabela-' + btn.dataset.prikaziSve);

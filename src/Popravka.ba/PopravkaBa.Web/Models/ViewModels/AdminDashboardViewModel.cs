@@ -1,4 +1,6 @@
-﻿namespace PopravkaBa.Web.Models.ViewModels
+﻿using PopravkaBa.Domain.Models;
+
+namespace PopravkaBa.Web.Models.ViewModels
 {
     public class AdminDashboardViewModel
     {
@@ -9,6 +11,8 @@
     public class AdminVerifikacijaItem
     {
         public int VerifikacioniId { get; set; }
+
+        public string Username { get; set; }
         public string NazivFirme { get; set; }
         public string? Email { get; set; }
         public string? Logotip { get; set; }
