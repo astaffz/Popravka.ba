@@ -40,14 +40,10 @@ Kompletna dokumentacija projekta održava se u `docs/` direktoriju, izvorni kod,
 
 > **Napomena:** LaTeX dokumenti su izrađeni i provjereni na **MiKTeX 25.12** distribuciji (Windows 11).
 
-## Link za pristup aplikaciji
+## Aplikacija je trenutno deployana na:
 https://popravka-ba.onrender.com/
 
-## Pristupni podaci
-| Akter        | Username         |   Lozinka        |
-| ------------ | ---------------- | ---------------- |
-| Admin        | administrator    | #TarikRedzic10   |
-| Firma        | haricevabdzinica | haricevapi123    |
-| Majstor      | hajromustafic    | Mojbabo#1234     |
-| Klijent      | esmirb           | Klijent#1234     |
-# **_--- TBD ---_**
+## Vanjski uređaji
+
+Projekt implementira Brevo API za SMTP notifikacije, te Amazon S3 API za skladištenje podataka na Cloudflare R2 cloud servisu.
+
