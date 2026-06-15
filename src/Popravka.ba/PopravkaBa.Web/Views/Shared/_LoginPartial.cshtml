@@ -64,7 +64,7 @@
 
                     <hr class="pp-divider" />
 
-                    <form asp-controller="Account" asp-action="Logout" method="post">
+                    <form asp-controller="Account" asp-action="Logout" method="post" novalidate>
                         @Html.AntiForgeryToken()
                         <button type="submit" class="dropdown-item pp-item pp-logout">
                             <i class="bi bi-box-arrow-right"></i><span>Odjava</span>

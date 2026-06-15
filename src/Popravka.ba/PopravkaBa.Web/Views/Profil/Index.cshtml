@@ -209,7 +209,7 @@
                     @if (Model.MozeOstavitiRecenziju)
                     {
                         <!-- Forma za novu recenziju — vidljiva samo klijentu sa završenim poslom -->
-                        <form asp-controller="Recenzija" asp-action="Objavi" method="post" class="profil-recenzija-forma">
+                        <form asp-controller="Recenzija" asp-action="Objavi" method="post" class="profil-recenzija-forma" novalidate>
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="IzvrsilacID" value="@Model.UserId" />
                             <p class="profil-recenzija-forma-naslov">
@@ -280,7 +280,7 @@
                                     @if (User.IsInRole("Administrator"))
                                     {
                                         <form asp-controller="Admin" asp-action="UkloniRecenziju" method="post" class="profil-admin-ukloni"
-                                              onsubmit="return confirm('Obrisati ovu recenziju? Ova akcija je trajna.');">
+                                              onsubmit="return confirm('Obrisati ovu recenziju? Ova akcija je trajna.');" novalidate>
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="recenzijaId" value="@r.RecenzijaId" />
                                             <button type="submit" class="profil-admin-btn" title="Obriši recenziju">
@@ -1247,9 +1247,9 @@
     }
     .moj-oglas-btn--outline:hover { background: #eff6ff; color: var(--brand-blue, #1e6fe0); }
     .moj-oglas-btn--crveni {
-        border-color: #fecaca;
+        border-color: #e50000;
         background: #fef2f2;
-        color: #dc2626;
+        color: ##ffffff;
     }
     .moj-oglas-btn--crveni:hover { background: #fee2e2; color: #b91c1c; }
     .moj-oglas-btn--zeleni {

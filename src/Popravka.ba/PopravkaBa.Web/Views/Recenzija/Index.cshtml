@@ -82,7 +82,7 @@
                         @if (User.IsInRole("Administrator"))
                         {
                             <form asp-controller="Admin" asp-action="UkloniRecenziju" method="post" style="display: inline; margin: 0;"
-                                  onsubmit="return confirm('Obrisati ovu recenziju? Ova akcija je trajna.');">
+                                  onsubmit="return confirm('Obrisati ovu recenziju? Ova akcija je trajna.');" novalidate>
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="recenzijaId" value="@r.RecenzijaID" />
                                 <button type="submit" style="background: none; border: none; color: #dc2626; text-decoration: none; padding: 0; cursor: pointer; font-size: .875rem; font-weight: 500;">

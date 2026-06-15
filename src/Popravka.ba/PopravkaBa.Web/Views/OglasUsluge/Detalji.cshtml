@@ -193,12 +193,17 @@
                                                 {
                                                     <div class="text-end">
                                                         <span class="fw-bold fs-5">@ponuda.Cijena KM@(tipIsplateLabel(ponuda.TipIsplate))</span>
-                                                        @if (ponuda.RazlikaOdProsjeka.HasValue && ponuda.RazlikaOdProsjeka.Value != 0)
+                                                        @if (ponuda.RazlikaOdProsjeka.HasValue)
                                                         {
                                                             var razlika = ponuda.RazlikaOdProsjeka.Value;
+
                                                             <br />
-                                                            <small class="@(razlika < 0 ? "text-success" : "text-danger")">
-                                                                @(razlika < 0 ? $"{Math.Abs(razlika):F0} KM ispod prosjeka" : $"{razlika:F0} KM iznad prosjeka")
+                                                            <small class="@((razlika < 0 && Math.Abs(razlika) > 5) ? "text-success" : (razlika > 0 && Math.Abs(razlika) > 5) ? "text-danger" : "text-secondary")">
+                                                                @((razlika < 0 && Math.Abs(razlika) > 5)
+                                                                    ? $"{Math.Abs(razlika):F0} KM ispod prosjeka"
+                                                                    : (razlika > 0 && Math.Abs(razlika) > 5)
+                                                                        ? $"{razlika:F0} KM iznad prosjeka"
+                                                                        : "Prosječna cijena")
                                                             </small>
                                                         }
                                                     </div>
@@ -241,16 +246,16 @@
                                             {
                                                 <!-- Akcije vlasnika — koristimo modal za potvrdu -->
                                                 <div class="mt-2 d-flex gap-2">
-                                                    <form asp-controller="PonudaUsluge" asp-action="Prihvati" method="post" class="confirm-form">
+                                                    <form asp-controller="PonudaUsluge" asp-action="Prihvati" method="post" class="confirm-form" novalidate>
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="ponudaId" value="@ponuda.PonudaId" />
                                                         <input type="hidden" name="oglasId" value="@Model.OglasId" />
-                                                        <button type="button" class="btn btn-success btn-sm confirm-btn"
+                                                        <button type="button" class="btn btn-ponuda btn-sm confirm-btn"
                                                                 data-msg="Prihvatiti ponudu od @ponuda.IzvrsilacIme? Sve ostale ponude bit će automatski odbijene.">
                                                             <i class="fa-solid fa-check me-1"></i>Prihvati
                                                         </button>
                                                     </form>
-                                                    <form asp-controller="PonudaUsluge" asp-action="Odbij" method="post" class="confirm-form">
+                                                    <form asp-controller="PonudaUsluge" asp-action="Odbij" method="post" class="confirm-form" novalidate>
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="ponudaId" value="@ponuda.PonudaId" />
                                                         <input type="hidden" name="oglasId" value="@Model.OglasId" />
@@ -384,7 +389,7 @@
                         <p class="small text-muted mb-2">
                             Kada izvršilac obavi posao, označite ga završenim — nakon toga možete ostaviti recenziju.
                         </p>
-                        <form asp-controller="OglasUsluge" asp-action="ZavrsiOglas" method="post" class="confirm-form">
+                        <form asp-controller="OglasUsluge" asp-action="ZavrsiOglas" method="post" class="confirm-form" novalidate>
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.OglasId" />
                             <button type="button" class="btn btn-success btn-sm w-100 confirm-btn"
@@ -435,7 +440,7 @@
                            class="btn btn-outline-primary btn-sm">
                             <i class="fa-solid fa-pen-to-square me-1"></i>Uredi oglas
                         </a>
-                        <form asp-controller="OglasUsluge" asp-action="ObrisiOglas" method="post" class="confirm-form">
+                        <form asp-controller="OglasUsluge" asp-action="ObrisiOglas" method="post" class="confirm-form" novalidate>
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.OglasId" />
                             <button type="button" class="btn btn-outline-danger btn-sm w-100 confirm-btn"
@@ -469,6 +474,22 @@
 .confirm-modal-text { font-size: 1rem; margin-bottom: 1.25rem; line-height: 1.5; }
 .confirm-modal-actions { display: flex; gap: .75rem; justify-content: center; }
 </style>
+
+@section Styles {
+    <style>
+        .btn-ponuda {
+            color: #198754;
+            background-color: #fff;
+            border: 1px solid #198754;
+            transition: all 0.15s ease-in-out;
+        }
+
+            .btn-ponuda:hover {
+                color: #fff;
+                background-color: #198754;
+            }
+    </style>
+}
 
 @section Scripts {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

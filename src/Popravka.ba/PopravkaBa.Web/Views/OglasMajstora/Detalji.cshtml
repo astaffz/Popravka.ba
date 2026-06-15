@@ -210,7 +210,7 @@
                            class="btn btn-outline-primary btn-sm">
                             <i class="fa-solid fa-pen-to-square me-1"></i>Uredi oglas
                         </a>
-                        <form asp-controller="OglasMajstora" asp-action="ObrisiOglas" method="post" class="confirm-form">
+                        <form asp-controller="OglasMajstora" asp-action="ObrisiOglas" method="post" class="confirm-form" novalidate>
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.OglasId" />
                             <button type="button" class="btn btn-outline-danger btn-sm w-100 confirm-btn"
