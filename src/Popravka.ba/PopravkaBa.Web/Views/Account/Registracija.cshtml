@@ -1025,6 +1025,10 @@
         }
     </script>
 
+    @* Ova stranica koristi Layout = null pa _Layout ne ubacuje site.js — uključujemo ga ručno
+       radi zaštite od dvostrukog slanja forme (double POST). *@
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
     @section Scripts {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="" crossorigin="anonymous"></script>
