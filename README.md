@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="ui-wip/assets/logo.png" alt="Popravka.ba logotip" width="300" height="200">
+  <img src="ui-wip/assets/logo.png" alt="Popravka.ba logotip" width=450 height=400 >
 </p>
 
-# Popravka.ba - Objektno orijentisana analiza i dizajn (2025/26)
+# Popravka.ba - Vaš online prostor za provjerene usluge
 
 </center>
 
-**Projekt razvijen u okviru navedenog kursa na studiju _"Računarstvo i informatika"_ na Elektrotehničkom fakultetu Univerziteta u Sarajevu**
+**Projekt razvijen u okviru kursa "Objektno orijentisana analiza i dizajn" na dodiplomskog studiju _"Računarstvo i informatika"_, Elektrotehnički fakultet Univerziteta u Sarajevu**
 
 ### Razvojni tim :
 
@@ -19,7 +19,7 @@
 
 ## Opis projekta:
 
-Popravka.ba je web-oglasnik kreiran sa ciljem olakšavanja pristupa provjerenim majstorima i servisnim uslugama u neposrednoj blizini korisnika.
+Popravka.ba je bosanskohercegovački web-oglasnik kreiran sa ciljem olakšavanja pristupa provjerenim majstorima i servisnim uslugama u neposrednoj blizini korisnika.
 
 ### Ključne funkcionalnosti uključuju:
 
