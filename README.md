@@ -43,7 +43,9 @@ Kompletna dokumentacija projekta održava se u `docs/` direktoriju, izvorni kod,
 ## Aplikacija je trenutno deployana na:
 https://popravka-ba.onrender.com/
 
-## Vanjski uređaji
+## Stack
 
-Projekt implementira Brevo API za SMTP notifikacije, te Amazon S3 API za skladištenje podataka na Cloudflare R2 cloud servisu.
-
+- **ASP.NET 8.0** — Razor Pages
+- **PostgreSQL**
+- **Cloudflare R2** — Skladištenje podataka (S3-kompatibilan API)
+- **Brevo** - Transakcijski email servis (SMTP)
