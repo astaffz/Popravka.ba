@@ -40,7 +40,8 @@ namespace PopravkaBa.Application.DTOs
 
         public List<VozackaDozvola>? VozackeDozvole { get; set; }
 
-        [MinLength(1, ErrorMessage = "Odaberite najmanje jednu kategoriju.")]
+        [Required(ErrorMessage = "Minimalno jedna kategorija.")]
+        [MinLength(1, ErrorMessage = "Minimalno jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
 
         // Opcionalna slika (URL postavlja kontroler nakon uploada)
@@ -86,7 +87,8 @@ namespace PopravkaBa.Application.DTOs
 
         public List<VozackaDozvola>? VozackeDozvole { get; set; }
 
-        [MinLength(1, ErrorMessage = "Odaberite najmanje jednu kategoriju.")]
+        [Required(ErrorMessage = "Minimalno jedna kategorija.")]
+        [MinLength(1, ErrorMessage = "Minimalno jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
 
         // Postojeća slika (zadržava se ako se ne uploaduje nova); URL nove postavlja kontroler

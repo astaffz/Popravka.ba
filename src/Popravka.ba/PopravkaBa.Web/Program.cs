@@ -18,6 +18,7 @@ using PopravkaBa.Infrastructure.Adapters.Options;
 using PopravkaBa.Infrastructure.BackgroundServices;
 using PopravkaBa.Infrastructure.Repositories;
 using PopravkaBa.Infrastructure.Seeders;
+using PopravkaBa.Web.Infrastructure;
 using System.Globalization;
 using System.Threading.RateLimiting;
 
@@ -54,7 +55,26 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LogoutPath = "/logout";
     options.AccessDeniedPath = "/login";
 });
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Bosanski tekst za implicitni [Required] na non-nullable reference tipovima
+    // (npr. List<int> KategorijeID) umjesto engleske default poruke.
+    options.ModelMetadataDetailsProviders.Add(new BosanskiValidationMetadataProvider());
+
+    // Bosanske poruke za greške model bindinga (npr. prazan <select> -> int/enum).
+    var poruke = options.ModelBindingMessageProvider;
+    poruke.SetValueIsInvalidAccessor(v => $"Vrijednost '{v}' nije validna.");
+    poruke.SetAttemptedValueIsInvalidAccessor((v, polje) => $"Vrijednost '{v}' nije validna za polje {polje}.");
+    poruke.SetValueMustBeANumberAccessor(polje => $"Polje {polje} mora biti broj.");
+    poruke.SetValueMustNotBeNullAccessor(v => "Vrijednost je obavezna.");
+    poruke.SetMissingBindRequiredValueAccessor(polje => $"Vrijednost za polje {polje} nije poslana.");
+    poruke.SetMissingKeyOrValueAccessor(() => "Vrijednost je obavezna.");
+    poruke.SetMissingRequestBodyRequiredValueAccessor(() => "Tijelo zahtjeva ne smije biti prazno.");
+    poruke.SetUnknownValueIsInvalidAccessor(polje => $"Poslana vrijednost za polje {polje} nije validna.");
+    poruke.SetNonPropertyAttemptedValueIsInvalidAccessor(v => $"Vrijednost '{v}' nije validna.");
+    poruke.SetNonPropertyUnknownValueIsInvalidAccessor(() => "Poslana vrijednost nije validna.");
+    poruke.SetNonPropertyValueMustBeANumberAccessor(() => "Vrijednost mora biti broj.");
+});
 
 // Dodaj rate limiter
 builder.Services.AddRateLimiter(options =>

@@ -22,6 +22,7 @@ namespace PopravkaBa.Application.DTOs
         [Required(ErrorMessage = "Tip isplate je obavezan.")]
         public TipIsplate TipIsplate { get; set; }
 
+        [Required(ErrorMessage = "Minimalno jedna kategorija.")]
         [MinLength(1, ErrorMessage = "Minimalno jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
 
@@ -52,6 +53,7 @@ namespace PopravkaBa.Application.DTOs
         [Required(ErrorMessage = "Tip isplate je obavezan.")]
         public TipIsplate TipIsplate { get; set; }
 
+        [Required(ErrorMessage = "Minimalno jedna kategorija.")]
         [MinLength(1, ErrorMessage = "Minimalno jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
 

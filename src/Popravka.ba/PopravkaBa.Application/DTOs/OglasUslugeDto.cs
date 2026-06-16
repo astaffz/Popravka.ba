@@ -40,6 +40,7 @@ namespace PopravkaBa.Application.DTOs
         [Range(0, int.MaxValue, ErrorMessage = "Maksimalan budžet ne može biti negativan.")]
         public int MaxBudzet { get; set; }
 
+        [Required(ErrorMessage = "Odaberite najmanje jednu kategoriju.")]
         [MinLength(1, ErrorMessage = "Najmanje jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
 
@@ -71,6 +72,7 @@ namespace PopravkaBa.Application.DTOs
         [Range(1, int.MaxValue, ErrorMessage = "Maksimalni budžet mora biti veći od nule.")]
         public int MaxBudzet { get; set; }
 
+        [Required(ErrorMessage = "Odaberite najmanje jednu kategoriju.")]
         [MinLength(1, ErrorMessage = "Najmanje jedna kategorija.")]
         public List<int> KategorijeID { get; set; }
 

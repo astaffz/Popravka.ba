@@ -97,7 +97,10 @@ namespace PopravkaBa.Infrastructure.Repositories
             if (zaBrisanje.Count > 0)
                 _context.PortfolioSlika.RemoveRange(zaBrisanje);
 
-            foreach (var nova in zeljene)
+            // Dodaj samo zaista nove slike (PortfolioSlikaID == 0). Postojeće su već
+            // praćene i sačuvane — ponovni Add bi pokušao INSERT s postojećim PK-om i
+            // srušio spremanje (zbog čega uređivanje nije radilo kad portfolio već ima slike).
+            foreach (var nova in zeljene.Where(s => s.PortfolioSlikaID == 0))
             {
                 nova.IzvrsilacID = izvrsilac.Id;
                 await _context.PortfolioSlika.AddAsync(nova);
