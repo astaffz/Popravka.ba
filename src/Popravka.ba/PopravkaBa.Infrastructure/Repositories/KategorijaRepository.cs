@@ -55,13 +55,16 @@ namespace PopravkaBa.Infrastructure.Repositories
    
         public async Task DodajKategorijeIzvrsiocu(string izvrsilacId, List<int> kategorijeID)
         {
-            var newIzvrsilacKategorijeRows = kategorijeID.Select(kid => new IzvrsilacKategorija
+            var existingRows = await _context.IzvrsilacKategorija.
+                Where(ik => ik.IzvrsilacID == izvrsilacId).Select(ik => ik.KategorijaID).ToListAsync();
+
+            var adding = kategorijeID.Where(kid => !existingRows.Contains(kid)).Select(kid => new IzvrsilacKategorija
             {
                 IzvrsilacID = izvrsilacId,
                 KategorijaID = kid
             });
 
-            await _context.IzvrsilacKategorija.AddRangeAsync(newIzvrsilacKategorijeRows);
+            await _context.IzvrsilacKategorija.AddRangeAsync(adding);
             await _context.SaveChangesAsync();
         }
 

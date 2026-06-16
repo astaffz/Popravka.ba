@@ -331,14 +331,14 @@ namespace PopravkaBa.Web.Controllers
 
             if (korisnikUloga == "Firma")
             {
-                // Firma nema ime/prezime — uklanja Required greške za ta polja
+               
                 ModelState.Remove(nameof(vm.Ime));
                 ModelState.Remove(nameof(vm.Prezime));
 
                 if (string.IsNullOrWhiteSpace(vm.NazivFirme))
                     ModelState.AddModelError(nameof(vm.NazivFirme), "Naziv firme je obavezan.");
 
-                // Radno vrijeme je opcionalno, ali ako se unosi — oba vremena i ispravan redoslijed
+  
                 var otvorenoOd = vm.RadnoVrijeme?.OtvorenoOd;
                 var otvorenoDo = vm.RadnoVrijeme?.OtvorenoDo;
                 if (otvorenoOd.HasValue != otvorenoDo.HasValue)
@@ -377,7 +377,7 @@ namespace PopravkaBa.Web.Controllers
                     }
                 }
 
-                // Firma polja (naziv, veličina, radno vrijeme); ime i prezime se ne diraju
+                
                 if (korisnik is Firma firma)
                 {
                     firma.NazivFirme = vm.NazivFirme!;
@@ -422,7 +422,7 @@ namespace PopravkaBa.Web.Controllers
                     return View(vm);
                 }
 
-                // Promjena korisničkog imena poništava cookie — osvježi prijavu.
+               
                 // Samo kad korisnik uređuje vlastiti profil (inače bi admina prebacilo na tuđi nalog).
                 if (uredjujeVlastiti)
                     await _signInManager.RefreshSignInAsync(korisnik);
@@ -430,9 +430,9 @@ namespace PopravkaBa.Web.Controllers
                 var uloge = await _userManager.GetRolesAsync(korisnik);
                 var uloga = uloge.FirstOrDefault() ?? "Korisnik";
 
-                if (uloga == "Majstor" || uloga == "Firma")
+                if (korisnik is IzvrsilacUsluge)
                 {
-                    // Lokacije i kategorije izvršioca (više vrijednosti — kao u pretrazi)
+                   
                     await _mjestoService.AzurirajMjestaKorisnika(korisnik.Id, vm.SelectedMjestaId ?? new());
                     await _kategorijaService.AzurirajKategorijeIzvrsioca(korisnik.Id, vm.SelectedKategorijeId ?? new());
 

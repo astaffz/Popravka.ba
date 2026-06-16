@@ -31,7 +31,7 @@ namespace PopravkaBa.Application.Services
         {
             var oglasId = await _oglasService.ObjaviOglas(dto, vlasnikId);
             await _kategorijaService.DodajKategorijeOglasu(oglasId, dto.KategorijeID);
-            // Add categories to master's profile if not already present
+           
             if (dto.KategorijeID?.Any() == true)
                 await _kategorijaService.DodajKategorijeIzvrsiocu(vlasnikId, dto.KategorijeID);
             return oglasId;

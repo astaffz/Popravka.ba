@@ -20,7 +20,7 @@ namespace PopravkaBa.Web.Controllers
         private readonly ILogger<ObjaviOglasController> _logger;
 
         private static readonly string[] DozvoljeniFormati = { ".jpg", ".jpeg", ".png", ".webp" };
-        private const long MaxSlikaVelicina = 5 * 1024 * 1024; // 5MB
+        private const long MaxSlikaVelicina = 5 * 1024 * 1024;
 
         public ObjaviOglasController(
             IOglasUslugeFacade uslugeService,
@@ -40,7 +40,6 @@ namespace PopravkaBa.Web.Controllers
             _logger = logger;
         }
 
-        // Vraća javni URL ako je slika validna; null ako nema slike; baca poruku kroz ModelState ako je nevalidna.
         private async Task<string?> UploadSlikeAsync(IFormFile? slika, CancellationToken ct)
         {
             if (slika is not { Length: > 0 }) return null;
@@ -79,7 +78,7 @@ namespace PopravkaBa.Web.Controllers
             {
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "usluge";
-                return View("Index");
+                return View("Index", dto);
             }
             try
             {
@@ -94,7 +93,7 @@ namespace PopravkaBa.Web.Controllers
                 TempData["Error"] = "Greška pri objavi oglasa.";
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "usluge";
-                return View("Index");
+                return View("Index", dto);
             }
         }
 
@@ -109,7 +108,7 @@ namespace PopravkaBa.Web.Controllers
             {
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "majstora";
-                return View("Index");
+                return View("Index", dto);
             }
             try
             {
@@ -123,7 +122,7 @@ namespace PopravkaBa.Web.Controllers
                 TempData["Error"] = ex.Message;
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "majstora";
-                return View("Index");
+                return View("Index", dto);
             }
             catch (Exception ex)
             {
@@ -131,7 +130,7 @@ namespace PopravkaBa.Web.Controllers
                 TempData["Error"] = "Greška pri objavi oglasa.";
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "majstora";
-                return View("Index");
+                return View("Index", dto);
             }
         }
 
@@ -140,7 +139,6 @@ namespace PopravkaBa.Web.Controllers
         [Authorize(Roles = "Firma,Administrator")]
         public async Task<IActionResult> ObjaviOglasRadnoMjesto(ObjaviOglasRadnoMjestoDto dto, IFormFile? slika, CancellationToken ct = default)
         {
-            // Filtriramo prazne uvjete
             dto.Uvjeti = dto.Uvjeti?.Where(u => !string.IsNullOrWhiteSpace(u)).ToList() ?? new();
 
             dto.Slika = await UploadSlikeAsync(slika, ct);
@@ -149,7 +147,7 @@ namespace PopravkaBa.Web.Controllers
             {
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "radnomjesto";
-                return View("Index");
+                return View("Index", dto);
             }
             try
             {
@@ -164,7 +162,7 @@ namespace PopravkaBa.Web.Controllers
                 TempData["Error"] = "Greška pri objavi oglasa.";
                 await UcitajViewBag();
                 ViewBag.AktivniTab = "radnomjesto";
-                return View("Index");
+                return View("Index", dto);
             }
         }
 

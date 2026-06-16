@@ -1,3 +1,4 @@
+@using PopravkaBa.Application.DTOs
 @using PopravkaBa.Domain.Enums
 @using PopravkaBa.Domain.Models
 @using PopravkaBa.Web.Models.ViewModels
@@ -8,13 +9,17 @@
     var mjesta = (ViewBag.Mjesta as IEnumerable<Mjesto>) ?? Enumerable.Empty<Mjesto>();
     string aktivniTab = ViewBag.AktivniTab ?? "usluge";
 
+    var uslugeModel      = Model as ObjaviOglasUslugeDto;
+    var majstoraModel    = Model as ObjaviOglasMajstoraDto;
+    var radnoMjestoModel = Model as ObjaviOglasRadnoMjestoDto;
+
     bool mozeUsluge      = User.IsInRole("Klijent") || User.IsInRole("Administrator");
     bool mozeMajstora    = User.IsInRole("Majstor") || User.IsInRole("Firma") || User.IsInRole("Administrator");
     bool mozeRadnoMjesto = User.IsInRole("Firma") || User.IsInRole("Administrator");
 
-    var msUsluge      = new KategorijeMultiSelectModel { Kategorije = kategorije, InputName = "KategorijeID" };
-    var msMajstora    = new KategorijeMultiSelectModel { Kategorije = kategorije, InputName = "KategorijeID" };
-    var msRadnoMjesto = new KategorijeMultiSelectModel { Kategorije = kategorije, InputName = "KategorijeID" };
+    var msUsluge      = new KategorijeMultiSelectModel { Kategorije = kategorije, InputName = "KategorijeID", Selektovano = uslugeModel?.KategorijeID ?? new() };
+    var msMajstora    = new KategorijeMultiSelectModel { Kategorije = kategorije, InputName = "KategorijeID", Selektovano = majstoraModel?.KategorijeID ?? new() };
+    var msRadnoMjesto = new KategorijeMultiSelectModel { Kategorije = kategorije, InputName = "KategorijeID", Selektovano = radnoMjestoModel?.KategorijeID ?? new() };
 }
 
 <div class="container mt-4 mb-5" style="max-width:800px;">
@@ -87,7 +92,7 @@
                     </h5>
                     <div class="mb-3">
                         <label class="form-label fw-medium">Naziv posla</label>
-                        <input type="text" name="Naslov" class="form-control" placeholder="npr. Popravka vodovodnih cijevi" required />
+                        <input type="text" name="Naslov" class="form-control" value="@uslugeModel?.Naslov" placeholder="npr. Popravka vodovodnih cijevi" required />
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -100,7 +105,7 @@
                                 <option value="">Odaberite grad...</option>
                                 @foreach (var m in mjesta)
                                 {
-                                    <option value="@m.MjestoID">@m.Naziv</option>
+                                    <option value="@m.MjestoID" selected="@(uslugeModel?.MjestoID == m.MjestoID)">@m.Naziv</option>
                                 }
                             </select>
                         </div>
@@ -116,7 +121,7 @@
                     </h5>
                     <label class="form-label fw-medium">Opis posla</label>
                     <textarea name="Opis" class="form-control" rows="5" required
-                              placeholder="Opišite šta je potrebno uraditi, stanje, pristup i sve što smatrate važnim za izvršioca..."></textarea>
+                              placeholder="Opišite šta je potrebno uraditi, stanje, pristup i sve što smatrate važnim za izvršioca...">@uslugeModel?.Opis</textarea>
                 </div>
             </div>
 
@@ -130,14 +135,14 @@
                         <div class="col-md-6">
                             <label class="form-label fw-medium">Minimalni budžet (KM)</label>
                             <div class="input-group">
-                                <input type="number" name="MinBudzet" class="form-control" min="0" placeholder="npr. 100" />
+                                <input type="number" name="MinBudzet" class="form-control" min="0" value="@(uslugeModel?.MinBudzet)" placeholder="npr. 100" />
                                 <span class="input-group-text">KM</span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-medium">Maksimalni budžet (KM)</label>
                             <div class="input-group">
-                                <input type="number" name="MaxBudzet" class="form-control" min="0" placeholder="npr. 500" />
+                                <input type="number" name="MaxBudzet" class="form-control" min="0" value="@(uslugeModel?.MaxBudzet)" placeholder="npr. 500" />
                                 <span class="input-group-text">KM</span>
                             </div>
                         </div>
@@ -176,7 +181,7 @@
                     </h5>
                     <div class="mb-3">
                         <label class="form-label fw-medium">Naziv usluge</label>
-                        <input type="text" name="Naslov" class="form-control" placeholder="npr. Vodoinstalaterske usluge" required />
+                        <input type="text" name="Naslov" class="form-control" value="@majstoraModel?.Naslov" placeholder="npr. Vodoinstalaterske usluge" required />
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -189,7 +194,7 @@
                                 <option value="">Odaberite grad...</option>
                                 @foreach (var m in mjesta)
                                 {
-                                    <option value="@m.MjestoID">@m.Naziv</option>
+                                    <option value="@m.MjestoID" selected="@(majstoraModel?.MjestoID == m.MjestoID)">@m.Naziv</option>
                                 }
                             </select>
                         </div>
@@ -204,7 +209,7 @@
                         Opis usluge
                     </h5>
                     <textarea name="Opis" class="form-control" rows="5" required
-                              placeholder="Opišite usluge koje nudite, iskustvo, opremu i certifikate..."></textarea>
+                              placeholder="Opišite usluge koje nudite, iskustvo, opremu i certifikate...">@majstoraModel?.Opis</textarea>
                 </div>
             </div>
 
@@ -218,17 +223,17 @@
                         <div class="col-md-6">
                             <label class="form-label fw-medium">Cijena od (KM)</label>
                             <div class="input-group">
-                                <input type="number" name="MinCijena" class="form-control" min="0" step="0.5" placeholder="npr. 25" />
+                                <input type="number" name="MinCijena" class="form-control" min="0" step="0.5" value="@(majstoraModel?.MinCijena)" placeholder="npr. 25" />
                                 <span class="input-group-text">KM</span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-medium">Tip isplate</label>
                             <select name="TipIsplate" class="form-select" required>
-                                <option value="1">Po satu</option>
-                                <option value="0">Jednokratno (fiksno)</option>
-                                <option value="2">Sedmično</option>
-                                <option value="3">Mjesečno</option>
+                                <option value="1" selected="@((int?)majstoraModel?.TipIsplate == 1)">Po satu</option>
+                                <option value="0" selected="@((int?)majstoraModel?.TipIsplate == 0)">Jednokratno (fiksno)</option>
+                                <option value="2" selected="@((int?)majstoraModel?.TipIsplate == 2)">Sedmično</option>
+                                <option value="3" selected="@((int?)majstoraModel?.TipIsplate == 3)">Mjesečno</option>
                             </select>
                         </div>
                     </div>
@@ -257,6 +262,10 @@
     {
         <form asp-controller="ObjaviOglas" asp-action="ObjaviOglasRadnoMjesto" method="post" enctype="multipart/form-data" novalidate>
             @Html.AntiForgeryToken()
+            @{
+                var uvjeti = radnoMjestoModel?.Uvjeti ?? new List<string>();
+                var tipRm = (int?)radnoMjestoModel?.TipIsplate ?? 3;
+            }
 
             <div class="card border-0 shadow-sm mb-3">
                 <div class="card-body p-4">
@@ -266,7 +275,7 @@
                     </h5>
                     <div class="mb-3">
                         <label class="form-label fw-medium">Naziv radnog mjesta</label>
-                        <input type="text" name="Naslov" class="form-control" placeholder="npr. Komercijalni prevoznik/ica" required />
+                        <input type="text" name="Naslov" class="form-control" value="@radnoMjestoModel?.Naslov" placeholder="npr. Komercijalni prevoznik/ica" required />
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -279,7 +288,7 @@
                                 <option value="">Odaberite grad...</option>
                                 @foreach (var m in mjesta)
                                 {
-                                    <option value="@m.MjestoID">@m.Naziv</option>
+                                    <option value="@m.MjestoID" selected="@(radnoMjestoModel?.MjestoID == m.MjestoID)">@m.Naziv</option>
                                 }
                             </select>
                         </div>
@@ -293,7 +302,7 @@
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" name="VrstaZaposlenja"
                                                id="vz_@vz" value="@((int)vz)" required
-                                               @(vz == VrstaZaposlenja.PunoRadnoVrijeme ? "checked" : "") />
+                                               @(vz == (radnoMjestoModel?.VrstaZaposlenja ?? VrstaZaposlenja.PunoRadnoVrijeme) ? "checked" : "") />
                                         <label class="form-check-label" for="vz_@vz">
                                             @(vz switch {
                                                 VrstaZaposlenja.PunoRadnoVrijeme  => "Stalni radni odnos",
@@ -310,7 +319,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-medium">Broj izvršilaca</label>
-                            <input type="number" name="BrojIzvrsilaca" class="form-control" min="1" value="1" required />
+                            <input type="number" name="BrojIzvrsilaca" class="form-control" min="1" value="@(radnoMjestoModel?.BrojIzvrsilaca ?? 1)" required />
                         </div>
                     </div>
                 </div>
@@ -325,12 +334,12 @@
                     <div class="mb-3">
                         <label class="form-label fw-medium">Opis radnog mjesta</label>
                         <textarea name="Opis" class="form-control" rows="5" required maxlength="800"
-                                  placeholder="Opišite radno mjesto, odgovornosti, radno okruženje i sve što smatrate važnim za kandidata..."></textarea>
+                                  placeholder="Opišite radno mjesto, odgovornosti, radno okruženje i sve što smatrate važnim za kandidata...">@radnoMjestoModel?.Opis</textarea>
                     </div>
                     <label class="form-label fw-medium">Uvjeti <span class="text-muted fw-normal">(opcionalno, max 3)</span></label>
-                    <input type="text" name="Uvjeti" class="form-control mb-2" placeholder="npr. Vozačka dozvola kategorije C/CE" />
-                    <input type="text" name="Uvjeti" class="form-control mb-2" placeholder="npr. CMR dokumentacija prednost" />
-                    <input type="text" name="Uvjeti" class="form-control" placeholder="Dodatni uvjet" />
+                    <input type="text" name="Uvjeti" class="form-control mb-2" value="@(uvjeti.Count > 0 ? uvjeti[0] : null)" placeholder="npr. Vozačka dozvola kategorije C/CE" />
+                    <input type="text" name="Uvjeti" class="form-control mb-2" value="@(uvjeti.Count > 1 ? uvjeti[1] : null)" placeholder="npr. CMR dokumentacija prednost" />
+                    <input type="text" name="Uvjeti" class="form-control" value="@(uvjeti.Count > 2 ? uvjeti[2] : null)" placeholder="Dodatni uvjet" />
 
                     <label class="form-label fw-medium mt-3">Tražene vozačke dozvole <span class="text-muted fw-normal">(opcionalno)</span></label>
                     <div class="d-flex flex-wrap gap-2 mt-1">
@@ -338,7 +347,7 @@
                         {
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" name="VozackeDozvole"
-                                       id="vd_@vd" value="@vd" />
+                                       id="vd_@vd" value="@vd" @(radnoMjestoModel?.VozackeDozvole?.Contains(vd) == true ? "checked" : "") />
                                 <label class="form-check-label" for="vd_@vd">@(vd == VozackaDozvola.Sve ? "Sve kategorije" : vd.ToString())</label>
                             </div>
                         }
@@ -355,19 +364,19 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label fw-medium">Minimalni prihod (KM)</label>
-                            <input type="number" name="MinPrihod" class="form-control" min="0" placeholder="1500" />
+                            <input type="number" name="MinPrihod" class="form-control" min="0" value="@(radnoMjestoModel?.MinPrihod)" placeholder="1500" />
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-medium">Maksimalni prihod (KM)</label>
-                            <input type="number" name="MaxPrihod" class="form-control" min="0" placeholder="2200" />
+                            <input type="number" name="MaxPrihod" class="form-control" min="0" value="@(radnoMjestoModel?.MaxPrihod)" placeholder="2200" />
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-medium">Period isplate</label>
                             <select name="TipIsplate" class="form-select" required>
-                                <option value="3" selected>Mjesečno</option>
-                                <option value="2">Sedmično</option>
-                                <option value="1">Po satu</option>
-                                <option value="0">Jednokratno</option>
+                                <option value="3" selected="@(tipRm == 3)">Mjesečno</option>
+                                <option value="2" selected="@(tipRm == 2)">Sedmično</option>
+                                <option value="1" selected="@(tipRm == 1)">Po satu</option>
+                                <option value="0" selected="@(tipRm == 0)">Jednokratno</option>
                             </select>
                         </div>
                     </div>
